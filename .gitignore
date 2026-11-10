@@ -24,3 +24,4 @@
 .DS_Store
 /vendor/
 /node_modules/
+/wp-content/index.php
