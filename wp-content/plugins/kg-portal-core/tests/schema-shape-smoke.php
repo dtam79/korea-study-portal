@@ -33,6 +33,7 @@ foreach ($sql as $query) {
     ensure(str_contains($query, 'PRIMARY KEY  ('), 'dbDelta primary key format mismatch');
     ensure(str_contains($query, 'DEFAULT CHARACTER SET utf8mb4'), 'Missing character set');
     ensure(!str_contains($query, 'FOREIGN KEY'), 'dbDelta must not receive FK definitions');
+    ensure(!preg_match('/\brow_number\s+int\b/i', $query), 'Do not use reserved ROW_NUMBER as an unquoted column');
 }
 $must = ['field_entries', 'field_versions', 'field_version_sources', 'translations', 'offering_search', 'inquiries', 'audit_events'];
 foreach ($must as $key) {
