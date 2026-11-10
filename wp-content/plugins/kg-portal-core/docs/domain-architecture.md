@@ -36,3 +36,7 @@ There is no public endpoint in this release; public getters are PHP services for
 - The `offering_search` table is not populated. Publishing deliberately clears its `is_public` flag for a touched offering, preventing stale public projections. A future indexing service must rebuild it from approved data.
 - The 19 original tables are not all serviced by this patch. CSV, inquiry, scheduled rechecks, full translation editing, audit viewing and restoration will be implemented in their respective tasks.
 - As required by the specifications, nobody should build direct REST endpoints over private source entities or use unapproved raw values in Kadence.
+
+## v0.4.0 addition — official entity identity snapshots
+
+Because base metadata is editable, the public catalog now requires the versioned `kgp_entity_publications` review record and verifies the linked source each time it reads. It does not trust the private entity base table or stale `offering_search` flags. This reduces the risk of accidentally exposing unapproved edits. For complete API contracts and permission descriptions see `api-v1.md`.

@@ -180,7 +180,7 @@ final class KGP_Entity_Repository {
         // This private repository may be read by an assigned editor or by a reviewer.
         // Never expose raw entity rows through a public REST route.
         $row = KGP_DB::require_row(self::ENTITY_TABLE[$type], $id);
-        if (!current_user_can('kgp_review_entries')) {
+        if (!current_user_can('kgp_review_entries') && !current_user_can('kgp_manage_assignments')) {
             KGP_Access::require_edit_for(self::university_id($type, $id));
         }
         $row['revision'] = self::revision($type, $id);

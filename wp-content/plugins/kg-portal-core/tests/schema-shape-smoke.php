@@ -20,7 +20,7 @@ $tables = KGP_Schema::names();
 $sql = KGP_Schema::sql();
 $sections = KGP_Field_Catalog::sections();
 
-ensure(count($tables) === 19, 'Expected 19 KGP tables');
+ensure(count($tables) === 20, 'Expected 20 KGP tables');
 ensure(count($sql) === count($tables), 'SQL/table list does not match');
 ensure(count($sections) === 14, 'All 14 DET sections are required');
 for ($i = 1; $i <= 14; ++$i) {
@@ -35,7 +35,7 @@ foreach ($sql as $query) {
     ensure(!str_contains($query, 'FOREIGN KEY'), 'dbDelta must not receive FK definitions');
     ensure(!preg_match('/\brow_number\s+int\b/i', $query), 'Do not use reserved ROW_NUMBER as an unquoted column');
 }
-$must = ['field_entries', 'field_versions', 'field_version_sources', 'translations', 'offering_search', 'inquiries', 'audit_events'];
+$must = ['field_entries', 'field_versions', 'field_version_sources', 'translations', 'offering_search', 'inquiries', 'audit_events', 'entity_publications'];
 foreach ($must as $key) {
     ensure(isset($tables[$key]), 'Missing structure: ' . $key);
 }

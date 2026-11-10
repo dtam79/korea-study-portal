@@ -8,7 +8,7 @@
 defined('ABSPATH') || exit;
 
 final class KGP_Schema {
-    public const VERSION = '2026.11.10.1';
+    public const VERSION = '2026.11.10.2';
     public const OPTION = 'kgp_db_schema_version';
 
     public static function activate(): void {
@@ -27,6 +27,7 @@ final class KGP_Schema {
             'field_version_sources', 'translations', 'offering_search',
             'user_assignments', 'audit_events', 'import_batches',
             'import_rows', 'inquiries', 'inquiry_events', 'recheck_tasks',
+            'entity_publications',
         ];
         $result = [];
         foreach ($suffixes as $suffix) {
@@ -310,6 +311,29 @@ final class KGP_Schema {
                 PRIMARY KEY  (id),
                 UNIQUE KEY batch_row (batch_id,csv_row_number),
                 KEY batch_status (batch_id,status)
+            ) $cc;",
+            "CREATE TABLE {$t['entity_publications']} (
+                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                entity_type varchar(32) NOT NULL,
+                entity_id bigint(20) unsigned NOT NULL,
+                lock_version bigint(20) unsigned NOT NULL DEFAULT 0,
+                draft_json longtext NULL,
+                draft_source_id bigint(20) unsigned DEFAULT NULL,
+                draft_source_locator varchar(500) DEFAULT NULL,
+                draft_revision bigint(20) unsigned DEFAULT NULL,
+                draft_status varchar(24) NOT NULL DEFAULT 'none',
+                draft_by bigint(20) unsigned DEFAULT NULL,
+                draft_at datetime DEFAULT NULL,
+                rejection_reason text NULL,
+                published_json longtext NULL,
+                published_source_id bigint(20) unsigned DEFAULT NULL,
+                published_source_locator varchar(500) DEFAULT NULL,
+                published_by bigint(20) unsigned DEFAULT NULL,
+                published_at datetime DEFAULT NULL,
+                PRIMARY KEY  (id),
+                UNIQUE KEY unique_entity (entity_type,entity_id),
+                KEY published_source (published_source_id),
+                KEY draft_status (draft_status)
             ) $cc;",
             "CREATE TABLE {$t['inquiries']} (
                 id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
