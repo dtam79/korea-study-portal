@@ -11,7 +11,6 @@ function kgp_fe_register_routes(): void {
         '^(ko|en)/guides/?$' => 'index.php?kgp_screen=guides&kgp_lang=$matches[1]',
         '^(ko|en)/guides/([a-z0-9-]+)/?$' => 'index.php?kgp_screen=guide&kgp_lang=$matches[1]&kgp_guide=$matches[2]',
         '^(ko|en)/faq/?$' => 'index.php?kgp_screen=faq&kgp_lang=$matches[1]',
-        '^(ko|en)/contact/?$' => 'index.php?kgp_screen=contact&kgp_lang=$matches[1]',
     ];
     foreach ($rules as $pattern => $target) add_rewrite_rule($pattern, $target, 'top');
 }
@@ -61,9 +60,37 @@ function kgp_fe_switch_url(string $lang): string {
 
 /** New installations open at the localized public home, never a WP demo blog. */
 add_action('template_redirect', static function (): void {
-    if (is_admin() || kgp_fe_is_public_route()) return;
-    if (is_front_page() && !is_paged()) {
-        wp_safe_redirect(kgp_fe_url('ko'), 302);
-        exit;
+    if (is_admin() || kgp_fe_is_public_route()) {
+        return;
     }
+
+    // 문의 페이지는 리다이렉션하지 않음
+    if (
+        get_query_var('kgpa_contact') ||
+        get_query_var('kgpa_contact_done')
+    ) {
+        return;
+    }
+
+    // 실제 사이트 최상위 경로에 접속했을 때만 /ko/로 이동
+    $request_path = wp_parse_url(
+        $_SERVER['REQUEST_URI'] ?? '/',
+        PHP_URL_PATH
+    );
+
+    $home_path = wp_parse_url(
+        home_url('/'),
+        PHP_URL_PATH
+    );
+
+    if (
+        !is_string($request_path) ||
+        !is_string($home_path) ||
+        trailingslashit($request_path) !== trailingslashit($home_path)
+    ) {
+        return;
+    }
+
+    wp_safe_redirect(kgp_fe_url('ko'), 302);
+    exit;
 }, 20);
