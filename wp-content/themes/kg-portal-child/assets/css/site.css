@@ -114,3 +114,51 @@ body.kgp-public .kgp-source-meta {display:block;color:var(--kg-subtle);font-size
 body.kgp-public .kgp-footer {border-top:1px solid var(--kg-line);padding:20px;color:var(--kg-subtle);font-size:.75rem;line-height:1.5;}
 @media (max-width:390px) {body.kgp-public main {padding:16px 16px 35px;}body.kgp-public .kgp-header-line {padding:17px 16px 11px;}body.kgp-public .kgp-brand strong {font-size:.88rem;}body.kgp-public .kgp-brand small {font-size:.61rem;}body.kgp-public .kgp-range {grid-template-columns:1fr;}body.kgp-public .kgp-pairs>div {grid-template-columns:98px minmax(0,1fr);}}
 @media (prefers-reduced-motion: reduce) {body.kgp-public *,body.kgp-public *::before,body.kgp-public *::after {scroll-behavior:auto!important;transition:none!important;animation:none!important;}}
+
+/* KGP SINGLE SOURCE SHARED FOOTER v1 */
+/* These rules apply to all P01-P10 pages through the FE child theme CSS. */
+body.kgp-public .kgp-shell > footer.kgp-footer,
+.kgp-shell > footer.kgp-footer {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 18px 20px 22px;
+  border-top: 1px solid #cbd5e1;
+  background: #fff;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: left;
+}
+body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-disclaimer,
+.kgp-shell > footer.kgp-footer .kgp-footer-disclaimer {
+  margin: 0 0 9px;
+  color: #475569;
+  font-weight: 400;
+}
+body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-links,
+.kgp-shell > footer.kgp-footer .kgp-footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-links a,
+.kgp-shell > footer.kgp-footer .kgp-footer-links a {
+  color: #334155;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-links a:hover,
+.kgp-shell > footer.kgp-footer .kgp-footer-links a:hover { color: #1d4ed8; }
+body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-links a:focus-visible,
+.kgp-shell > footer.kgp-footer .kgp-footer-links a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+@media (max-width: 390px) {
+  body.kgp-public .kgp-shell > footer.kgp-footer,
+  .kgp-shell > footer.kgp-footer { padding: 16px 16px 20px; }
+}

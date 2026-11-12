@@ -56,10 +56,7 @@ elseif ($screen==='contact') kgp_fe_screen_pending(kgp_fe_t('nav.contact','Conta
 else kgp_fe_notice(kgp_fe_t('state.not_found','Page not found.'),'error');
 ?>
 </main>
-<footer class="kgp-footer">
-    <p><?php echo esc_html(kgp_fe_t('footer.disclaimer','This portal summarizes verified public information. Apply only on official university websites.')); ?></p>
-    <p><?php echo esc_html(kgp_fe_t('footer.scope','Dates, amounts and conditions are valid only for the cited program and intake.')); ?></p>
-</footer>
+<?php require get_stylesheet_directory() . '/partials/kgp-footer.php'; ?>
 </div>
 <?php wp_footer(); ?>
 </body>
