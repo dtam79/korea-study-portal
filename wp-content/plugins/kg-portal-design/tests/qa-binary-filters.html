@@ -1,0 +1,34 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boolean filter UX QA · synthetic only</title>
+<link rel="stylesheet" href="/assets/public.css"><link rel="stylesheet" href="/assets/refresh.css">
+<style>html,body{margin:0}.kgp-shell main{padding:24px 16px}.qa-note{color:#475569;font-size:13px}.kgp-filter-panel form{display:grid;gap:16px}.kgp-filter-panel form>label{display:flex;flex-direction:column;gap:4px}.qa-status{font-size:12px;color:#475569}</style>
+</head><body class="kgp-public kgds-filter-route"><div class="kgp-shell"><header class="kgp-site-header"><div class="kgp-header-line"><a class="kgp-brand" href="#"><span class="kgp-brand-symbol">K</span><span class="kgp-brand-copy"><strong>한국 대학 유학 정보 포털</strong><small>공식 대학 정보 안내</small></span></a></div></header><main><h1>대학 찾기</h1><label>검색어<input type="search" name="q" value="KAIST"></label><p class="qa-note">가상 필터 UI 테스트 · 실제 검색 및 DB에 연결되지 않습니다.</p>
+<details class="kgp-filter-panel" open><summary>조건별 필터</summary><form id="qa-form" action="#" onsubmit="event.preventDefault()">
+<label for="cert">인증대학 여부</label><select name="certified" id="cert"><option value="">전체</option><option value="1" selected>예</option><option value="0">아니요</option></select>
+<label for="eng">100% 영어 학위 과정</label><select name="english_only" id="eng"><option value="">전체</option><option value="1">예</option><option value="0">아니요</option></select>
+<label>지역<select name="region"><option value="">전체 지역</option><option value="seoul" selected>서울</option></select></label><label>정렬 기준<select name="sort"><option>대학명순</option></select></label><button type="reset">필터 초기화</button>
+</form></details><p class="qa-status" id="qa-status">Testing...</p></main></div>
+<script>history.replaceState(null,'','/ko/universities/');</script><script src="/assets/filter-controls.js"></script>
+<script>
+window.addEventListener('load',()=>setTimeout(()=>{
+  const opts=[...document.querySelectorAll('.kgds-bool-options')];
+  const cert=document.getElementById('cert'),english=document.getElementById('eng');
+  const summary=[];
+  function ok(test,description){summary.push((test?'PASS: ':'FAIL: ')+description);}
+  ok(opts.length===2,'Both boolean segments present');
+  ok(opts.every(x=>x.querySelectorAll('button').length===2),'Only two choices per segment');
+  ok(opts[0]?.textContent==='인증전체 보기','Certification choice labels');
+  ok(opts[1]?.textContent==='100% 영어 학위전체 보기','English degree choice labels');
+  let n=0;cert.addEventListener('change',()=>n++);
+  opts[0]?.querySelectorAll('button')[0]?.click();
+  ok(cert.value==='1'&&n===1,'Certification yes preserves native change');
+  opts[0]?.querySelectorAll('button')[1]?.click();
+  ok(cert.value===''&&n===2,'All sets unfiltered native value');
+  opts[1]?.querySelectorAll('button')[0]?.click();
+  ok(english.value==='1','English-only yes maps to native yes');
+  opts[1]?.querySelectorAll('button')[1]?.click();
+  ok(english.value==='','English all maps to no restriction');
+  document.getElementById('qa-status').textContent=summary.join(' | ');
+  document.getElementById('qa-status').dataset.passed=String(summary.every(x=>x.startsWith('PASS')));
+},50));
+</script></body></html>

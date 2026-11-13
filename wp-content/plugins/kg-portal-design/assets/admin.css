@@ -1,0 +1,176 @@
+/* KG Portal Design System v1.1.0 — Private A01–A09, content/review, operations. */
+body.kgds-ui-admin{
+ --kg-ui-primary:#1d4ed8;--kg-ui-hover:#1e40af;--kg-ui-ink:#0f172a;
+ --kg-ui-muted:#475569;--kg-ui-border:#cbd5e1;--kg-ui-surface:#f8fafc;
+ --kg-ui-focus:#2563eb;--kg-ui-danger:#b91c1c;--kg-ui-success:#166534;
+ --kg-ui-radius:12px;
+ font-family:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+ color:var(--kg-ui-ink);
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){
+ max-width:1320px;margin:20px 22px 38px 0;color:var(--kg-ui-ink);
+ font-family:inherit;font-size:14px;line-height:1.6;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :where(h1,h2,h3,h4){
+ color:var(--kg-ui-ink);font-family:inherit;font-weight:700;letter-spacing:-.03em;line-height:1.45;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) h1 {font-size:28px;margin:0 0 10px}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) h2 {font-size:22px;margin:0 0 14px}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) h3 {font-size:18px;margin:0 0 12px}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :is(p,li,dd){font-size:14px;line-height:1.6}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :is(small,.description){font-size:12px;line-height:1.55;color:var(--kg-ui-muted)}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console) :where(.kgpa-heading,.kgpo-page-title,.kgds-hero-intro){padding:4px 0 16px}
+/* One card system for A01-A09, content metadata, workflow, and source monitoring. */
+body.kgds-ui-admin :is(.kgpa-panel,.kgpa-panels>section,.kgpa-review-card,.kgpo-panel,.kgds-console-card,.kgds-meta-section,.kgds-editor-panel,.kgds-review-panel){
+ background:#fff;border:1px solid var(--kg-ui-border);border-radius:12px;
+ padding:24px;box-shadow:0 1px 6px rgba(15,23,42,.025);min-width:0;
+}
+body.kgds-ui-admin :is(.kgpa-panels,.kgpo-page,.kgpa-content){gap:20px}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap) :is(.kgpa-nav,.kgpo-nav){
+ display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:0 0 24px;padding:0 0 14px;
+ border-bottom:1px solid var(--kg-ui-border);
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap) :is(.kgpa-nav,.kgpo-nav) a{
+ display:inline-flex;align-items:center;text-decoration:none;font-size:13px;font-weight:650;
+ padding:11px 13px;min-height:40px;border-radius:8px;line-height:1.4;
+ color:var(--kg-ui-muted);
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap) :is(.kgpa-nav,.kgpo-nav) a[aria-current="page"]{
+ background:#dbeafe;color:var(--kg-ui-primary);font-weight:750;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap) :is(.kgpa-nav,.kgpo-nav) a:hover {background:#eff6ff;color:var(--kg-ui-hover)}
+body.kgds-ui-admin :is(.kgpa-stats,.kgpo-kpis){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+body.kgds-ui-admin :is(.kgpa-stats article,.kgpo-kpis article){
+ padding:22px 20px;border:1px solid var(--kg-ui-border);border-radius:12px;
+ background:#fff;box-shadow:none;min-width:0;
+}
+body.kgds-ui-admin :is(.kgpa-stats small,.kgpo-kpis small){font-size:12px;line-height:1.5;font-weight:600;color:var(--kg-ui-muted)}
+body.kgds-ui-admin :is(.kgpa-stats strong,.kgpo-kpis strong){font-size:27px;line-height:1.32;font-weight:750;color:var(--kg-ui-ink);letter-spacing:-.04em}
+/* Form grid and fields. No exposed unlabelled native-looking textboxes. */
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor)
+  :is(input[type="text"],input[type="url"],input[type="email"],input[type="search"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="password"],select,textarea){
+  display:block;width:100%;max-width:100%;min-height:44px;padding:10px 12px;
+  background:#fff;border:1.5px solid #94a3b8;border-radius:8px;
+  font:inherit;font-size:14px;line-height:1.55;color:var(--kg-ui-ink);box-shadow:none;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) textarea{min-height:100px;resize:vertical}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :is(input,select,textarea):focus{
+ outline:2px solid var(--kg-ui-focus);outline-offset:1px;border-color:var(--kg-ui-focus);box-shadow:none;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :is(input,select,textarea):disabled {
+ background:#f1f5f9;color:#475569;opacity:1;
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :where(label){
+ font-size:13px;line-height:1.55;font-weight:650;color:var(--kg-ui-ink);gap:6px;
+}
+body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+body.kgds-ui-admin :is(.kgpa-actions,.kgpo-actions,.kgpa-toolbar,.kgpo-toolbar){gap:10px;align-items:center}
+body.kgds-ui-admin :is(.kgpa-button,.kgpo-page .button,.kgpa-panel .button,.kgds-content-console .button,.kgds-review-console .button,.kgds-metadata-editor .button){
+ font-family:inherit;font-size:13px;font-weight:700;line-height:1.45;min-height:40px;
+ border-radius:8px;padding:10px 15px;display:inline-flex;align-items:center;justify-content:center;
+ box-sizing:border-box;text-align:center;
+}
+body.kgds-ui-admin :is(.kgpa-button-primary,.kgds-content-console .button-primary,.kgds-review-console .button-primary,.kgds-metadata-editor .button-primary){
+ background:var(--kg-ui-primary)!important;border-color:var(--kg-ui-primary)!important;color:#fff!important;
+}
+body.kgds-ui-admin :is(.kgpa-button-primary,.kgds-content-console .button-primary,.kgds-review-console .button-primary):hover{
+ background:var(--kg-ui-hover)!important;border-color:var(--kg-ui-hover)!important;
+}
+body.kgds-ui-admin :is(.kgpa-button-danger,.kgpo-danger,.kgds-danger){color:var(--kg-ui-danger)!important;border-color:#fecaca!important}
+body.kgds-ui-admin :is(.kgpa-notice,.kgpa-note,.kgpo-note,.kgpo-feedback){
+ padding:14px 16px;border-radius:9px;font-size:13px;line-height:1.6;
+}
+body.kgds-ui-admin :is(.kgpa-review-card,.kgpo-review-form,.kgpa-action-panel){gap:14px}
+body.kgds-ui-admin :is(.kgpa-state,.kgpo-badge,.kgds-state){
+ display:inline-flex;align-items:center;padding:5px 10px;font-size:12px;line-height:1.4;
+ font-weight:700;border-radius:999px;white-space:normal;
+}
+body.kgds-ui-admin :is(.kgpa-table-wrap,.kgpo-scroll,.kgpai-scroll){width:100%;overflow-x:auto;max-width:100%}
+body.kgds-ui-admin :is(.kgpa-table,.kgpo-scroll table,.kgpai-scroll table,.kgds-content-console .widefat,.kgds-review-console .widefat){
+ background:#fff;border-collapse:collapse;border:1px solid var(--kg-ui-border);border-radius:9px;
+ width:100%;font-size:13px;line-height:1.5;
+}
+body.kgds-ui-admin :is(.kgpa-table,.kgpo-scroll table,.kgpai-scroll table,.kgds-content-console .widefat,.kgds-review-console .widefat) th{
+ background:var(--kg-ui-surface);color:var(--kg-ui-muted);font-size:12px;font-weight:700;
+ border-bottom:1px solid var(--kg-ui-border);text-align:left;padding:13px 15px;
+}
+body.kgds-ui-admin :is(.kgpa-table,.kgpo-scroll table,.kgpai-scroll table,.kgds-content-console .widefat,.kgds-review-console .widefat) td{
+ border-bottom:1px solid #e2e8f0;padding:13px 15px;vertical-align:middle;overflow-wrap:anywhere;
+}
+body.kgds-ui-admin :is(.kgpa-json,.kgpo-diff pre){font-size:12px;line-height:1.55;border-radius:9px;overflow:auto}
+/* Content console and approval screens: hierarchy and grouping, without changing any flow. */
+body.kgds-ui-admin .kgds-content-console .kgds-hero-intro {padding:20px 24px;margin:0 0 18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px}
+body.kgds-ui-admin .kgds-content-console > p:first-of-type {color:var(--kg-ui-muted)}
+body.kgds-ui-admin .kgds-content-console > :is(h2,h3) {margin-top:30px}
+body.kgds-ui-admin .kgds-content-console :is(.widefat,.wp-list-table){margin:14px 0}
+body.kgds-ui-admin .kgds-review-console {display:block}
+body.kgds-ui-admin .kgds-review-console :where(pre) {overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #e2e8f0;background:#f8fafc;padding:14px;border-radius:9px;max-width:100%}
+/* Native Gutenberg metadata panel: semantic sections are assembled by admin.js. */
+body.kgds-ui-admin #kgpc_metadata{margin-top:12px;border:1px solid var(--kg-ui-border);border-radius:12px;overflow:hidden;background:#fff}
+body.kgds-ui-admin #kgpc_metadata .postbox-header{padding:6px 14px;background:#f8fafc;border-bottom:1px solid var(--kg-ui-border)}
+body.kgds-ui-admin #kgpc_metadata .inside{padding:18px 20px 24px;margin:0}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-help{margin:0 0 18px;padding:14px;background:#eff6ff;border-radius:9px;border:1px solid #bfdbfe;color:#1e40af;font-size:13px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-section{margin-bottom:16px;padding:18px 20px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-section:last-child{margin-bottom:0}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-section h3{font-size:16px;margin:0 0 5px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-section > p.kgds-section-hint{font-size:12px;color:var(--kg-ui-muted);margin:0 0 16px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p{display:flex;flex-direction:column;gap:6px;margin:0;min-width:0;font-size:13px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p:has(#kgpc_slug),
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p:has(#kgpc_audience),
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p:has(#kgpc_source_locator){grid-column:1/-1}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p label{display:block;margin:0;font-size:13px;font-weight:700}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p label + br{display:none}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p :is(input,select){width:100%!important;max-width:100%;margin:0}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p small{display:block;margin-top:2px;font-size:12px}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p.kgds-multi-line{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+body.kgds-ui-admin #kgpc_metadata .kgds-field-pair{display:flex;flex-direction:column;gap:6px;min-width:0}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p.kgds-multi-line label{display:block}
+body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p.kgds-multi-line select{width:100%!important;min-width:0}
+body.kgds-ui-admin #kgpc_review{border:1px solid var(--kg-ui-border);border-radius:10px;overflow:hidden}
+body.kgds-ui-admin #kgpc_review .inside{font-size:13px;line-height:1.6;padding:14px}
+body.kgds-ui-admin #kgpc_review .inside>p{padding:8px 0;border-bottom:1px solid #e2e8f0}
+body.kgds-ui-admin #kgpc_review a{display:inline-flex;align-items:center;font-weight:650;color:var(--kg-ui-primary)}
+/* Replace a raw JSON box with object-shaped form fields; JSON stays available, not removed. */
+body.kgds-ui-admin .kgds-structured-editor{background:#fff;border:1px solid var(--kg-ui-border);border-radius:12px;padding:20px;margin:12px 0 18px}
+body.kgds-ui-admin .kgds-structured-title{font-size:14px;font-weight:750;margin:0 0 4px;color:var(--kg-ui-ink)}
+body.kgds-ui-admin .kgds-structured-hint{font-size:12px;color:var(--kg-ui-muted);margin:0 0 17px}
+body.kgds-ui-admin .kgds-json-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+body.kgds-ui-admin .kgds-json-field{display:flex;flex-direction:column;min-width:0;gap:6px}
+body.kgds-ui-admin .kgds-json-field.kgds-json-long{grid-column:1/-1}
+body.kgds-ui-admin .kgds-json-field label{font-size:13px;font-weight:650;line-height:1.55;color:var(--kg-ui-ink)}
+body.kgds-ui-admin .kgds-json-field :is(input,select,textarea){max-width:100%;width:100%;min-height:44px;border:1.5px solid #94a3b8;border-radius:8px;font:inherit;font-size:14px;color:var(--kg-ui-ink);padding:9px 12px;box-sizing:border-box;background:#fff}
+body.kgds-ui-admin .kgds-json-group{grid-column:1/-1;min-width:0;border:1px solid #e2e8f0;border-radius:9px;background:#f8fafc;padding:14px}
+body.kgds-ui-admin .kgds-json-group legend{font-size:13px;color:var(--kg-ui-muted);font-weight:700;padding:0 4px}
+body.kgds-ui-admin .kgds-json-group>.kgds-json-fields{margin:8px 0 0}
+body.kgds-ui-admin .kgds-advanced-json{margin-top:16px;border-top:1px solid var(--kg-ui-border);padding-top:12px}
+body.kgds-ui-admin .kgds-advanced-json summary{cursor:pointer;color:var(--kg-ui-primary);font-size:13px;font-weight:650;padding:6px 0}
+body.kgds-ui-admin .kgds-advanced-json textarea{font:12px/1.55 ui-monospace,monospace;min-height:160px}
+body.kgds-ui-admin .kgds-json-error{font-size:12px;color:#b91c1c;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;margin-top:8px}
+body.kgds-ui-admin #kgpa-field-value.kgds-visually-hidden-json{display:block;position:static!important;white-space:pre-wrap}
+body.kgds-ui-admin .kgds-structured-editor:has(.kgds-json-fields) #kgpa-field-value{font-size:12px}
+body.kgds-ui-admin .kgds-structured-editor :where(input,select,textarea):focus-visible {outline:3px solid var(--kg-ui-focus);outline-offset:2px}
+/* Tighter review panels: distinguish evidence, current value, and action. */
+body.kgds-ui-admin .kgpa-evidence-panel {background:#f8fafc;border:1px solid var(--kg-ui-border);border-radius:10px;padding:20px}
+body.kgds-ui-admin .kgpa-action-panel{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:18px}
+body.kgds-ui-admin .kgpai-details {display:grid;grid-template-columns:160px minmax(0,1fr);gap:10px 20px}
+body.kgds-ui-admin .kgpai-details dt{color:var(--kg-ui-muted);font-size:13px;font-weight:700}
+body.kgds-ui-admin .kgpai-details dd{margin:0;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgpai-pre{white-space:pre-wrap;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgpai-settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+body.kgds-ui-admin .kgpai-settings-form label{display:flex;flex-direction:column;gap:7px}
+body.kgds-ui-admin .kgpai-settings-form label:has(textarea){grid-column:1/-1}
+body.kgds-ui-admin .kgpai-settings-form .kgpai-checkbox{grid-column:1/-1;display:flex;align-items:center;flex-direction:row}
+body.kgds-ui-admin :where(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor) :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--kg-ui-focus);outline-offset:3px}
+@media(max-width:1023px){
+ body.kgds-ui-admin :is(.kgpa-stats,.kgpo-kpis){grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpai-settings-form){grid-template-columns:1fr}
+}
+@media(max-width:782px){
+ body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){margin:18px 10px 32px 0}
+ body.kgds-ui-admin :is(.kgpa-panel,.kgpa-panels>section,.kgpa-review-card,.kgpo-panel,.kgds-console-card,.kgds-meta-section,.kgds-editor-panel,.kgds-review-panel){padding:18px}
+ body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid,body.kgds-ui-admin .kgds-json-fields,body.kgds-ui-admin #kgpc_metadata .kgds-meta-grid>p.kgds-multi-line{grid-template-columns:1fr}
+ body.kgds-ui-admin :is(.kgpa-stats,.kgpo-kpis){grid-template-columns:1fr}
+ body.kgds-ui-admin .kgpai-details{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){body.kgds-ui-admin *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition:none!important}}

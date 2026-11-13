@@ -1,0 +1,90 @@
+body.kgpa-contact-page{font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;background:#f8fafc;color:#334155;margin:0;line-height:1.6;font-size:16px}
+.kgpa-contact-page *{box-sizing:border-box}
+.kgpa-contact-page :focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+.kgpa-public-shell{max-width:480px;margin:0 auto;min-height:100vh;background:#fff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0}
+.kgpa-public-header{display:flex;justify-content:space-between;gap:10px;padding:20px;border-bottom:1px solid #e2e8f0;align-items:center}
+.kgpa-brand{font-size:1rem;font-weight:800;color:#0f172a;text-decoration:none}.kgpa-public-lang a{color:#475569}.kgpa-public-lang a[aria-current=page]{font-weight:800;color:#1d4ed8}
+.kgpa-public-main{padding:22px 20px 45px}.kgpa-public-main h1{font-size:1.75rem;line-height:1.3;color:#0f172a;word-break:keep-all}
+.kgpa-public-main h2{font-size:1.12rem;color:#0f172a}.kgpa-public-main p{overflow-wrap:anywhere}.kgpa-intro{color:#475569}
+.kgpa-public-form{display:grid;gap:9px}.kgpa-public-form label{font-weight:650;font-size:.89rem;display:block;margin-top:10px}
+.kgpa-public-form input:not([type=checkbox]),.kgpa-public-form textarea,.kgpa-public-form select{display:block;width:100%;border:1.5px solid #64748b;background:#fff;padding:12px;border-radius:8px;color:#0f172a;min-height:45px;font:inherit;line-height:1.5}
+.kgpa-public-form textarea{min-height:155px;resize:vertical}
+.kgpa-public-form button,.kgpa-primary-link{display:inline-flex;justify-content:center;padding:12px 16px;background:#1d4ed8;color:#fff;border:1px solid #1d4ed8;border-radius:8px;text-decoration:none;cursor:pointer;font-weight:750;font-size:.92rem;min-height:46px}
+.kgpa-public-form button.kgpa-secondary{background:#fff;color:#1d4ed8}
+.kgpa-tabs{display:flex;gap:8px;margin:22px 0 28px}.kgpa-tabs a{flex:1;border:1px solid #94a3b8;padding:13px 10px;border-radius:8px;text-align:center;font-weight:600;text-decoration:none;color:#334155;font-size:.85rem}
+.kgpa-tabs a[aria-current=page]{background:#eff6ff;border-color:#2563eb;color:#1d4ed8}
+.kgpa-alert{padding:12px;background:#fef2f2;color:#991b1b;border-radius:8px;border:1px solid #fecaca}
+.kgpa-help,.kgpa-note{font-size:.8rem;color:#475569;margin:2px 0 7px}.kgpa-recipient{font-size:.87rem;color:#475569;font-weight:650}
+.kgpa-privacy{margin:19px 0;border:1px solid #cbd5e1;border-radius:10px;padding:16px;background:#f8fafc}.kgpa-privacy h2{font-size:1rem}
+.kgpa-privacy dl{display:grid;grid-template-columns:96px 1fr;gap:8px;font-size:.84rem}.kgpa-privacy dt{color:#475569;font-weight:650}.kgpa-privacy dd{margin:0;overflow-wrap:anywhere}
+.kgpa-privacy label.kgpa-check{display:flex;align-items:flex-start;gap:9px;margin-top:20px;line-height:1.5}.kgpa-privacy label.kgpa-check input{margin-top:5px;flex:none;width:19px;height:19px}
+.kgpa-receipt{display:flex;flex-direction:column;gap:8px;background:#eff6ff;border-radius:8px;padding:20px;margin:22px 0}.kgpa-receipt strong{font-size:1.15rem;color:#1e40af;word-break:break-word}
+.kgpa-confirm-icon{display:grid;place-items:center;border-radius:50%;background:#dcfce7;color:#166534;font-weight:800;width:44px;height:44px;font-size:1.6rem}
+.kgpa-public-footer{border-top:1px solid #e2e8f0;padding:19px 20px;font-size:.76rem;color:#475569}
+.kgpa-university-contact{border:1px solid #cbd5e1;border-radius:10px;padding:18px}.kgpa-university-contact a{color:#1d4ed8;overflow-wrap:anywhere}
+.kgpa-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+.kgpa-skip{position:absolute;left:-10000px}.kgpa-skip:focus{position:fixed;top:8px;left:8px;z-index:100;background:#fff;padding:10px}
+@media(max-width:380px){.kgpa-public-main{padding:16px 15px}.kgpa-public-header{padding:15px}.kgpa-privacy dl{grid-template-columns:1fr}}
+
+/* KGPA contact layout v0.8.1: main content only; the active theme owns the header/footer. */
+.kgpa-contact-surface {
+  width: min(100% - 32px, 900px);
+  max-width: 900px;
+  margin-inline: auto;
+  padding: 48px 16px 72px;
+  box-sizing: border-box;
+}
+.kgpa-contact-surface .kgpa-public-main {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+.kgpa-contact-surface .kgpa-public-form,
+.kgpa-contact-surface .kgpa-university-contact {
+  max-width: 760px;
+}
+@media (max-width: 767px) {
+  .kgpa-contact-surface { width: 100%; padding: 24px 16px 48px; }
+}
+
+/* KGP CONTACT MATCH PUBLIC FE v0.8.2 */
+/* The KG Portal FE CSS controls the full 480px shell, header and navigation. */
+body.kgp-public.kgpa-contact-page {
+  margin: 0;
+  background: #f8fafc;
+  color: #334155;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+}
+body.kgp-public.kgpa-contact-page .kgp-shell {
+  max-width: 480px;
+  width: 100%;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 0 5px 38px #0f172a08;
+}
+body.kgp-public.kgpa-contact-page main.kgpa-public-main {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  margin: 0;
+  padding: 20px 20px 42px;
+  background: transparent;
+}
+body.kgp-public.kgpa-contact-page .kgp-site-header { display: block; }
+body.kgp-public.kgpa-contact-page .kgp-brand { color: #0f172a; text-decoration: none; }
+body.kgp-public.kgpa-contact-page .kgp-nav a[aria-current="page"] { background: #dbeafe; color: #1e40af; }
+body.kgp-public.kgpa-contact-page .kgpa-public-main h1 { margin-top: 6px; }
+body.kgp-public.kgpa-contact-page .kgpa-tabs { margin: 22px 0 24px; }
+body.kgp-public.kgpa-contact-page .kgpa-public-form { max-width: none; }
+body.kgp-public.kgpa-contact-page .kgp-footer { border-top:1px solid #cbd5e1; }
+@media (max-width: 390px) {
+  body.kgp-public.kgpa-contact-page main.kgpa-public-main { padding: 16px 16px 35px; }
+}

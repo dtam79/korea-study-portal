@@ -1,0 +1,33 @@
+/* Project public shell. Uses exactly the FE v0.5 kgp-* class layout, never Kadence header. */
+body.kgp-public.kgpc-public{margin:0;background:#f8fafc;color:#334155;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;font-size:15px;line-height:1.65}
+body.kgp-public.kgpc-public *{box-sizing:border-box}
+body.kgp-public.kgpc-public .kgp-shell{width:100%;max-width:480px;min-height:100dvh;margin:0 auto;padding:0;background:#fff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;box-shadow:0 5px 38px #0f172a08}
+.kgpc-main{padding:24px 20px 40px;overflow-wrap:anywhere;min-height:350px}
+.kgpc-main h1{font-size:27px;letter-spacing:-.035em;line-height:1.35;margin:9px 0 12px;color:#0f172a}
+.kgpc-main h2{font-size:18px;letter-spacing:-.02em;line-height:1.5;color:#0f172a}
+.kgpc-main a{color:#1d4ed8;text-decoration:underline;text-underline-offset:2px}
+.kgpc-main a:focus-visible,body.kgp-public.kgpc-public .kgp-nav a:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+.kgpc-lead{margin:0 0 27px;color:#475569}.kgpc-eyebrow{color:#1d4ed8;font-size:12px;font-weight:750;letter-spacing:.03em}
+.kgpc-topic-grid{display:grid;grid-template-columns:1fr;gap:12px}.kgpc-card{padding:17px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+.kgpc-card h2{font-size:17px;margin:0 0 8px}.kgpc-card p{margin:0}.kgpc-card ul{list-style:none;padding:0;margin:12px 0 0}.kgpc-card li+li{margin-top:8px}
+.kgpc-muted,.kgpc-card .kgpc-muted{color:#64748b;font-size:13px}.kgpc-empty{padding:20px 16px;border:1px solid #cbd5e1;border-radius:8px;color:#64748b}
+.kgpc-back{font-size:13px}.kgpc-facts{display:grid;grid-template-columns:110px minmax(0,1fr);gap:9px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:10px;padding:14px;font-size:13px;margin:18px 0 25px}
+.kgpc-facts dt{font-weight:700;color:#475569}.kgpc-facts dd{margin:0;overflow-wrap:anywhere}
+.kgpc-toc{padding:15px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;font-size:13px;margin:22px 0}.kgpc-toc ol{margin:8px 0 0;padding-left:19px}
+.kgpc-body{font-size:14px;line-height:1.85}.kgpc-body img{max-width:100%;height:auto}.kgpc-body figure{max-width:100%;margin:14px 0}.kgpc-body h2,.kgpc-body h3{scroll-margin-top:25px}
+.kgpc-body table{display:block;width:100%;overflow-x:auto;border-collapse:collapse}.kgpc-body td,.kgpc-body th{padding:8px;border:1px solid #cbd5e1;vertical-align:top;min-width:60px;word-break:break-word}
+.kgpc-body blockquote{border-left:3px solid #94a3b8;padding-left:14px;margin-left:0}.kgpc-body pre{max-width:100%;overflow-x:auto}
+.kgpc-sources{margin:26px 0 20px;border-top:1px solid #cbd5e1;padding-top:15px}.kgpc-sources h2{font-size:17px}.kgpc-sources ul{padding-left:18px}.kgpc-sources li{margin:10px 0}.kgpc-sources small{display:block;color:#64748b;margin-top:3px}
+.kgpc-notice{border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;padding:12px;font-size:13px;margin:12px 0}
+.kgpc-next{margin:27px 0;padding:18px;background:#f8fafc;border-radius:10px}.kgpc-next h2{margin-top:0}
+.kgpc-category-nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 24px}.kgpc-category-nav a{border:1px solid #cbd5e1;padding:7px 11px;border-radius:18px;text-decoration:none;color:#334155;font-size:13px}
+.kgpc-category-nav a[aria-current="page"]{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;font-weight:750}
+.kgpc-faq{border:1px solid #cbd5e1;border-radius:9px;margin:10px 0;overflow:hidden}
+.kgpc-faq summary{cursor:pointer;padding:16px 13px;list-style:none;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;color:#0f172a}
+.kgpc-faq summary::-webkit-details-marker{display:none}.kgpc-faq[open] summary{border-bottom:1px solid #e2e8f0;background:#f8fafc}.kgpc-faq[open] .kgpc-expand{transform:rotate(45deg)}
+.kgpc-faq-answer{padding:15px;font-size:14px}.kgpc-faq-answer .kgpc-sources{margin-top:15px}
+body.kgp-public.kgpc-public .kgp-footer{border-top:1px solid #cbd5e1;padding:17px 20px;color:#64748b;font-size:12px}
+body.kgp-public.kgpc-public .kgp-footer p{margin:0 0 8px}body.kgp-public.kgpc-public .kgp-footer a{color:#334155}
+body.kgp-public.kgpc-public .kgp-brand{text-decoration:none;color:#0f172a}
+body.kgp-public.kgpc-public .kgp-nav a[aria-current="page"]{background:#dbeafe;color:#1e40af}
+@media(max-width:390px){.kgpc-main{padding:19px 15px 34px}.kgpc-facts{grid-template-columns:1fr;gap:4px}.kgpc-facts dd{margin-bottom:8px}}

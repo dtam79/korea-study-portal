@@ -1,0 +1,384 @@
+/* Public 2.0 — quieter cards, clear reading rhythm, one form vocabulary. */
+body.kgp-public,body.kgpa-contact-page{--kg-ui-border:#e2e8f0;--kg-ui-shadow:0 4px 18px #18345a06;background:#f1f5fa;color:#25344d}
+body.kgp-public .kgp-shell{box-shadow:0 0 60px #15315806;border-color:#e5ebf3}
+body.kgp-public .kgp-site-header{background:#fff;border-bottom:1px solid #e7edf5}
+body.kgp-public .kgp-header-line{padding-block:20px}
+body.kgp-public .kgp-brand{font-weight:750;letter-spacing:-.04em}
+body.kgp-public .kgp-nav{gap:6px;border-top:0;padding-block:8px}
+body.kgp-public .kgp-nav a{font-size:14px;font-weight:550;border-radius:8px;padding:10px 14px;color:#52617a}
+body.kgp-public .kgp-nav a[aria-current=page]{background:#edf3ff;color:#1d4ed8}
+body.kgp-public .kgp-hero{background:linear-gradient(130deg,#eef4ff,#f7faff 65%,#fff);border:1px solid #e3ecff;border-radius:12px;padding:24px 20px;margin-bottom:28px;color:#172b4d;box-shadow:none}
+body.kgp-public .kgp-hero h1{font-size:28px;line-height:1.35;letter-spacing:-.055em;max-width:720px;margin-bottom:16px}
+body.kgp-public .kgp-hero p{color:#52617a;line-height:1.8;font-size:15px}
+body.kgp-public .kgp-page-head{padding-bottom:24px;border-bottom:1px solid #e8edf5;margin-bottom:24px}
+body.kgp-public .kgp-page-head h1{font-size:28px;line-height:1.4;letter-spacing:-.045em;margin:0 0 10px}
+body.kgp-public :is(.kgp-lead,.kgp-page-head p){font-size:14px;color:#64748b;line-height:1.75}
+body.kgp-public :is(.kgp-section-head h2,.kgp-results-title h2){font-size:24px;letter-spacing:-.035em;line-height:1.5}
+body.kgp-public :is(.kgp-card,.kgp-tile,.kgp-detail-section){border:1px solid #e1e8f1;border-radius:12px;box-shadow:0 3px 14px #16356304;background:#fff;padding:24px}
+body.kgp-public .kgp-card__title{font-size:20px;line-height:1.5;margin:14px 0 6px;letter-spacing:-.03em}
+body.kgp-public .kgp-card__program{font-size:14px;color:#52617a;line-height:1.7}
+body.kgp-public :is(.kgp-meta,.kgp-small,.kgp-source-meta){font-size:12px;color:#64748b;line-height:1.7}
+body.kgp-public :is(.kgp-badge,.kgp-chip){border-radius:6px;padding:4px 8px;font-size:11px;line-height:1.5;font-weight:600}
+body.kgp-public :is(.kgp-button,button[type=submit],.kgpa-submit){border-radius:9px;min-height:44px;font-size:14px;padding:11px 18px;box-shadow:0 3px 8px #1d4ed812}
+body.kgp-public :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){border:1px solid #d6e0ed;border-radius:9px;background:#fcfdff;font:inherit;font-size:14px;min-height:46px;padding:11px 13px;color:#243550}
+body.kgp-public select{padding-right:42px;background-position:right 14px center}
+body.kgp-public :is(input,textarea)::placeholder{font-size:13px;color:#7c8aa2;font-weight:400}
+body.kgp-public :is(input,select,textarea):focus{border-color:#7a9bef;outline:3px solid #e1eaff;outline-offset:1px}
+body.kgp-public .kgp-filter-panel{border:1px solid #dfe7f2;border-radius:12px;box-shadow:none;background:#fbfcff}
+body.kgp-public .kgp-filter-panel>summary{font-size:14px;padding:15px 16px;font-weight:650}
+body.kgp-public .kgp-filter-content{padding:16px;gap:16px}
+body.kgp-public .kgp-filter-form label{font-size:13px;font-weight:600;color:#43536d}
+body.kgp-public .kgp-filter-actions{padding-top:14px;border-top:1px solid #e8edf6;gap:10px}
+body.kgp-public :is(.kgp-notice,.kgds-result-empty){border:1px dashed #d8e2f0;background:#f8faff;border-radius:10px;padding:18px;font-size:14px;line-height:1.7;color:#52617a}
+body.kgp-public .kgp-footer{background:#f8fafc;border-top:1px solid #e5ebf3;color:#64748b;font-size:12px;padding-block:28px}
+@media(max-width:767px){body.kgp-public .kgp-hero{padding:26px 20px;border-radius:14px}body.kgp-public .kgp-hero h1{font-size:28px}body.kgp-public .kgp-page-head h1{font-size:26px}body.kgp-public :is(.kgp-card,.kgp-tile,.kgp-detail-section){padding:18px}body.kgp-public .kgp-nav a{padding:9px 11px;font-size:13px}}
+body.kgp-public :is(.kgpc-card,.kgpc-faq,.kgpa-public-form,.kgpa-receipt){background:#fff;border:1px solid #e1e8f1;border-radius:14px;box-shadow:0 3px 14px #16356304}
+body.kgp-public .kgpc-card{padding:22px}
+body.kgp-public .kgpc-card h2,body.kgp-public .kgpc-card h3{font-size:19px;line-height:1.5;letter-spacing:-.03em}
+body.kgp-public .kgpc-faq summary{padding:18px 20px;font-size:15px;font-weight:600;line-height:1.6}
+body.kgp-public .kgpc-faq[open]{border-color:#b8cdf9;background:#fcfdff}
+body.kgp-public .kgpc-faq p{font-size:14px;line-height:1.85;color:#475569}
+body.kgp-public .kgpc-sources{border-top:1px solid #e5ebf4;padding-top:20px;margin-top:30px;font-size:13px;color:#64748b}
+body.kgp-public .kgpa-public-form{padding:24px}
+body.kgp-public .kgpa-public-form label{font-size:13px;font-weight:600;color:#43536d}
+body.kgp-public .kgpa-tabs{gap:10px;margin-bottom:24px}
+body.kgp-public .kgpa-privacy{background:#f7f9fd;border:1px solid #e1e8f1;border-radius:10px;padding:16px;font-size:13px;line-height:1.7}
+body.kgp-public .kgpa-receipt{padding:30px}
+
+/* ========================================================================== 
+   v2.1.0 — Original BG/UI v1.2 and 34-screen mockup alignment
+   PUBLIC ONLY: P01–P10 / S01. No scripts, identifiers or form semantics changed.
+   Desktop is a centered 480px mobile composition, NOT a 1200px page.
+   ========================================================================== */
+body.kgp-public,
+body.kgpa-contact-page {
+  --kg-ui-primary:#1d4ed8;
+  --kg-ui-primary-hover:#1e40af;
+  --kg-ui-ink:#0f172a;
+  --kg-ui-body:#334155;
+  --kg-ui-muted:#475569;
+  --kg-ui-soft:#f8fafc;
+  --kg-ui-card:#fff;
+  --kg-ui-input:#64748b;
+  --kg-ui-border:#cbd5e1;
+  --kg-ui-space-section:32px;
+  --kg-ui-radius-card:12px;
+  --kg-ui-radius-input:8px;
+  --kg-ui-shadow:0 1px 5px rgba(15,23,42,.035);
+  background:#eef2f7;
+  color:var(--kg-ui-body);
+  font-size:16px;
+  line-height:26px;
+}
+body.kgp-public .kgp-shell,
+body.kgp-public.kgpc-public .kgp-shell,
+body.kgp-public.kgpa-contact-page .kgp-shell,
+body.kgpa-contact-page .kgp-shell {
+  width:100%!important;
+  max-width:480px!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  background:#fff!important;
+  border:0!important;
+  box-shadow:0 8px 32px rgba(15,23,42,.04);
+  overflow-wrap:anywhere;
+}
+body.kgp-public .kgp-shell :is(main,.kgds-page,main.kgpc-main,main.kgpa-public-main),
+body.kgpa-contact-page .kgpa-public-main {
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  padding:28px 16px 44px;
+}
+body.kgp-public .kgp-site-header,
+body.kgpa-contact-page .kgp-site-header {padding-inline:16px;border-color:#dce3ed;background:#fff}
+body.kgp-public .kgp-header-line,
+body.kgpa-contact-page .kgp-header-line {padding-block:14px 11px;gap:12px}
+body.kgp-public .kgp-brand-symbol,
+body.kgpa-contact-page .kgp-brand-symbol {width:34px;height:34px;flex-basis:34px;border-radius:8px;font-size:16px;box-shadow:0 2px 6px #1d4ed81a}
+body.kgp-public .kgp-brand-copy strong,
+body.kgpa-contact-page .kgp-brand-copy strong {font-size:14px;line-height:1.35;font-weight:750;letter-spacing:-.025em}
+body.kgp-public .kgp-brand-copy small,
+body.kgpa-contact-page .kgp-brand-copy small {font-size:11px;line-height:1.4}
+body.kgp-public .kgp-language,
+body.kgpa-contact-page .kgp-language {font-size:12px;gap:7px}
+body.kgp-public .kgp-nav,
+body.kgpa-contact-page .kgp-nav {
+  display:flex;flex-wrap:nowrap;gap:2px;
+  padding-block:0 8px;margin:0;
+  overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;
+  border-top:0;
+}
+body.kgp-public .kgp-nav a,
+body.kgpa-contact-page .kgp-nav a {
+  flex:none;min-height:40px;padding:10px 9px;
+  border-radius:7px;font-size:12px;line-height:20px;font-weight:600;
+  color:var(--kg-ui-body);white-space:nowrap;
+}
+body.kgp-public .kgp-nav a[aria-current="page"],
+body.kgpa-contact-page .kgp-nav a[aria-current="page"] {color:#1e40af;background:#dbeafe}
+
+/* Type hierarchy is fixed across every viewport (BG v1.2: 28/24/20, 16/14/13). */
+body.kgp-public .kgp-shell main h1,
+body.kgpa-contact-page .kgpa-public-main h1 {font-size:28px!important;line-height:40px!important;margin:0 0 12px!important;font-weight:700;letter-spacing:-.035em}
+body.kgp-public .kgp-shell main h2,
+body.kgpa-contact-page .kgpa-public-main h2 {font-size:24px!important;line-height:34px!important;font-weight:700;letter-spacing:-.03em}
+body.kgp-public .kgp-shell main h3,
+body.kgpa-contact-page .kgpa-public-main h3 {font-size:20px!important;line-height:30px!important;font-weight:700}
+body.kgp-public .kgp-shell main :where(p,li,dd),
+body.kgpa-contact-page .kgpa-public-main :where(p,li,dd) {font-size:16px;line-height:26px}
+body.kgp-public .kgp-shell main :is(.kgp-lead,.kgpc-lead,.kgpa-intro,.kgp-page-head p),
+body.kgpa-contact-page .kgpa-public-main .kgpa-intro {font-size:14px;line-height:22px;color:var(--kg-ui-muted);margin-bottom:24px}
+body.kgp-public .kgp-shell main :is(.kgp-meta,.kgp-small,.kgp-source-meta,.kgp-card-meta,.kgp-filter-count),
+body.kgpa-contact-page :is(.kgpa-help,.kgpa-note) {font-size:13px;line-height:20px;color:var(--kg-ui-muted)}
+body.kgp-public .kgp-shell :is(.kgp-hero,.kgp-page-head) {margin:0 0 24px}
+body.kgp-public .kgp-hero {padding:24px 20px;margin-bottom:24px;background:linear-gradient(135deg,#eff6ff 0%,#f8fbff 75%,#fff 100%);border-radius:12px;min-width:0}
+body.kgp-public .kgp-hero h1 {font-size:28px!important;line-height:40px!important}
+body.kgp-public .kgp-hero p {font-size:14px;line-height:22px;margin:0 0 16px}
+body.kgp-public .kgp-page-head {padding:0 0 16px;border-bottom:1px solid #e2e8f0}
+body.kgp-public .kgp-shell :is(.kgp-section-head,.kgp-results-title){display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0;margin:0 0 16px}
+body.kgp-public .kgp-shell :is(.kgp-section-head,.kgp-results-title) h2 {font-size:20px!important;line-height:30px!important;margin:0}
+body.kgp-public .kgp-shell main :is(.kgpc-topic-grid,.kgpc-next,.kgpc-sources) {margin-block:16px 32px}
+body.kgp-public .kgp-shell main hr {margin:32px 0;border-color:#e2e8f0}
+
+/* All P01-P10 discovery/list/grid surfaces retain one column at 1440px too. */
+body.kgp-public :is(.kgp-results-grid,.kgp-card-grid,.kgp-university-grid,.kgp-admission-grid,.kgp-offering-grid,.kgpc-topic-grid) {
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:16px!important;min-width:0;
+}
+body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-uni-card,.kgp-offering-card,.kgp-admission-card,.kgpc-card,.kgp-tile,.kgp-detail-section,.kgpa-university-contact),
+body.kgpa-contact-page .kgpa-university-contact {
+  border:1px solid #dce4ee;border-radius:12px;background:#fff;
+  box-shadow:var(--kg-ui-shadow);padding:24px;min-width:0;max-width:100%;
+}
+body.kgp-public .kgpc-card {display:flex;flex-direction:column;gap:10px}
+body.kgp-public .kgpc-card h2,body.kgp-public .kgpc-card h3 {font-size:18px!important;line-height:27px!important;margin:0}
+body.kgp-public .kgp-shell :is(.kgp-result-card,.kgp-uni-card,.kgp-offering-card) h2 {font-size:18px!important;line-height:27px!important;margin:0 0 8px!important}
+body.kgp-public .kgp-card__title {font-size:18px;line-height:27px;margin:6px 0 4px}
+body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-uni-card,.kgp-offering-card,.kgp-admission-card) :is(img,svg) {max-width:100%;height:auto;object-fit:cover}
+body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-uni-card,.kgp-offering-card) :where(p,li) {font-size:14px;line-height:22px}
+body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-uni-card,.kgp-offering-card) :is(.kgp-meta,.kgp-card-meta,.kgp-card-subtitle,.kgp-card-date) {font-size:13px;line-height:20px}
+body.kgp-public .kgp-shell :is(.kgp-badge,.kgp-chip,.kgp-state,.kgp-status,.kgp-card-badge) {font-size:12px;line-height:18px;padding:3px 8px;font-weight:650;border-radius:6px}
+body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-offering-card) a:where(:not(.button)) {overflow-wrap:anywhere}
+
+/* Consistent labeled controls and safely inset chevrons, no change to option values. */
+body.kgp-public .kgp-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea),
+body.kgpa-contact-page .kgpa-public-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea) {
+  width:100%;max-width:100%;min-width:0;min-height:48px;
+  border:1px solid var(--kg-ui-input);border-radius:8px;
+  padding:11px 14px;font-family:inherit;font-size:14px;line-height:24px;
+  color:var(--kg-ui-ink);background-color:#fff;box-shadow:none;
+}
+body.kgp-public .kgp-shell select,
+body.kgpa-contact-page .kgpa-public-main select {
+  -webkit-appearance:none;appearance:none;
+  padding-right:44px!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:18px 18px;
+  cursor:pointer;
+}
+body.kgp-public .kgp-shell :is(input,textarea)::placeholder,
+body.kgpa-contact-page :is(input,textarea)::placeholder {color:#64748b;font-size:13px;font-weight:400}
+body.kgp-public .kgp-shell :is(label,.kgp-field-label),
+body.kgpa-contact-page .kgpa-public-main label {font-size:13px;line-height:20px;font-weight:650;color:var(--kg-ui-ink)}
+body.kgp-public .kgp-shell :is(.kgp-filter-form,.kgpa-public-form) label,
+body.kgpa-contact-page .kgpa-public-form label {margin-top:8px}
+body.kgp-public .kgp-shell :is(input,select,textarea)[aria-invalid="true"],
+body.kgpa-contact-page :is(input,select,textarea)[aria-invalid="true"]{border-color:#b91c1c!important;box-shadow:0 0 0 1px #b91c1c!important}
+body.kgp-public .kgp-shell :is(input,select,textarea):focus-visible,
+body.kgpa-contact-page :is(input,select,textarea):focus-visible {outline:3px solid #93c5fd;outline-offset:2px;border-color:#1d4ed8}
+body.kgp-public .kgp-shell :is(button[type="submit"],.kgp-button,.kgp-btn-primary,.kgp-button-primary,.kgpa-primary-link),
+body.kgpa-contact-page .kgpa-public-main :is(button[type="submit"],.kgpa-primary-link) {
+  min-height:44px;border-radius:8px;padding:10px 16px;
+  font-size:14px;font-weight:700;line-height:22px;white-space:normal;
+}
+body.kgp-public .kgp-shell :is(button,.kgp-button):disabled,
+body.kgpa-contact-page button:disabled {opacity:.6;cursor:not-allowed}
+body.kgp-public .kgp-shell :is(button[type="submit"],.kgp-btn-primary,.kgp-button-primary):hover {background-color:#1e40af}
+
+/* Native inline filter disclosure: collapse does NOT affect submitted input or result state. */
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-filter-panel,details.kgds-filter-compact) {
+  margin:16px 0 24px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;
+  padding:0!important;box-shadow:none;overflow:visible;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-filter-panel,details.kgds-filter-compact) > summary {
+  padding:12px 16px!important;margin:0!important;min-height:48px!important;
+  font-size:14px!important;line-height:24px!important;font-weight:700;color:var(--kg-ui-ink);
+  cursor:pointer;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-filter-panel,details.kgds-filter-compact)[open] > summary {
+  background:#f8fafc;border-bottom:1px solid #e2e8f0;border-radius:12px 12px 0 0;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-filter-content,.kgp-filter-fields,.kgp-filter-body) {
+  display:grid;gap:16px;padding:16px;margin:0;min-width:0;
+}
+body.kgp-public.kgds-filter-route .kgp-shell details.kgds-filter-compact > :is(form,fieldset,.kgp-filter-content,.kgp-filter-fields,.kgp-filter-body) {
+  padding:16px!important;margin:0!important;min-width:0;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form :is(label,.kgp-field,.kgp-form-field) {font-size:13px;line-height:20px;min-width:0}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form select.kgds-filter-select {
+  min-height:48px!important;padding:11px 44px 11px 14px!important;
+  background-position:right 14px center!important;font-size:14px!important;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form input.kgds-filter-number {
+  min-height:48px!important;padding:11px 14px!important;font-size:14px!important;
+}
+/* Preserve the compact, 2-choice filter from public.css; do not add extra card padding. */
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-bool.kgds-bool-segmented{
+  min-height:0;padding:0;border:0;background:transparent;gap:7px;border-radius:0;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-bool-options {min-height:48px}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-filter-actions,.kgp-filter-footer){
+  padding:14px 0 0;margin:8px 0 0;border-top:1px solid #e2e8f0;gap:8px;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgds-result-empty,.kgp-empty-state,.kgp-no-results,.kgp-empty-message){
+  padding:14px 16px!important;border-radius:9px;border:1px solid #cbd5e1;
+  background:#f8fafc;color:var(--kg-ui-muted);font-size:14px!important;line-height:22px!important;font-weight:400;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgds-result-empty,.kgp-empty-state,.kgp-no-results,.kgp-empty-message) :is(p,span){
+  font-size:inherit!important;line-height:inherit!important;font-weight:inherit;
+}
+body.kgp-public.kgds-filter-route .kgp-shell :is(.kgp-results-title,.kgp-result-count){margin-bottom:16px}
+
+/* Guides, FAQ, facts, policy and source evidence: modest, mobile-friendly density. */
+body.kgp-public .kgpc-topic-grid{margin:16px 0 32px}
+body.kgp-public .kgpc-faq {padding:0!important;overflow:hidden;margin:10px 0}
+body.kgp-public .kgpc-faq > summary,
+body.kgp-public details.kgpc-faq > summary {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-height:52px;padding:14px 16px!important;
+  cursor:pointer;font-size:14px!important;line-height:22px!important;font-weight:650;
+  list-style:none;
+}
+body.kgp-public .kgpc-faq > summary::-webkit-details-marker{display:none}
+body.kgp-public .kgpc-faq > summary::after {
+  content:'';flex:0 0 8px;width:8px;height:8px;
+  border-right:1.8px solid #475569;border-bottom:1.8px solid #475569;
+  transform:rotate(45deg);margin-right:4px;transition:transform .15s ease;
+}
+body.kgp-public .kgpc-faq[open] > summary::after{transform:rotate(225deg)}
+body.kgp-public .kgpc-faq[open] > summary{border-bottom:1px solid #dbeafe;background:#eff6ff;color:#1e40af}
+body.kgp-public .kgpc-faq-answer{padding:14px 16px;font-size:14px;line-height:22px}
+body.kgp-public .kgpc-faq p{font-size:14px!important;line-height:22px!important;margin:0 0 10px}
+body.kgp-public .kgpc-body{font-size:16px;line-height:26px;min-width:0}
+body.kgp-public .kgpc-body :is(h2,h3){margin:28px 0 12px}
+body.kgp-public :is(.kgpc-toc,.kgpc-facts,.kgpc-next){border-radius:12px;padding:16px;background:#f8fafc;border:1px solid #cbd5e1;min-width:0}
+body.kgp-public .kgpc-facts{grid-template-columns:110px minmax(0,1fr);gap:8px 12px}
+body.kgp-public .kgpc-facts :is(dt,dd){font-size:13px;line-height:20px;overflow-wrap:anywhere}
+body.kgp-public .kgpc-sources{border-top:1px solid #cbd5e1;margin-top:32px;padding-top:18px}
+body.kgp-public .kgpc-sources h2{font-size:20px!important;line-height:30px!important}
+body.kgp-public .kgpc-sources li{font-size:13px;line-height:20px;margin:10px 0;overflow-wrap:anywhere}
+body.kgp-public .kgp-shell details.kgp-detail-item > summary {padding:14px 16px;font-size:14px;line-height:22px}
+body.kgp-public .kgp-shell :is(.kgp-data-table,.kgp-schedule-table,.kgpc-body table){max-width:100%;overflow-x:auto}
+
+/* Contact P08/P09: labels, quiet guidance, explicit consent and compact confirmation. */
+body.kgp-public .kgpa-tabs,body.kgpa-contact-page .kgpa-tabs {margin:18px 0 20px;gap:8px}
+body.kgp-public .kgpa-tabs a,body.kgpa-contact-page .kgpa-tabs a{min-height:48px;padding:10px 8px;font-size:13px;line-height:20px;border-radius:8px}
+body.kgp-public .kgpa-public-form,body.kgpa-contact-page .kgpa-public-form {
+  padding:20px 16px;margin:16px 0 24px;gap:8px;border:1px solid #dce4ee;border-radius:12px;background:#fff;
+}
+body.kgp-public .kgpa-public-form label,body.kgpa-contact-page .kgpa-public-form label {margin:10px 0 0;font-size:13px;font-weight:650}
+body.kgp-public .kgpa-privacy,body.kgpa-contact-page .kgpa-privacy {margin:18px 0 4px;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}
+body.kgp-public .kgpa-privacy dl,body.kgpa-contact-page .kgpa-privacy dl {display:grid;grid-template-columns:minmax(0,1fr);gap:3px}
+body.kgp-public .kgpa-privacy :is(dt,dd),body.kgpa-contact-page .kgpa-privacy :is(dt,dd) {font-size:13px;line-height:20px}
+body.kgp-public .kgpa-public-form :is(.kgpa-help,.kgpa-note),body.kgpa-contact-page .kgpa-public-form :is(.kgpa-help,.kgpa-note) {font-size:13px;line-height:20px}
+body.kgp-public .kgpa-receipt,body.kgpa-contact-page .kgpa-receipt{padding:20px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff}
+body.kgp-public :is(.kgpa-alert,.kgpc-empty,.kgp-error-state,.kgp-empty-state){font-size:14px;line-height:22px}
+
+/* Shared footer C01: same disclosure and link hierarchy on every public template. */
+body.kgp-public .kgp-shell > footer.kgp-footer,
+body.kgp-public.kgpc-public .kgp-shell > footer.kgp-footer,
+body.kgp-public.kgpa-contact-page .kgp-shell > footer.kgp-footer,
+body.kgpa-contact-page .kgp-shell > footer.kgp-footer{
+  padding:20px 16px!important;margin-top:auto;
+  background:#f8fafc;border-top:1px solid #dce4ee;
+  color:#475569;font-size:12px;line-height:20px;
+}
+body.kgp-public .kgp-footer :is(p,a),body.kgpa-contact-page .kgp-footer :is(p,a) {font-size:12px;line-height:20px}
+body.kgp-public .kgp-footer-links,body.kgpa-contact-page .kgp-footer-links {display:flex;flex-wrap:wrap;gap:8px}
+
+/* Very narrow / magnified view: no page-wide overflow, don't clip dynamic content. */
+@media (max-width:359px){
+  body.kgp-public .kgp-shell :is(main,.kgds-page,main.kgpc-main,main.kgpa-public-main),
+  body.kgpa-contact-page .kgpa-public-main {padding-inline:14px}
+  body.kgp-public .kgp-header-line,body.kgpa-contact-page .kgp-header-line{gap:8px}
+  body.kgp-public .kgp-brand-copy strong,body.kgpa-contact-page .kgp-brand-copy strong{font-size:13px}
+  body.kgp-public .kgp-shell :is(.kgp-card,.kgp-result-card,.kgp-uni-card,.kgp-offering-card,.kgp-admission-card,.kgpc-card){padding:16px}
+  body.kgp-public .kgpc-facts{grid-template-columns:1fr;gap:3px}
+}
+@media(prefers-reduced-motion:reduce){
+  body.kgp-public .kgpc-faq>summary::after{transition:none}
+}
+
+
+/* v2.1.2 — Active criteria are visible even while the native <details> is closed.
+   Only public university/admission filters are targeted. Maximum width is unchanged. */
+body.kgp-public.kgds-filter-route .kgp-shell details:is(.kgp-filter-panel,.kgds-filter-compact,.kgp-filter-container) > summary:has(.kgds-filter-status){
+  display:flex!important;
+  align-items:center;
+  flex-wrap:wrap;
+  column-gap:10px;
+  row-gap:6px;
+  min-height:48px!important;
+  padding:11px 16px!important;
+  line-height:22px!important;
+}
+body.kgp-public.kgds-filter-route .kgp-shell details.kgds-has-active-filters > summary{
+  color:#1e40af!important;
+  background:#f8faff;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-status{
+  display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;
+  max-width:100%;min-width:0;vertical-align:middle;
+  color:#475569;font-size:12px;line-height:18px;font-weight:500;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-status-idle{
+  color:#64748b;font-size:12px;line-height:20px;font-weight:500;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-status-count{
+  border-radius:999px;padding:3px 8px;background:#dbeafe;
+  color:#1d4ed8;font-size:12px;line-height:18px;font-weight:750;
+  white-space:nowrap;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-active-chip{
+  display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;padding:3px 8px;border-radius:6px;
+  background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;
+  font-size:12px;line-height:18px;font-weight:650;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-active-more{
+  color:#1d4ed8;font-size:12px;font-weight:750;
+}
+/* Selection hierarchy: unselected 13px neutral, selected 14px bold primary. */
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form label.kgds-filter-active-label,
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form .kgds-bool-active .kgds-bool-title{
+  color:#1d4ed8!important;font-size:14px!important;line-height:21px!important;
+  font-weight:750!important;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form :is(select,input,textarea).kgds-filter-active-control:not(.kgds-bool-native-select){
+  border-color:#93c5fd!important;background-color:#f8fbff!important;
+  box-shadow:inset 0 0 0 1px rgba(29,78,216,.05)!important;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-bool.kgds-bool-active button.kgds-bool-option[aria-pressed="true"]{
+  background:#eff6ff!important;color:#1d4ed8!important;border-color:#93c5fd!important;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-bool:not(.kgds-bool-active) button.kgds-bool-option[aria-pressed="true"]{
+  background:#fff!important;color:#475569!important;border-color:#cbd5e1!important;
+}
+/* 'Clear filters' is a secondary action. Keyword input is deliberately untouched. */
+body.kgp-public.kgds-filter-route .kgp-shell button.kgds-filter-clear,
+body.kgp-public.kgds-filter-route .kgp-shell input.kgds-filter-clear{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  min-height:44px!important;min-width:106px;max-width:100%;
+  padding:9px 15px!important;border:1px solid #cbd5e1!important;
+  border-radius:8px!important;background:#fff!important;color:#334155!important;
+  box-shadow:none!important;font-size:13px!important;line-height:20px!important;
+  font-weight:700!important;cursor:pointer;
+}
+body.kgp-public.kgds-filter-route .kgp-shell button.kgds-filter-clear:hover,
+body.kgp-public.kgds-filter-route .kgp-shell input.kgds-filter-clear:hover{
+  background:#f1f5f9!important;border-color:#94a3b8!important;
+}
+@media(max-width:380px){
+  body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-active-chip{max-width:128px;}
+}

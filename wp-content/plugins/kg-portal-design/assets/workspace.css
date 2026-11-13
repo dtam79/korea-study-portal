@@ -1,0 +1,155 @@
+/* Workspace 2.0 — scoped to portal administration, including dynamically mounted forms. */
+body.kgds-ui-admin{background:#f3f5f9;--kg-ui-border:#e2e8f0;--kg-ui-muted:#64748b;-webkit-font-smoothing:antialiased}
+body.kgds-ui-admin #wpbody-content{box-sizing:border-box}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){max-width:1320px;margin:28px 28px 48px 8px}
+body.kgds-ui-admin .kgp-operator-wrap>h1,body.kgds-ui-admin .kgpo-root-wrap>h1{font-size:15px;font-weight:650;letter-spacing:-.02em;padding:0 0 22px;color:#475569}
+body.kgds-ui-admin .kgp-subtitle{font-size:12px;color:#64748b;margin-left:12px;font-weight:400}
+body.kgds-ui-admin .kgds-workspace{display:grid;grid-template-columns:178px minmax(0,1fr);column-gap:28px;align-items:start}
+body.kgds-ui-admin .kgds-workspace>:not(.kgpa-nav):not(.kgpo-nav){grid-column:2;min-width:0}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav){grid-column:1;grid-row:1 / span 20;position:sticky;top:54px;display:flex;flex-direction:column;align-items:stretch;gap:4px;margin:0;padding:8px 10px 8px 0;border:0;border-right:1px solid #e2e8f0}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a{font-size:13px;min-height:42px;padding:10px 12px;border-radius:9px;color:#52617a;line-height:1.5}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a[aria-current=page]{background:#e6edff;color:#1d4ed8;box-shadow:inset 3px 0 #1d4ed8}
+body.kgds-ui-admin .kgpa-heading{padding:2px 0 22px}
+body.kgds-ui-admin .kgpa-heading h2,body.kgds-ui-admin .kgpo-page-title{font-size:28px;letter-spacing:-.045em;line-height:1.35;margin:0 0 8px}
+body.kgds-ui-admin .kgpa-heading p{font-size:13px;color:#64748b;margin:0;max-width:680px}
+body.kgds-ui-admin :is(.kgpa-content,.kgpo-page){display:grid;gap:20px}
+body.kgds-ui-admin :is(.kgpa-panel,.kgpa-review-card,.kgpa-panels>section,.kgpo-panel,.kgds-console-card,.kgds-meta-section){padding:24px;border:1px solid #e1e7ef;box-shadow:0 3px 12px #13274d04;border-radius:14px;background:white;margin:0;min-width:0}
+body.kgds-ui-admin :is(.kgpa-panel,.kgpa-panels>section,.kgpo-panel) h3{font-size:17px;margin:0 0 18px;line-height:1.5;letter-spacing:-.025em}
+body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpai-settings-form){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;margin:18px 0 24px}
+body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpa-inline-form) label{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:600;min-width:0}
+body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields) label:has(textarea){grid-column:1/-1}
+body.kgds-ui-admin .kgpa-inline-form{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+body.kgds-ui-admin .kgpa-inline-form>label{flex:1 1 220px}
+body.kgds-ui-admin .kgpa-inline-form>button{align-self:flex-end;margin-bottom:0}
+body.kgds-ui-admin #wpbody .wrap :is(input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea){box-sizing:border-box;border:1px solid #d7dfeb;background:#fcfdff;border-radius:9px;min-height:44px;padding:10px 12px;font-size:14px;line-height:1.5;color:#17243b;max-width:100%;box-shadow:0 1px 2px #0f172a03}
+body.kgds-ui-admin #wpbody .wrap :is(input,textarea)::placeholder{font-size:13px;color:#7b879b;font-weight:400}
+body.kgds-ui-admin #wpbody .wrap :is(input,select,textarea):focus{border-color:#6489ee;outline:3px solid #dce7ff;outline-offset:1px;background:#fff}
+body.kgds-ui-admin #wpbody .wrap input[type=hidden]{display:none!important}
+body.kgds-ui-admin #wpbody .wrap .button{border-radius:8px;min-height:40px;padding:8px 15px;line-height:1.5;font-size:13px;font-weight:600;border:1px solid #d6deec;background:white;color:#3d4d69;box-shadow:0 1px 2px #0f172a05;white-space:normal}
+body.kgds-ui-admin #wpbody .wrap :is(.button-primary,.kgpa-button-primary){background:#1d4ed8;color:white;border-color:#1d4ed8;box-shadow:0 3px 7px #1d4ed81a}
+body.kgds-ui-admin #wpbody .wrap .button:hover{border-color:#8ea6d9;background:#f0f5ff}
+body.kgds-ui-admin #wpbody .wrap :is(.button-primary,.kgpa-button-primary):hover{background:#1e40af;color:white}
+body.kgds-ui-admin .kgpa-actions{gap:10px;display:flex;align-items:center;flex-wrap:wrap}
+body.kgds-ui-admin .kgpa-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:10px;margin:14px 0}
+body.kgds-ui-admin table.widefat{border:0;box-shadow:none;border-collapse:collapse}
+body.kgds-ui-admin table.widefat th{background:#f7f9fc;font-size:12px;color:#52617a;font-weight:650;border-bottom:1px solid #e2e8f0;padding:12px 16px}
+body.kgds-ui-admin table.widefat td{padding:15px 16px;font-size:13px;vertical-align:middle;border-bottom:1px solid #edf1f6;background:white}
+body.kgds-ui-admin table.widefat tr:hover td{background:#f8faff}
+body.kgds-ui-admin .kgpa-source-row{display:grid;grid-template-columns:minmax(230px,2fr) repeat(2,minmax(120px,1fr));gap:14px;background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:14px;align-items:start}
+body.kgds-ui-admin :is(.kgpa-stats,.kgpo-kpis){gap:14px}
+body.kgds-ui-admin :is(.kgpa-stats article,.kgpo-kpis article){border:1px solid #e2e8f0;border-radius:12px;padding:18px}
+body.kgds-ui-admin :is(.kgpa-evidence-panel,.kgpa-action-panel){padding:18px;border:1px solid #e2e8f0;border-radius:10px;background:#f8faff}
+body.kgds-ui-admin .kgpa-action-panel{margin-top:16px;background:#f4f7ff}
+body.kgds-ui-admin .kgds-reference{position:relative;min-width:0;font-weight:400;display:block;width:100%}
+body.kgds-ui-admin .kgds-reference-search{position:relative}
+body.kgds-ui-admin .kgds-reference-search:before{content:'⌕';position:absolute;left:12px;top:6px;font-size:24px;color:#6480ae;pointer-events:none}
+body.kgds-ui-admin #wpbody .wrap .kgds-reference-search input{width:100%;padding-left:37px}
+body.kgds-ui-admin .kgds-reference-picked{display:grid;gap:7px;margin-bottom:8px}
+body.kgds-ui-admin .kgds-reference-picked:empty{display:none}
+body.kgds-ui-admin .kgds-reference-chip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0f5ff;border:1px solid #ccdbfb;border-radius:9px;padding:10px 12px;color:#173f9e}
+body.kgds-ui-admin .kgds-reference-chip>span{min-width:0}
+body.kgds-ui-admin .kgds-reference-chip strong{display:block;font-size:13px;font-weight:650;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgds-reference-chip small{display:block;font-size:11px;line-height:1.5;color:#53698d;margin-top:2px;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgds-reference-remove{flex:none;border:0;background:transparent;color:#496593;width:30px;height:30px;font-size:22px;cursor:pointer;border-radius:6px}
+body.kgds-ui-admin .kgds-reference-remove:hover{background:#dce7fc}
+body.kgds-ui-admin .kgds-reference-help{font-size:11px!important;line-height:1.6!important;color:#6b7b94;margin:6px 0 0!important;font-weight:400}
+body.kgds-ui-admin .kgds-reference-results{position:absolute;z-index:100;top:calc(100% - 20px);left:0;right:0;max-height:330px;overflow:auto;background:white;border:1px solid #cfdaef;border-radius:10px;box-shadow:0 12px 32px #172b4d26;padding:5px;min-width:0}
+body.kgds-ui-admin .kgds-reference-results[hidden]{display:none}
+body.kgds-ui-admin .kgds-reference-option{display:block;text-align:left;width:100%;padding:11px 12px;border:0;border-bottom:1px solid #f0f3f8;border-radius:6px;background:#fff;cursor:pointer;color:#17243b}
+body.kgds-ui-admin .kgds-reference-option strong{display:block;font-size:13px;font-weight:600;white-space:normal;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgds-reference-option small{display:block;font-size:11px;color:#64748b;margin-top:5px;white-space:normal;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgds-reference-option:hover,body.kgds-ui-admin .kgds-reference-option[aria-selected=true]{background:#edf3ff}
+body.kgds-ui-admin .kgds-reference-option:disabled{background:#f8fafc;color:#718096;cursor:not-allowed}
+body.kgds-ui-admin .kgds-reference-pages{display:flex;justify-content:space-between;padding:8px;gap:8px}
+body.kgds-ui-admin .kgds-reference-pages button{border:1px solid #d7dfeb;background:white;padding:8px 14px;border-radius:6px;color:#1d4ed8;cursor:pointer}
+body.kgds-ui-admin .kgds-reference-empty{padding:14px;font-size:13px!important;color:#64748b}
+body.kgds-ui-admin .kgds-data-view{display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,3fr);margin:0;font-size:13px}
+body.kgds-ui-admin .kgds-data-view dt,body.kgds-ui-admin .kgds-data-view dd{margin:0;padding:10px 12px;border-bottom:1px solid #edf1f6;overflow-wrap:anywhere}
+body.kgds-ui-admin .kgds-data-view dt{color:#64748b;background:#f8fafc}
+@media(max-width:1100px){body.kgds-ui-admin .kgds-workspace{display:block}body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav){position:static;flex-direction:row;overflow-x:auto;flex-wrap:nowrap;padding:4px 0 14px;margin-bottom:20px;border:0}body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a{white-space:nowrap}body.kgds-ui-admin .kgpa-source-row{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){margin:18px 12px 32px 0}body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpa-source-row,.kgpai-settings-form){grid-template-columns:1fr}body.kgds-ui-admin :is(.kgpa-panel,.kgpa-review-card,.kgpo-panel){padding:18px}body.kgds-ui-admin .kgds-reference-results{max-height:260px}body.kgds-ui-admin .kgpa-heading h2{font-size:24px}}
+body.kgds-ui-admin .kgds-metadata-editor form{max-width:100%!important;padding:24px!important;border:1px solid #e1e7ef!important;border-radius:14px}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-section{margin:18px 0;padding:20px;background:#fbfcff}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid>p{margin:0;min-width:0}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid input:not([type=hidden]),body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid select{width:100%}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid>p:has(.kgds-reference),body.kgds-ui-admin .kgds-metadata-editor .kgds-multi-line{grid-column:1/-1}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-field-pair{display:inline-flex;flex-direction:column;gap:7px;margin:0 16px 8px 0;min-width:160px}
+@media(max-width:700px){body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-grid{grid-template-columns:1fr}body.kgds-ui-admin .kgds-metadata-editor form{padding:16px!important}}
+body.kgds-ui-admin .kgds-reference-chip.is-unresolved{background:#fff8eb;border-color:#f0d8a4;color:#855b16}
+body.kgds-ui-admin .kgds-reference-chip.is-unresolved small{color:#855b16}
+
+/* ========================================================================== 
+   v2.1.0 — Desktop operator refinement from A01–A09 mockup screens 17–34.
+   Visual-only: never change inputs, submit actions, authorization or data states.
+   ========================================================================== */
+body.kgds-ui-admin {
+  --kg-ui-primary:#1d4ed8;--kg-ui-hover:#1e40af;--kg-ui-ink:#0f172a;
+  --kg-ui-muted:#475569;--kg-ui-border:#cbd5e1;--kg-ui-surface:#f8fafc;
+  background:#f3f6fa;color:var(--kg-ui-ink);
+}
+body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){
+  max-width:1440px;margin:24px 24px 44px 8px;font-size:14px;line-height:22px;
+}
+body.kgds-ui-admin .kgds-workspace {grid-template-columns:196px minmax(0,1fr);column-gap:24px;align-items:start}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav){padding:10px 12px 10px 0;border-right:1px solid #cbd5e1;top:56px;gap:3px}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a {padding:11px 13px;min-height:42px;font-size:13px;line-height:20px;border-radius:8px}
+body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a[aria-current="page"] {background:#e8f0ff;color:#1d4ed8;box-shadow:inset 3px 0 #1d4ed8}
+body.kgds-ui-admin .kgpa-heading {padding:0 0 20px}
+body.kgds-ui-admin .kgpa-heading h2,body.kgds-ui-admin .kgpo-page-title{font-size:26px;line-height:36px;letter-spacing:-.035em;margin:0 0 6px}
+body.kgds-ui-admin .kgpa-heading p{font-size:13px;line-height:20px;color:#475569;margin:0}
+body.kgds-ui-admin :is(.kgpa-content,.kgpo-page){gap:16px}
+body.kgds-ui-admin :is(.kgpa-panel,.kgpa-review-card,.kgpa-panels>section,.kgpo-panel,.kgds-console-card,.kgds-meta-section){
+  padding:22px 24px;border:1px solid #dce4ee;border-radius:12px;
+  background:white;box-shadow:0 1px 5px #0f172a08;min-width:0;
+}
+body.kgds-ui-admin :is(.kgpa-panel,.kgpa-panels>section,.kgpo-panel,.kgds-console-card) h3 {
+  margin:0 0 16px;font-size:17px;line-height:26px;font-weight:700;
+}
+body.kgds-ui-admin :is(.kgpa-stats,.kgpo-kpis){gap:12px}
+body.kgds-ui-admin :is(.kgpa-stats article,.kgpo-kpis article){padding:18px 20px;border-radius:12px;border-color:#dce4ee}
+body.kgds-ui-admin :is(.kgpa-stats small,.kgpo-kpis small){font-size:12px;line-height:18px;color:#475569;font-weight:600}
+body.kgds-ui-admin :is(.kgpa-stats strong,.kgpo-kpis strong){font-size:25px;line-height:34px;letter-spacing:-.03em}
+body.kgds-ui-admin #wpbody .wrap :is(input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea){
+  min-height:44px;padding:10px 13px;border:1px solid #64748b;border-radius:8px;background:#fff;
+  box-shadow:none;color:#0f172a;font-size:14px;line-height:22px;
+}
+body.kgds-ui-admin #wpbody .wrap :is(select){padding-right:40px}
+body.kgds-ui-admin #wpbody .wrap :is(input,textarea)::placeholder{font-size:13px;line-height:20px;color:#64748b}
+body.kgds-ui-admin #wpbody .wrap :is(input,select,textarea):focus-visible {outline:3px solid #93c5fd;outline-offset:2px;border-color:#1d4ed8}
+body.kgds-ui-admin #wpbody .wrap .button{min-height:40px;padding:9px 14px;border-radius:8px;font-size:13px;line-height:20px;font-weight:650}
+body.kgds-ui-admin #wpbody .wrap .button-primary{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpai-settings-form){gap:18px 22px;margin-block:16px 22px}
+body.kgds-ui-admin .kgpa-inline-form{gap:12px}
+body.kgds-ui-admin :is(.kgpa-source-row,.kgpa-evidence-panel,.kgpa-action-panel){border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc}
+body.kgds-ui-admin .kgpa-source-row{padding:16px;gap:12px;margin-bottom:12px}
+body.kgds-ui-admin .kgpa-action-panel {background:#eff6ff;border-color:#bfdbfe}
+body.kgds-ui-admin :is(.kgpa-table-wrap,.kgpo-scroll,.kgpai-scroll){border:1px solid #dce4ee;border-radius:10px;overflow-x:auto}
+body.kgds-ui-admin table.widefat{background:#fff}
+body.kgds-ui-admin table.widefat th {background:#f8fafc;padding:12px 14px;color:#475569;font-size:12px;line-height:18px;border-bottom:1px solid #cbd5e1}
+body.kgds-ui-admin table.widefat td{padding:13px 14px;font-size:13px;line-height:21px;border-bottom:1px solid #e2e8f0}
+body.kgds-ui-admin table.widefat tr:last-child td{border-bottom:none}
+body.kgds-ui-admin table.widefat tr:hover td{background:#f8fbff}
+body.kgds-ui-admin :is(.kgpa-state,.kgpo-badge,.kgds-state){border-radius:6px;padding:4px 9px;font-size:12px;line-height:18px}
+body.kgds-ui-admin .kgds-reference-results{top:calc(100% + 4px);border-color:#cbd5e1;border-radius:10px;box-shadow:0 14px 32px #10203724}
+body.kgds-ui-admin .kgds-reference-option{padding:12px 13px}
+body.kgds-ui-admin .kgds-reference-option strong{font-size:13px;line-height:20px}
+body.kgds-ui-admin .kgds-reference-option small{font-size:12px;line-height:18px}
+body.kgds-ui-admin .kgds-data-view{grid-template-columns:minmax(130px,1fr) minmax(0,2.5fr);font-size:13px}
+body.kgds-ui-admin .kgds-data-view :is(dt,dd){padding:11px 14px;line-height:20px}
+body.kgds-ui-admin .kgds-data-view dt{background:#f8fafc;color:#475569}
+body.kgds-ui-admin :is(.kgpa-json,.kgpo-diff pre){font-size:12px;line-height:19px;max-height:320px;border-radius:8px}
+body.kgds-ui-admin :is(.kgds-meta-section,.kgds-editor-panel,.kgds-review-panel){margin-bottom:16px}
+body.kgds-ui-admin .kgds-metadata-editor .kgds-meta-section{padding:20px}
+body.kgds-ui-admin :is(.kgds-section-hint,.kgds-meta-help){font-size:13px;line-height:20px;color:#475569}
+body.kgds-ui-admin :is(.kgpa-notice,.kgpa-note,.kgpo-note,.kgpo-feedback){padding:13px 16px;font-size:13px;line-height:20px;border-radius:8px}
+@media(max-width:1100px){
+  body.kgds-ui-admin .kgds-workspace{display:block}
+  body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav){position:static;flex-direction:row;flex-wrap:nowrap;gap:4px;overflow-x:auto;border-right:none;border-bottom:1px solid #cbd5e1;margin-bottom:20px;padding:0 0 12px}
+  body.kgds-ui-admin .kgds-workspace>:is(.kgpa-nav,.kgpo-nav) a{white-space:nowrap}
+}
+@media(max-width:700px){
+  body.kgds-ui-admin :is(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-console,.kgds-review-console,.kgds-metadata-editor){margin:14px 12px 30px 0}
+  body.kgds-ui-admin :is(.kgpa-panel,.kgpa-review-card,.kgpo-panel,.kgds-console-card){padding:16px}
+  body.kgds-ui-admin :is(.kgpa-form-grid,.kgpo-fields,.kgpai-settings-form,.kgpa-source-row){grid-template-columns:minmax(0,1fr)}
+}
