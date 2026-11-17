@@ -27,7 +27,9 @@ final class KGDS_Assets {
         wp_enqueue_script('kgds-public',plugins_url('assets/public.js',__FILE__),[],KGDS_VERSION,['strategy'=>'defer','in_footer'=>true]);
         $path=wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
         if (is_string($path) && preg_match('~^/(ko|en)/(?:universities|admissions)/?$~',$path)) {
-            wp_enqueue_script('kgds-filter-controls',plugins_url('assets/filter-controls.js',__FILE__),[],KGDS_VERSION,['strategy'=>'defer','in_footer'=>true]);
+            $filter_path=KGDS_DIR.'assets/filter-controls.js';
+            $filter_version=is_file($filter_path)?(string)filemtime($filter_path):KGDS_VERSION;
+            wp_enqueue_script('kgds-filter-controls',plugins_url('assets/filter-controls.js',__FILE__),[],$filter_version,['strategy'=>'defer','in_footer'=>true]);
         }
     }
     private static function operator_page(): bool {

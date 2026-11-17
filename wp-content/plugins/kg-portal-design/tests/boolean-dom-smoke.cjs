@@ -52,6 +52,13 @@ const regionLabel=new El('label','지역');const region=new El('select');region.
 region.options=[{textContent:'전체 지역',value:''},{textContent:'서울',value:'seoul'}];region.value='seoul';
 form.append(regionLabel,region);
 const priceLabel=new El('label','등록금 최대값 (원)');const price=new El('input');price.type='number';price.name='max_tuition';price.id='max_tuition';priceLabel.htmlFor='max_tuition';price.value='3500000';form.append(priceLabel,price);
+// Regression: the FIRST checkbox in a same-name group is unchecked, the SECOND is checked.
+// The applied summary must count the whole filter group and report the checked value.
+const checkboxA=new El('input');checkboxA.type='checkbox';checkboxA.name='region_extra[]';checkboxA.id='extra-a';checkboxA.value='seoul';checkboxA.checked=false;
+const checkboxB=new El('input');checkboxB.type='checkbox';checkboxB.name='region_extra[]';checkboxB.id='extra-b';checkboxB.value='busan';checkboxB.checked=true;
+const labelA=new El('label','서울');labelA.htmlFor='extra-a';
+const labelB=new El('label','부산');labelB.htmlFor='extra-b';
+form.append(labelA,checkboxA,labelB,checkboxB);
 const keywordField=new El('input');keywordField.name='q';keywordField.type='search';keywordField.value='KAIST';
 const details=new El('details');details.append(new El('summary','조건별 필터'),form);
 const main={querySelectorAll(q){if(q.includes('input[name=\"q\"]')||q.includes('input[type=\"search\"]'))return [keywordField];if(q==='label')return form.querySelectorAll('label');return q.startsWith('details,')?[details]:[];}};
@@ -89,9 +96,12 @@ getButtons(boxes[0])[0].click();
 getButtons(boxes[1])[0].click();
 form.dispatchEvent({type:'change'});
 assert.ok(details.classList.contains('kgds-has-active-filters'),'filter disclosure highlights active criteria');
-assert.ok(status.children.some(x=>x.classList.contains('kgds-filter-status-count')&&x.textContent==='4개 적용'),'count includes two positive switches, region and max tuition');
+assert.ok(status.children.some(x=>x.classList.contains('kgds-filter-status-count')&&x.textContent==='5개 적용'),'count includes positive switches, region select, numeric amount and second checked option');
 assert.ok(regionLabel.classList.contains('kgds-filter-active-label'),'selected region label highlighted');
 assert.ok(priceLabel.classList.contains('kgds-filter-active-label'),'selected numeric label highlighted');
+assert.ok(labelB.classList.contains('kgds-filter-active-label'),'second checked checkbox correctly highlighted');
+assert.ok(!labelA.classList.contains('kgds-filter-active-label'),'unchecked sibling remains unhighlighted');
+assert.ok(status.children.some(x=>x.classList.contains('kgds-filter-active-more')&&x.textContent==='+3'),'collapsed summary correctly counts remaining active criteria');
 // A single reset preserves only the typed search keyword, never the native filters.
 const reset=form.children.find(c=>c.classList.contains('kgds-filter-clear'));
 assert.ok(reset,'visible reset button is added to native filter form');
@@ -103,8 +113,10 @@ assert.equal(navigated.searchParams.get('q'),'KAIST');
 assert.equal([...navigated.searchParams.keys()].join(','),'q','all filter parameters removed');
 assert.equal(region.value,'','region resets to all');
 assert.equal(price.value,'','tuition resets to no bounds');
+assert.equal(checkboxA.checked,false,'unchecked checkbox stays clear');
+assert.equal(checkboxB.checked,false,'second checked checkbox resets');
 assert.equal(selects[0].value,'','certified resets to all');
 assert.equal(selects[1].value,'','English-only resets to all');
 assert.equal(keywordField.value,'KAIST','keyword input survives');
 assert.ok(!details.classList.contains('kgds-has-active-filters'),'active filter highlight removed');
-console.log('PASS: two choices, 4 active criteria with summary/label highlights, keyword-only reset removes ALL conditions and preserves keyword');
+console.log('PASS: two choices, 5 active criteria including checked secondary checkbox with summary/label highlights, keyword-only reset removes ALL conditions and preserves keyword');

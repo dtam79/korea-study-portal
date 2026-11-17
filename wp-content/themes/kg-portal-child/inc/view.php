@@ -85,10 +85,54 @@ function kgp_fe_detail_url(array $record, string $lang): string {
     if (!preg_match('/^[A-Za-z0-9_-]{2,64}$/D',$uni) || !preg_match('/^[A-Za-z0-9_-]{2,64}$/D',$offering)) return kgp_fe_url($lang,'universities/');
     return add_query_arg(['offering'=>$offering],kgp_fe_url($lang,'universities/'.rawurlencode($uni).'/'));
 }
+/** Render only a verified BCP-47 teaching language code. Never infer language from an English-only badge. */
+function kgp_fe_teaching_languages($languages): string {
+    if (!is_array($languages)) return '';
+    $labels=[];
+    foreach ($languages as $tag) {
+        if (!is_string($tag) || !preg_match('/^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/D',$tag)) continue;
+        $key = 'choice.teaching_lang.'.$tag;
+        $labels[] = kgp_fe_t($key, match ($tag) { 'ko'=>'Korean', 'en'=>'English', default=>$tag });
+    }
+    return implode(', ',array_values(array_unique($labels)));
+}
+
+/** Date-only values stay date-only; full timestamps are displayed in the SOURCE timezone. */
+function kgp_fe_official_admission_date(array $admission, string $kind): string {
+    if (!in_array($kind,['start','end'],true)) return '';
+    $date = (string)($admission[$kind.'_date']??'');
+    $precision = (string)($admission[$kind.'_precision']??'');
+    $utc = (string)($admission[$kind==='start'?'starts_at_utc':'ends_at_utc']??'');
+    $zone = (string)($admission['timezone']??'');
+    if (in_array($precision,['minute','second'],true) && $utc !== '' && $zone !== '') {
+        try {
+            $utc_time = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s',$utc,new DateTimeZone('UTC'));
+            if ($utc_time && $utc_time->format('Y-m-d H:i:s') === $utc) {
+                $local = $utc_time->setTimezone(new DateTimeZone($zone));
+                return $local->format($precision==='second'?'Y-m-d H:i:s':'Y-m-d H:i').' ('.$zone.')';
+            }
+        } catch (Throwable $e) { /* Never display a fabricated timezone/time. */ }
+    }
+    return preg_match('/^\d{4}-\d{2}-\d{2}$/D',$date) ? $date : '';
+}
+function kgp_fe_admission_time_unpublished(array $admission, string $kind): bool {
+    $precision=(string)($admission[$kind.'_precision']??'');
+    if (in_array($precision,['minute','second'],true)) {
+        return kgp_fe_official_admission_date($admission,$kind) === (string)($admission[$kind.'_date']??'');
+    }
+    return true;
+}
+
 function kgp_fe_card(array $item, string $lang): void {
     $status=(string)($item['admission']['status']??'unknown');
     $p = is_array($item['tuition']??null) && $item['tuition'] ? kgp_fe_price($item['tuition'][0]) : '';
     $region=(string)($item['campus_region']??'');
+    $teaching=kgp_fe_teaching_languages($item['teaching_languages']??[]);
+    $academicYear=(int)($item['academic_year']??0);
+    $academicTerm=trim((string)($item['academic_term']??''));
+    $round=trim(($academicYear>0?$academicYear.' ':'').$academicTerm);
+    $admission=is_array($item['admission']??null)?$item['admission']:[];
+    $deadline=kgp_fe_official_admission_date($admission,'end');
     $url = kgp_fe_detail_url($item,$lang);
     ?>
     <article class="kgp-card" data-offering-id="<?php echo kgp_fe_attr($item['offering_id']??''); ?>">
@@ -100,8 +144,10 @@ function kgp_fe_card(array $item, string $lang): void {
         <p class="kgp-card__program"><?php echo kgp_fe_h($item['program_name']??''); ?><?php if (!empty($item['campus_name'])): ?> · <?php echo kgp_fe_h($item['campus_name']); ?><?php endif; ?></p>
         <dl class="kgp-pairs">
             <div><dt><?php echo kgp_fe_h(kgp_fe_t('label.level','Degree')); ?></dt><dd><?php echo kgp_fe_h((string)($item['level']??'')); ?></dd></div>
+            <?php if ($round!==''): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.intake_round','Admission round')); ?></dt><dd><?php echo kgp_fe_h($round); ?></dd></div><?php endif; ?>
+            <?php if ($teaching!==''): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.teaching_languages','Teaching language')); ?></dt><dd><?php echo kgp_fe_h($teaching); ?></dd></div><?php endif; ?>
             <div><dt><?php echo kgp_fe_h(kgp_fe_t('label.tuition','Published tuition')); ?></dt><dd><?php echo $p?kgp_fe_h($p):kgp_fe_h(kgp_fe_t('state.no_tuition','Not publicly available')); ?></dd></div>
-            <?php if (!empty($item['admission']['end_date'])): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($item['admission']['end_date']); ?> <span class="kgp-small"><?php echo kgp_fe_h(kgp_fe_t('label.check_time','Check official time')); ?></span></dd></div><?php endif; ?>
+            <?php if ($deadline!==''): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($deadline); ?><?php if (kgp_fe_admission_time_unpublished($admission,'end')): ?> <span class="kgp-small"><?php echo kgp_fe_h(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
             <?php if (($item['certified']??null)!==null): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.certified','Accreditation')); ?></dt><dd><?php echo kgp_fe_h(($item['certified']??false)?kgp_fe_t('label.yes','Verified yes'):kgp_fe_t('label.no','Verified no')); ?></dd></div><?php endif; ?>
         </dl>
         <a class="kgp-textlink" href="<?php echo esc_url($url); ?>"><?php echo kgp_fe_h(kgp_fe_t('action.details','View official details')); ?> <span aria-hidden="true">&rarr;</span></a>

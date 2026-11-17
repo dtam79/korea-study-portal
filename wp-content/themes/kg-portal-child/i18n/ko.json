@@ -243,5 +243,10 @@
   "field.published_alumni_cases": "공식 졸업생 사례",
   "field.employment_resources": "취업 정보 자료",
   "field.target_population": "적용 대상",
-  "field.publication_year": "발표 연도"
+  "field.publication_year": "발표 연도",
+  "label.teaching_languages": "수업 언어",
+  "label.intake_round": "모집 학년도·학기",
+  "action.contact_operator": "포털 운영자에게 문의",
+  "action.contact_university": "대학에 직접 문의",
+  "detail.contents": "이 페이지의 목차"
 }

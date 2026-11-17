@@ -217,7 +217,9 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
     if (!$detail['ok'] || ($detail['data']['university_id']??'')!==$public_id) {
         kgp_fe_notice(kgp_fe_t('state.invalid_offering','This program or intake is unavailable for this university. Select a valid offering above.'),'error');return;
     }
-    $d=$detail['data'];$admission=$d['admission']??[];
+    $d=$detail['data'];$admission=is_array($d['admission']??null)?$d['admission']:[];
+    $startDisplay=kgp_fe_official_admission_date($admission,'start');
+    $endDisplay=kgp_fe_official_admission_date($admission,'end');
     ?>
     <section class="kgp-section" aria-labelledby="kgp-course-heading">
       <p class="kgp-eyebrow"><?php echo esc_html(kgp_fe_t('detail.selected','Selected offering')); ?></p>
@@ -230,8 +232,8 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
           if ($prices) foreach ($prices as $price) echo '<div>'.esc_html(kgp_fe_price($price)).'</div>';
           else echo esc_html(kgp_fe_t('state.no_tuition','Not publicly available'));
         ?></dd></div>
-        <?php if (!empty($admission['start_date'])): ?><div><dt><?php echo esc_html(kgp_fe_t('label.opening','Opens')); ?></dt><dd><?php echo kgp_fe_h($admission['start_date']); ?></dd></div><?php endif; ?>
-        <?php if (!empty($admission['end_date'])): ?><div><dt><?php echo esc_html(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($admission['end_date']); ?><?php if (($admission['end_precision']??'')!=='minute'&&($admission['end_precision']??'')!=='second'): ?><span class="kgp-small"> <?php echo esc_html(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
+        <?php if ($startDisplay!==''): ?><div><dt><?php echo esc_html(kgp_fe_t('label.opening','Opens')); ?></dt><dd><?php echo kgp_fe_h($startDisplay); ?><?php if (kgp_fe_admission_time_unpublished($admission,'start')): ?><span class="kgp-small"> <?php echo esc_html(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
+        <?php if ($endDisplay!==''): ?><div><dt><?php echo esc_html(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($endDisplay); ?><?php if (kgp_fe_admission_time_unpublished($admission,'end')): ?><span class="kgp-small"> <?php echo esc_html(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
       </dl>
       <div class="kgp-action-stack">
       <?php if (!empty($d['intake']['application_url'])):
@@ -242,15 +244,25 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
         $url=kgp_fe_safe_url($d['university']['official_website']);
         if ($url): ?><a class="kgp-button kgp-button--secondary" href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html(kgp_fe_t('action.official_site','Official university website')); ?></a><?php endif; ?>
       <?php endif; ?>
+      <a class="kgp-button kgp-button--secondary" href="<?php echo esc_url(add_query_arg(['university'=>$public_id,'offering'=>$selected],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_operator','Contact the portal operator')); ?></a>
+      <a class="kgp-textlink" href="<?php echo esc_url(add_query_arg(['type'=>'university','university'=>$public_id],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_university','Contact the university directly')); ?></a>
       </div>
       <p class="kgp-micro"><?php echo esc_html(kgp_fe_t('detail.external','The portal does not receive applications. Always verify the latest official requirements.')); ?></p>
     </section>
     <section class="kgp-section" aria-labelledby="kgp-sections-heading">
       <h2 id="kgp-sections-heading"><?php echo esc_html(kgp_fe_t('detail.sections','Published details and evidence')); ?></h2>
       <?php if (empty($d['sections'])):kgp_fe_notice(kgp_fe_t('state.no_sections','No section-level evidence has been published yet.')); ?>
-      <?php else:
-          foreach ($d['sections'] as $section): ?>
-            <details class="kgp-detail-section"><summary><?php echo kgp_fe_h($section['title']??$section['id']); ?></summary><div class="kgp-detail-body">
+      <?php else: ?>
+        <nav class="kgp-detail-toc" aria-label="<?php echo esc_attr(kgp_fe_t('detail.contents','On this page')); ?>">
+          <p class="kgp-detail-toc__title"><?php echo esc_html(kgp_fe_t('detail.contents','On this page')); ?></p>
+          <ul>
+          <?php foreach ($d['sections'] as $tocSection): ?>
+            <li><a href="#<?php echo esc_attr('kgp-det-'.($tocSection['id']??'')); ?>"><?php echo kgp_fe_h($tocSection['title']??$tocSection['id']); ?></a></li>
+          <?php endforeach; ?>
+          </ul>
+        </nav>
+        <?php foreach ($d['sections'] as $sectionIndex=>$section): ?>
+            <details class="kgp-detail-section" id="<?php echo esc_attr('kgp-det-'.($section['id']??'')); ?>" <?php echo $sectionIndex===0?'open':''; ?>><summary><?php echo kgp_fe_h($section['title']??$section['id']); ?></summary><div class="kgp-detail-body">
               <?php foreach (($section['groups']??[]) as $group): ?>
                 <div class="kgp-scope"><p class="kgp-scope-title"><?php echo esc_html(kgp_fe_t('scope.'.($group['scope']??''),ucfirst((string)($group['scope']??'')))); ?></p>
                   <?php foreach (($group['fields']??[]) as $field): ?>

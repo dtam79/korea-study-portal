@@ -8,9 +8,13 @@ foreach ($files as $name) $expect(is_file($root.'/'.$name),'Missing '.$name);
 $style=(string)file_get_contents($root.'/style.css');
 $expect(str_contains($style,'Template: kadence'),'Kadence parent is not configured.');
 $routes=(string)file_get_contents($root.'/inc/routes.php');
-foreach (['home','search','university','admissions','guides','guide','faq','contact'] as $name) {
+foreach (['home','search','university','admissions','guides','guide','faq'] as $name) {
     $expect(str_contains($routes,'kgp_screen='.$name),'Missing route '.$name);
 }
+// P08/P09 are registered by the admin plugin, not the child theme.
+$adminContact=$root.'/../../plugins/kg-portal-admin/inc/inquiry/class-public.php';
+$expect(is_file($adminContact) && str_contains((string)@file_get_contents($adminContact),'kgpa_contact'),
+    'Missing P08/P09 routes in the admin plugin.');
 $view=(string)file_get_contents($root.'/inc/view.php');
 $expect(str_contains($view,"'/kgp/v1/'"),'Public pages must use the approved KGP REST namespace.');
 $expect(str_contains($view,"rest_do_request"),'Missing REST integration.');

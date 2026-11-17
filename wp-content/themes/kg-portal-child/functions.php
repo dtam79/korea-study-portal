@@ -11,7 +11,8 @@ require_once KGP_FE_DIR . '/inc/view.php';
 
 add_action('wp_enqueue_scripts', static function (): void {
     if (!kgp_fe_is_public_route()) return;
-    wp_enqueue_style('kgp-fe-site', get_stylesheet_directory_uri() . '/assets/css/site.css', [], KGP_FE_VERSION);
+    $site_css = KGP_FE_DIR . '/assets/css/site.css';
+    wp_enqueue_style('kgp-fe-site', get_stylesheet_directory_uri() . '/assets/css/site.css', [], is_file($site_css) ? (string) filemtime($site_css) : KGP_FE_VERSION);
     wp_enqueue_script('kgp-fe-site', get_stylesheet_directory_uri() . '/assets/js/site.js', [], KGP_FE_VERSION, ['strategy' => 'defer', 'in_footer' => true]);
 }, 100);
 

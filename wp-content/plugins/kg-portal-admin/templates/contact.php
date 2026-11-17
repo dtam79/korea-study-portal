@@ -12,6 +12,9 @@ $ids=array_column($unis,'id');
 if (!in_array($selected_uni,$ids,true)) $selected_uni='';
 $university=$mode==='university'&&$selected_uni?KGP_Operator_Contact_Pages::university_contact($selected_uni,$lang):null;
 $programs=(!$is_done&&$mode==='operator'&&$selected_uni)?KGP_Public_Catalog::university($selected_uni,$lang):null;
+$selected_offering=isset($_GET['offering'])&&is_scalar($_GET['offering'])?sanitize_text_field(wp_unslash((string)$_GET['offering'])):'';
+$allowed_offerings=array_column($programs['offerings']??[],'offering_id');
+if (!in_array($selected_offering,$allowed_offerings,true)) $selected_offering='';
 $receipt=isset($_GET['receipt'])&&is_scalar($_GET['receipt'])?(string)$_GET['receipt']:'';
 $receipt=preg_match('/^KGP-[A-F0-9]{24}$/D',$receipt)?$receipt:'';
 $status_error=isset($_GET['error'])&&is_scalar($_GET['error'])?sanitize_key((string)$_GET['error']):'';
@@ -115,7 +118,7 @@ status_header($is_done&&$receipt===''?404:200);
       </select>
       <label for="kgpa-offering"><?php echo esc_html($t('program')); ?></label>
       <select name="offering_public_id" id="kgpa-offering"><option value=""><?php echo esc_html($t('select')); ?></option>
-        <?php foreach (($programs['offerings']??[]) as $o): ?><option value="<?php echo esc_attr($o['offering_id']); ?>"><?php echo esc_html(trim(($o['program_name']??'').' · '.($o['academic_year']??'').' '.($o['academic_term']??''))); ?></option><?php endforeach; ?>
+        <?php foreach (($programs['offerings']??[]) as $o): ?><option value="<?php echo esc_attr($o['offering_id']); ?>" <?php selected($selected_offering,$o['offering_id']); ?>><?php echo esc_html(trim(($o['program_name']??'').' · '.($o['academic_year']??'').' '.($o['academic_term']??''))); ?></option><?php endforeach; ?>
       </select>
       <p class="kgpa-help"><?php echo $lang==='en'?'To choose a program, select a university and load its published offerings.':'전공을 선택하려면 대학을 선택한 뒤 아래 버튼을 눌러 주세요.'; ?></p>
       <button type="button" id="kgpa-load-university" data-endpoint="<?php echo esc_url(rest_url('kgpa/v1/offerings')); ?>" class="kgpa-secondary"><?php echo $lang==='en'?'Load programs':'전공 목록 불러오기'; ?></button>

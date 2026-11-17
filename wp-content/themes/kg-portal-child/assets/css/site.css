@@ -162,3 +162,13 @@ body.kgp-public .kgp-shell > footer.kgp-footer .kgp-footer-links a:focus-visible
   body.kgp-public .kgp-shell > footer.kgp-footer,
   .kgp-shell > footer.kgp-footer { padding: 16px 16px 20px; }
 }
+
+/* P03 published-only table of contents (the source API omits empty/unapproved sections). */
+body.kgp-public .kgp-detail-toc{border:1px solid #dce4ee;background:#f8fafc;border-radius:12px;padding:16px;margin:0 0 20px}
+body.kgp-public .kgp-detail-toc__title{font-weight:700;font-size:14px;line-height:22px;margin:0 0 10px;color:#0f172a}
+body.kgp-public .kgp-detail-toc ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+body.kgp-public .kgp-detail-toc li{font-size:14px;line-height:22px;margin:0}
+body.kgp-public .kgp-detail-toc a{display:block;padding:6px 8px;border-radius:8px;color:#1d4ed8;text-decoration:none}
+body.kgp-public .kgp-detail-toc a:hover{background:#eff6ff;text-decoration:underline}
+body.kgp-public .kgp-detail-toc a:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}
+body.kgp-public .kgp-detail-section[id]{scroll-margin-top:22px}

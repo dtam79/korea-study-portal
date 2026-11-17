@@ -137,7 +137,8 @@
   }
   function summaryItems(form){
     const result=[],seen=new Set();
-    for(const el of form.querySelectorAll('select,input,textarea')){
+    const controls=[...form.querySelectorAll('select,input,textarea')];
+    for(const el of controls){
       if(el.disabled||el.type==='hidden'||!el.name||keywordKeys.has(el.name.toLowerCase())||seen.has(el.name))continue;
       seen.add(el.name);
       const label=labelFor(form,el);
@@ -154,14 +155,32 @@
           shown=`${name}: ${text(chosen?.textContent||el.value)}`;
         }
       }else if(el.type==='checkbox'||el.type==='radio'){
-        active=el.checked;
-        shown=name;
+        // Multiple checkboxes share a name (e.g. region[]). Count the GROUP once,
+        // but inspect ALL choices; the first checkbox may be unchecked.
+        const group=controls.filter(item=>item.name===el.name && !item.disabled && item.type===el.type);
+        const choices=group.filter(item=>item.checked);
+        const legend=el.closest?.('fieldset')?.querySelector?.('legend');
+        const groupName=text(legend?.textContent||el.name.replace(/\[\]$/,''));
+        const selectedNames=choices.map(item=>{
+          const childLabel=labelFor(form,item);
+          childLabel?.classList.toggle('kgds-filter-active-label',true);
+          return caption(childLabel)||text(item.value);
+        });
+        for(const item of group){
+          const itemLabel=labelFor(form,item);
+          itemLabel?.classList.toggle('kgds-filter-active-label',item.checked);
+          item.classList.toggle('kgds-filter-active-control',item.checked);
+        }
+        active=choices.length>0;
+        shown=groupName+': '+selectedNames.join(', ');
       }else if(['number','text','search','date','range','tel'].includes(el.type)||el.tagName==='TEXTAREA'){
         active=!!el.value.trim();
         shown=`${name}: ${text(el.value)}`;
       }
-      label?.classList.toggle('kgds-filter-active-label',active);
-      el.classList.toggle('kgds-filter-active-control',active);
+      if(el.type!=='checkbox'&&el.type!=='radio'){
+        label?.classList.toggle('kgds-filter-active-label',active);
+        el.classList.toggle('kgds-filter-active-control',active);
+      }
       if(active)result.push(shown.slice(0,52));
     }
     return result;
