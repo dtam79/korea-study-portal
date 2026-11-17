@@ -174,3 +174,13 @@ body.kgds-ui-admin :where(.kgp-operator-wrap,.kgpo-root-wrap,.kgds-content-conso
  body.kgds-ui-admin .kgpai-details{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){body.kgds-ui-admin *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition:none!important}}
+
+/* A03 entity-only preflight and intake duplication; does not affect P01-P10. */
+body.kgds-ui-admin #kgpa-entity-editor .kgds-a03-copy-button{margin-left:10px}
+body.kgds-ui-admin #kgds-a03-copy{margin-top:20px;border-color:#bfdbfe}
+body.kgds-ui-admin #kgds-a03-copy>p{color:var(--kg-ui-muted);max-width:85ch;line-height:1.65}
+body.kgds-ui-admin #kgds-a03-copy .kgds-a03-check{display:flex;align-items:flex-start;flex-direction:row;gap:10px;margin:18px 0;line-height:1.65;font-size:13px;color:var(--kg-ui-ink)}
+body.kgds-ui-admin #kgds-a03-copy .kgds-a03-check input[type=checkbox]{flex:0 0 auto;width:18px;height:18px;margin:2px 0 0}
+body.kgds-ui-admin #kgpa-entity-editor .kgds-a03-validation{padding:12px 14px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;color:#1e40af;font-size:13px;margin:0 0 14px;line-height:1.5}
+body.kgds-ui-admin #kgpa-entity-editor .kgds-a03-validation.is-error{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
+@media(max-width:782px){body.kgds-ui-admin #kgpa-entity-editor .kgds-a03-copy-button{display:block;margin:12px 0 0}}

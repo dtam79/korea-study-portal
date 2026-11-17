@@ -16,7 +16,7 @@ checks={
  'selected labels highlighted': 'kgds-filter-active-label' in css,
  'selected Boolean positive highlighted': '.kgds-bool.kgds-bool-active' in css,
  'reset styled as secondary action': 'button.kgds-filter-clear' in css,
- 'correct plugin version': "Version: 2.1.2" in php,
+ 'correct plugin version': "Version: 2.1.3" in php,
  'public 480px cap remains': 'max-width:480px!important' in (root/'assets/public.css').read_text(),
 }
 for name,ok in checks.items():

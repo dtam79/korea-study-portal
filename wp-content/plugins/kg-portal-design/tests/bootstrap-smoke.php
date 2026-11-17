@@ -19,7 +19,7 @@ function wp_json_encode($x){return json_encode($x);}
 function wp_add_inline_script(...$args){}
 require dirname(__DIR__).'/kg-portal-design.php';
 function check($condition,$text){if(!$condition)throw new RuntimeException('FAIL: '.$text);echo "PASS: $text\n";}
-check(KGDS_VERSION==='2.1.2','Version');
+check(KGDS_VERSION==='2.1.3','Version');
 check(($actions['wp_enqueue_scripts'][0]['priority']??0)===999,'Public styles load after original template styles');
 check(($actions['admin_enqueue_scripts'][0]['priority']??0)===999,'Admin styles load after original styles');
 $_SERVER['REQUEST_URI']='/ko/guides/';$GLOBALS['is_admin']=false;
@@ -34,6 +34,12 @@ $styles=[];$scripts=[];$GLOBALS['screen']=(object)['post_type'=>'post'];$_GET['p
 KGDS_Assets::admin_assets();check(isset($styles['kgds-admin']),'Source monitoring admin gets theme');
 $styles=[];$scripts=[];$_GET['page']='nothing';KGDS_Assets::admin_assets();
 check(!$styles,'Unrelated admin pages untouched');
+$styles=[];$scripts=[];$_GET['page']='kgp-operator-entities';
+KGDS_Assets::admin_assets();
+check(isset($scripts['kgds-a03-workflow']),'A03 relation and intake-copy enhancer loaded only on entity page');
+$styles=[];$scripts=[];$_GET['page']='kgp-operator-fields';
+KGDS_Assets::admin_assets();
+check(!isset($scripts['kgds-a03-workflow']),'A03 enhancer not loaded on field editor');
 $_GET['page']='kgpc-review';
 check(str_contains(KGDS_Assets::admin_class('wp-admin'),'kgds-ui-admin'),'WordPress admin body receives scoped class');
 

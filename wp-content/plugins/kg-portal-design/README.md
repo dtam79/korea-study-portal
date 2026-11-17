@@ -1,4 +1,4 @@
-# KG Portal Design System v2.1.2
+# KG Portal Design System v2.1.3
 
 **UI/UX only.** This is a complete replacement for the installed `kg-portal-design` plugin **v2.0.0**. It retains all relationship lookup, native filter values/query, search, editor, WordPress REST routing and save/review logic of the uploaded v2.0.0 source. It does not replace or modify Core, Admin, Content, Ops, Child Theme, database schema or approved publications.
 
@@ -136,3 +136,11 @@ python3 wp-content/plugins/kg-portal-design/tests/logic-integrity.py
 ### Browser verification
 
 On `/ko/universities/` enter a search keyword, select `인증` plus a region or tuition bound, and click `필터 초기화`. The resulting address should contain only the keyword parameter (such as `?q=KAIST`), with all advanced filter values cleared. Check the same behavior on `/ko/admissions/` and `/en/...` and browser Back. If your WordPress theme uses a nonstandard keyword parameter, adjust `keywordKeys` in `assets/filter-controls.js` to match the **existing** parameter name; do not modify REST logic.
+
+
+## v2.1.3 — A03 dependent relationship preflight and intake duplication
+
+- A03 create forms for programs and offerings now check the selected university/campus/major/intake **against the private lookup endpoint** before passing a valid form back to the existing Admin create handler. The Core server remains authoritative and unchanged.
+- Editing an existing intake provides a **duplicate as new draft** action. The form requires a new public ID, re-entered year, cleared application dates/URL, and an acknowledgement to recheck official evidence. Approval, sources and translations are never copied.
+- Only A03 entities loads the extra JS. All public screens, Core APIs, source approval and revision checks remain unchanged.
+- Run `node tests/a03-workflow-smoke.cjs`, `php tests/bootstrap-smoke.php`, and the read-only WordPress test `ddev wp --user=1 eval-file wp-content/plugins/kg-portal-design/tests/a03-wp-readonly-smoke.php`.
