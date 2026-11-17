@@ -123,6 +123,11 @@ function kgp_fe_admission_time_unpublished(array $admission, string $kind): bool
     return true;
 }
 
+/** Approved source check dates only; missing, invalid or invented timestamps stay hidden. */
+function kgp_fe_card_check_date($value): string {
+    if (!is_string($value) || !preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D',$value,$parts)) return '';
+    return checkdate((int)$parts[2],(int)$parts[3],(int)$parts[1]) ? $value : '';
+}
 function kgp_fe_card(array $item, string $lang): void {
     $status=(string)($item['admission']['status']??'unknown');
     $p = is_array($item['tuition']??null) && $item['tuition'] ? kgp_fe_price($item['tuition'][0]) : '';
@@ -133,6 +138,7 @@ function kgp_fe_card(array $item, string $lang): void {
     $round=trim(($academicYear>0?$academicYear.' ':'').$academicTerm);
     $admission=is_array($item['admission']??null)?$item['admission']:[];
     $deadline=kgp_fe_official_admission_date($admission,'end');
+    $checked=kgp_fe_card_check_date($item['card_source_checked_at']??null);
     $url = kgp_fe_detail_url($item,$lang);
     ?>
     <article class="kgp-card" data-offering-id="<?php echo kgp_fe_attr($item['offering_id']??''); ?>">
@@ -149,6 +155,7 @@ function kgp_fe_card(array $item, string $lang): void {
             <div><dt><?php echo kgp_fe_h(kgp_fe_t('label.tuition','Published tuition')); ?></dt><dd><?php echo $p?kgp_fe_h($p):kgp_fe_h(kgp_fe_t('state.no_tuition','Not publicly available')); ?></dd></div>
             <?php if ($deadline!==''): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($deadline); ?><?php if (kgp_fe_admission_time_unpublished($admission,'end')): ?> <span class="kgp-small"><?php echo kgp_fe_h(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
             <?php if (($item['certified']??null)!==null): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.certified','Accreditation')); ?></dt><dd><?php echo kgp_fe_h(($item['certified']??false)?kgp_fe_t('label.yes','Verified yes'):kgp_fe_t('label.no','Verified no')); ?></dd></div><?php endif; ?>
+            <?php if ($checked!==''): ?><div><dt><?php echo kgp_fe_h(kgp_fe_t('label.source_check','Official source check date')); ?></dt><dd><time datetime="<?php echo esc_attr($checked); ?>"><?php echo kgp_fe_h($checked); ?></time><span class="kgp-small"> · <?php echo kgp_fe_h(kgp_fe_t('label.source_check_note','Oldest check among displayed source-backed information')); ?></span></dd></div><?php endif; ?>
         </dl>
         <a class="kgp-textlink" href="<?php echo esc_url($url); ?>"><?php echo kgp_fe_h(kgp_fe_t('action.details','View official details')); ?> <span aria-hidden="true">&rarr;</span></a>
     </article>
@@ -214,7 +221,7 @@ function kgp_fe_sources(array $sources): void {
         echo '<li>';
         if ($url) echo '<a href="'.esc_url($url).'" rel="noopener noreferrer" target="_blank">'.esc_html((string)($source['title']??$url)).'</a>';
         else echo esc_html((string)($source['title']??''));
-        foreach (['document_locator','locator','applicability','checked_at','valid_from','valid_to'] as $key) {
+        foreach (['publisher','document_locator','locator','applicability','checked_at','valid_from','valid_to'] as $key) {
             if (!empty($source[$key])) echo '<span class="kgp-source-meta">'.esc_html(kgp_fe_field_label($key)).': '.esc_html((string)$source[$key]).'</span>';
         }
         echo '</li>';

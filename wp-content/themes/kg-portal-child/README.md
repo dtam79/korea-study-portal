@@ -1,4 +1,4 @@
-# KG Portal FE v0.5.0 - public screens P01-P04
+# KG Portal FE v0.5.1 - public screens P01-P04
 
 **Depends on**: WordPress 7+, active Kadence Theme + `kg-portal-child`, installed/active `kg-portal-core` version 0.4.0 or newer, DDEV. Does not replace or modify the KGP Core plugin or its 20 tables.
 
@@ -69,3 +69,7 @@ The above features must be implemented before claiming full project completion. 
 - `php tests/static-smoke.php`
 - DDEV WordPress integration smoke (must be run by the project owner; no local DDEV instance is accessible here)
 - Manual browser tests at 320/360/390/430/768/1024/1440 widths, zoom 200%, keyboard-only interactions, long text and approval revocation behavior.
+
+## v0.5.1 supplemental release — P02/P03/P04 provenance display
+
+Shows `card_source_checked_at` when an actual verified date exists on the P02/P04 card and the selected P03 offering. The label explicitly indicates the oldest check among contributing sources; missing values remain hidden. Inline source disclosures now show the official issuing organization, source locator, applicability, validity and check date. No filters, approval, user permissions, cost conversions or business logic are changed.

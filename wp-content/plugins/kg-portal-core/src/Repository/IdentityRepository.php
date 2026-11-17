@@ -165,9 +165,13 @@ final class KGP_Identity_Repository {
         $data = json_decode((string)$pub['published_json'],true);
         if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) return null;
         $source = KGP_DB::require_row('sources',(int)$pub['published_source_id']);
+        $issuer = KGP_DB::require_row('issuers',(int)$source['issuer_id']);
         $data['identity_evidence'] = [
-            'title'=>$source['document_title'], 'public_url'=>$source['public_url'],
+            'title'=>$source['document_title'], 'publisher'=>$issuer['official_name'],
+            'public_url'=>$source['public_url'],
             'locator'=>$pub['published_source_locator'] ?: $source['document_locator'],
+            'applicability'=>$source['applicable_to'],
+            'valid_from'=>$source['valid_from'], 'valid_to'=>$source['valid_to'],
             'checked_at'=>$source['checked_at'],
         ];
         return $data;

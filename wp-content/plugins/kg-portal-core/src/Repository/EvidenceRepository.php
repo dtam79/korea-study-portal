@@ -92,9 +92,11 @@ final class KGP_Evidence_Repository {
             if ($link['valid_to'] !== null && $link['valid_to'] < gmdate('Y-m-d')) return [];
             if ($link['valid_from'] !== null && $link['valid_from'] > gmdate('Y-m-d')) return [];
             $source = KGP_DB::require_row('sources', (int)$link['source_id']);
+            $issuer = KGP_DB::require_row('issuers', (int)$source['issuer_id']);
             $items[] = [
                 'source_id' => (int)$source['id'],
                 'title' => $source['document_title'],
+                'publisher' => $issuer['official_name'],
                 'public_url' => $source['public_url'],
                 'document_locator' => $link['original_locator'] ?: $source['document_locator'],
                 'checked_at' => $source['checked_at'],

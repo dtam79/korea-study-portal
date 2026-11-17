@@ -1,4 +1,4 @@
-# KG Portal Core v0.4.0 — REST API / Reviewed Publication
+# KG Portal Core v0.4.1 — REST API / Reviewed Publication
 
 This version extends the successfully tested v0.3.0 domain package. It preserves all existing repository, field-validation, source, role and schema functionality, and adds live WordPress REST APIs and reviewer-approved public identity snapshots.
 
@@ -78,3 +78,7 @@ php wp-content/plugins/kg-portal-core/tests/api-shape-smoke.php
 ## Recovery
 
 If installation introduces problems, restore the backed-up plugin folder and database from the files created before installing. This release does not have an automatic downgrade migration; do not manually drop the new table on a database that contains user data.
+
+## v0.4.1 supplemental release — P02/P03 source transparency
+
+Adds read-only, evidence-gated official publisher/applicability metadata to public sources and a conservative card check date across the approved identities and displayed field sources. No new DB table, migration, publication path or permission change. Source invalidation and strict approval rules remain. The API path/response contracts are documented in `docs/api-v1.md`. New tests: `tests/public-evidence-contract.php`, `tests/public-data-wp-readonly.php`.

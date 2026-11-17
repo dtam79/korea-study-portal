@@ -2,14 +2,14 @@
 /**
  * Plugin Name: KG Portal Core
  * Description: Official-source-driven data platform for the Korea University Study Portal.
- * Version: 0.4.0
+ * Version: 0.4.1
  * Requires PHP: 8.3
  * Text Domain: kg-portal-core
  */
 
 defined('ABSPATH') || exit;
 
-if (!defined('KGP_CORE_VERSION')) define('KGP_CORE_VERSION', '0.4.0');
+if (!defined('KGP_CORE_VERSION')) define('KGP_CORE_VERSION', '0.4.1');
 if (!defined('KGP_CORE_PATH')) define('KGP_CORE_PATH', plugin_dir_path(__FILE__));
 
 require_once KGP_CORE_PATH . 'src/Support/DomainException.php';

@@ -1,4 +1,4 @@
-# KGP REST API v1 — Implementation contract (v0.4.0)
+# KGP REST API v1 — Implementation contract (v0.4.1)
 
 ## Base
 
@@ -22,6 +22,8 @@ Supported catalog query: `locale=ko|en`, `q`, `region`, `field`, `level`, `teach
 Codes within one filter are comma-separated and OR-combined; filters are AND-combined. All checks apply to **one offering**, not a university-level combination of unrelated programs. Missing certified or English-only evidence does **not** mean `false`.
 
 Tuition ranges match when the **whole published price range** lies inside the requested bounds; an overlapping but potentially over-budget range is not treated as a guaranteed match. The tuition range requires an original `cost_unit` (semester/month/year/one_time/program_total/term/other). Tuition sort additionally requires one degree level. No currency conversion, estimated aggregation, automatic scholarship subtraction or invented application cut-off time.
+
+**v0.4.1 additive read-only metadata:** every public offering card/summary may include `card_source_checked_at` (`YYYY-MM-DD` or `null`). It is the **oldest** actual verification date among the five approved identities and the sources used for card language, tuition and accreditation. If any required date is missing, it stays `null` (never assume today). Both university-identity `official_source` and field-level `source_documents` include verified `publisher` and applicable source scope. No private drafts, raw source rows, review decisions or admin IDs are returned. Source invalidation still gates publication.
 
 The detail response includes `sections` only for sections with published values. Each returned value has its own `source_documents`, verified date, ID, applicability and `translation_pending` if English text is awaiting new approval. The program, campus and intake have their own reviewed identity evidence.
 

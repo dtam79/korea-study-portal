@@ -141,6 +141,39 @@ final class KGP_Public_Catalog {
             'timezone'=>$intake['timezone_name'],'starts_at_utc'=>$intake['starts_at_utc'],'ends_at_utc'=>$intake['ends_at_utc']];
     }
 
+    /** Parse the true source verification date without making up a missing date. */
+    private static function checked_date($value): ?string {
+        if (!is_string($value) || !preg_match('/^(\d{4})-(\d{2})-(\d{2})(?:[ T]\d{2}:\d{2}:\d{2})?$/D',$value,$matches)) return null;
+        if (!checkdate((int)$matches[2],(int)$matches[3],(int)$matches[1])) return null;
+        return $matches[1].'-'.$matches[2].'-'.$matches[3];
+    }
+
+    /**
+     * Conservative check-date for the data used on one offering card.
+     * Includes five approved identities and sources behind card language,
+     * tuition and certification. A missing date means no badge, not 'today'.
+     * The oldest date is deliberate; do not imply that older sources were
+     * rechecked merely because a newer source exists for another field.
+     */
+    private static function card_source_check_date(array $identities, array $fields): ?string {
+        $dates=[];
+        foreach ($identities as $identity) {
+            $date=self::checked_date($identity['identity_evidence']['checked_at']??null);
+            if ($date===null) return null;
+            $dates[]=$date;
+        }
+        foreach ($fields as $field) {
+            $sources=$field['source_documents']??[];
+            if (!is_array($sources) || !$sources) return null;
+            foreach ($sources as $source) {
+                $date=self::checked_date($source['checked_at']??null);
+                if ($date===null) return null;
+                $dates[]=$date;
+            }
+        }
+        return $dates ? min($dates) : null;
+    }
+
     private static function build(int $offering_id, string $locale, bool $details): ?array {
         $offer=KGP_Identity_Repository::published('offering',$offering_id);
         if (!$offer) return null;
@@ -165,6 +198,18 @@ final class KGP_Public_Catalog {
         $englishOnly=self::known_bool($fields['offering']['DET-02'],'english_only_program');
         if ($englishOnly===null) $englishOnly=self::known_bool($fields['program']['DET-02'],'english_only_program');
         $allCert=[$fields['university']['DET-07'],$fields['program']['DET-07'],$fields['offering']['DET-07']];
+        $cardSources=[];
+        // Card-visible values only; unrelated DETAIL fields are not represented as newly verified.
+        foreach (['program','offering'] as $scope) foreach ($fields[$scope]['DET-02'] as $field) {
+            if (in_array($field['field'],['teaching_languages','english_only_program'],true)) $cardSources[]=$field;
+        }
+        foreach ($fields['offering']['DET-03'] as $field) {
+            if ($field['field']==='tuition_items') $cardSources[]=$field;
+        }
+        foreach ($allCert as $section) foreach ($section as $field) {
+            if (in_array($field['field'],['certification_records','degree_course_certification','language_course_certification'],true)) $cardSources[]=$field;
+        }
+        $cardCheckDate=self::card_source_check_date([$university,$campus,$program,$intake,$offer],$cardSources);
         $card = [
             'offering_id'=>$offer['public_id'], 'university_id'=>$university['public_id'],
             'university_name'=>self::label($university,$locale),
@@ -179,6 +224,7 @@ final class KGP_Public_Catalog {
             'tuition'=>self::tuition_rows($fields['offering']['DET-03']),
             'certified'=>self::certification($allCert,$program['level_code']),
             'academic_year'=>(int)$intake['academic_year'],'academic_term'=>$intake['academic_term'],
+            'card_source_checked_at'=>$cardCheckDate,
             'admission'=>self::admissions($intake),'locale'=>$locale,
         ];
         if ($details) {

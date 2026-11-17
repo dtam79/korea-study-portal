@@ -248,5 +248,8 @@
   "label.intake_round": "모집 학년도·학기",
   "action.contact_operator": "포털 운영자에게 문의",
   "action.contact_university": "대학에 직접 문의",
-  "detail.contents": "이 페이지의 목차"
+  "detail.contents": "이 페이지의 목차",
+  "label.source_check": "공식 자료 확인일",
+  "label.source_check_note": "표시 자료에 연결된 출처 중 가장 이른 확인일",
+  "field.publisher": "발행기관"
 }

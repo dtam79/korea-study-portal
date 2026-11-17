@@ -220,6 +220,7 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
     $d=$detail['data'];$admission=is_array($d['admission']??null)?$d['admission']:[];
     $startDisplay=kgp_fe_official_admission_date($admission,'start');
     $endDisplay=kgp_fe_official_admission_date($admission,'end');
+    $checkedDate=kgp_fe_card_check_date($d['card_source_checked_at']??null);
     ?>
     <section class="kgp-section" aria-labelledby="kgp-course-heading">
       <p class="kgp-eyebrow"><?php echo esc_html(kgp_fe_t('detail.selected','Selected offering')); ?></p>
@@ -227,6 +228,7 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
       <p><?php echo kgp_fe_h($d['campus_name']??''); ?> · <?php echo kgp_fe_h($d['academic_year']??''); ?> <?php echo kgp_fe_h($d['academic_term']??''); ?></p>
       <dl class="kgp-pairs kgp-pairs--large">
         <div><dt><?php echo esc_html(kgp_fe_t('label.status','Admission status')); ?></dt><dd><?php echo kgp_fe_h(kgp_fe_status((string)($admission['status']??'unknown'))); ?></dd></div>
+        <?php if ($checkedDate!==''): ?><div><dt><?php echo esc_html(kgp_fe_t('label.source_check','Official source check date')); ?></dt><dd><time datetime="<?php echo esc_attr($checkedDate); ?>"><?php echo esc_html($checkedDate); ?></time> <span class="kgp-small"><?php echo esc_html(kgp_fe_t('label.source_check_note','Oldest check among displayed source-backed information')); ?></span></dd></div><?php endif; ?>
         <div><dt><?php echo esc_html(kgp_fe_t('label.tuition','Published tuition')); ?></dt><dd><?php
           $prices=is_array($d['tuition']??null)?$d['tuition']:[];
           if ($prices) foreach ($prices as $price) echo '<div>'.esc_html(kgp_fe_price($price)).'</div>';
