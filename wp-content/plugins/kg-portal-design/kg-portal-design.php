@@ -2,13 +2,13 @@
 /**
  * Plugin Name: KG Portal Design System
  * Description: Unified presentation system for KG Portal public and admin screens. Searchable relationships and refreshed public/admin interfaces.
- * Version: 2.1.3
+ * Version: 2.1.4
  * Requires PHP: 8.1
  * Text Domain: kg-portal-design
  */
 defined('ABSPATH') || exit;
 
-define('KGDS_VERSION','2.1.3');
+define('KGDS_VERSION','2.1.4');
 define('KGDS_DIR',plugin_dir_path(__FILE__));
 
 /** The source templates are owned by independent plugins; design assets run afterward. */

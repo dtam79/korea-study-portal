@@ -17,7 +17,7 @@ checks={
  'native select value and name never renamed':'select.name=' not in js and 'select.remove()' not in js,
  'safe unrecognized option leaves select alone':"!Object.hasOwn(values,'yes')" in js,
  'form reset syncs segmented control':'addEventListener(\'reset\'' in js,
- 'version updated':"Version: 2.1.3" in php,
+ 'version updated':"Version: 2.1.4" in php,
  'no added database migration':'dbDelta(' not in php,
  'responsive boolean control':'@media(max-width:540px)' in css,
 }

@@ -2,14 +2,14 @@
 /**
  * Plugin Name: KG Portal Core
  * Description: Official-source-driven data platform for the Korea University Study Portal.
- * Version: 0.4.3
+ * Version: 0.4.4
  * Requires PHP: 8.3
  * Text Domain: kg-portal-core
  */
 
 defined('ABSPATH') || exit;
 
-if (!defined('KGP_CORE_VERSION')) define('KGP_CORE_VERSION', '0.4.3');
+if (!defined('KGP_CORE_VERSION')) define('KGP_CORE_VERSION', '0.4.4');
 if (!defined('KGP_CORE_PATH')) define('KGP_CORE_PATH', plugin_dir_path(__FILE__));
 
 require_once KGP_CORE_PATH . 'src/Support/DomainException.php';
@@ -40,9 +40,12 @@ if (defined('WP_CLI') && WP_CLI) {
     require_once KGP_CORE_PATH . 'src/Cli/IntegrityCommand.php';
     require_once KGP_CORE_PATH . 'src/Service/PilotReadiness.php';
     require_once KGP_CORE_PATH . 'src/Cli/PilotCommand.php';
+    require_once KGP_CORE_PATH . 'src/Service/PublicBridgeAudit.php';
+    require_once KGP_CORE_PATH . 'src/Cli/BridgeCommand.php';
     WP_CLI::add_command('kgp schema', 'KGP_Schema_Command');
     WP_CLI::add_command('kgp domain', 'KGP_Domain_Command');
     WP_CLI::add_command('kgp api', 'KGP_Api_Command');
     WP_CLI::add_command('kgp integrity', 'KGP_Integrity_Command');
     WP_CLI::add_command('kgp pilot', 'KGP_Pilot_Command');
+    WP_CLI::add_command('kgp bridge', 'KGP_Bridge_Command');
 }

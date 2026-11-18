@@ -18,6 +18,16 @@
     end_date: '',
     application_url: '',                 // Official application link requires rechecking.
   });
+  // Same date-order guard for create and update; relation IDs remain immutable on update.
+  function checkIntakeDates(values) {
+    const from = String(values.start_date ?? '').trim();
+    const to = String(values.end_date ?? '').trim();
+    if (from && to && from > to) {
+      throw new Error('접수 시작일은 종료일보다 늦을 수 없습니다.');
+    }
+    return true;
+  }
+
   async function checkRelations(type, values, resolve) {
     if (type === 'program') {
       const uni = safeId(values.university_id, '대학');
@@ -40,14 +50,12 @@
           || Number(values.academic_year) < 1900 || Number(values.academic_year) > 2200) {
         throw new Error('새 모집 회차의 학년도를 원문 기준으로 다시 확인해 입력해 주세요.');
       }
-      if (values.start_date && values.end_date && values.start_date > values.end_date) {
-        throw new Error('접수 시작일은 종료일보다 늦을 수 없습니다.');
-      }
+      checkIntakeDates(values);
     }
     return true;
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = {positiveId, copyIntakeFields, checkRelations};
+  if (typeof module !== 'undefined' && module.exports) module.exports = {positiveId, copyIntakeFields, checkRelations, checkIntakeDates};
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
   const admin = window.KGP_ADMIN;
@@ -102,9 +110,13 @@
   // then replays the native form submit so existing nonce, revision and response handlers run.
   document.addEventListener('submit', async event => {
     const form = event.target;
-    if (!(form instanceof HTMLFormElement) || form.id !== 'kgpa-entity-create-form' || !root.contains(form)) return;
+    if (!(form instanceof HTMLFormElement) || !root.contains(form)) return;
+    const isCreate = form.id === 'kgpa-entity-create-form';
+    const isUpdate = form.id === 'kgpa-entity-update-form';
+    if (!isCreate && !isUpdate) return;
     const type = currentType();
-    if (!['program', 'offering', 'intake'].includes(type)) return;
+    if (isCreate && !['program', 'offering', 'intake'].includes(type)) return;
+    if (isUpdate && type !== 'intake') return; // Other relations cannot be edited in Admin.
     const values = valuesFor(form);
     const signature = JSON.stringify([type, values]);
     if (approved.get(form) === signature) { approved.delete(form); return; }
@@ -119,7 +131,8 @@
     notice.classList.remove('is-error');
     notice.textContent = '입력한 관계와 모집 회차를 확인하는 중입니다…';
     try {
-      await checkRelations(type, values, resolve);
+      if (isCreate) await checkRelations(type, values, resolve);
+      else checkIntakeDates(values);
       if (!form.isConnected || currentType() !== type || JSON.stringify([type, valuesFor(form)]) !== signature) {
         throw new Error('확인 도중 입력값이 변경되었습니다. 다시 저장해 주세요.');
       }

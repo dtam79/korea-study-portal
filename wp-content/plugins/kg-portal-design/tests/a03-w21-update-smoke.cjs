@@ -1,0 +1,22 @@
+'use strict';
+/** W2-1: edit form date validation, original Admin PATCH remains authoritative. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {checkIntakeDates,checkRelations}=require('../assets/a03-workflow.js');
+assert.equal(checkIntakeDates({start_date:'',end_date:''}),true);
+assert.equal(checkIntakeDates({start_date:'2027-03-01',end_date:'2027-03-01'}),true);
+assert.equal(checkIntakeDates({start_date:'2027-03-01',end_date:'2027-04-30'}),true);
+assert.equal(checkIntakeDates({start_date:'2027-03-01',end_date:''}),true);
+assert.throws(()=>checkIntakeDates({start_date:'2027-05-01',end_date:'2027-04-30'}),/시작일/);
+assert.throws(()=>checkIntakeDates({start_date:'2027-03-01',end_date:'2027-02-28'}),/시작일/);
+const source=fs.readFileSync(path.join(__dirname,'../assets/a03-workflow.js'),'utf8');
+const admin=fs.readFileSync(path.join(__dirname,'../../kg-portal-admin/assets/admin.js'),'utf8');
+assert.match(source,/isCreate\s*=\s*form\.id\s*===\s*'kgpa-entity-create-form'/);
+assert.match(source,/isUpdate\s*=\s*form\.id\s*===\s*'kgpa-entity-update-form'/);
+assert.match(source,/if\s*\(isUpdate\s*&&\s*type\s*!==\s*'intake'\)\s*return/);
+assert.match(source,/if\s*\(isCreate\)\s*await checkRelations/);
+assert.match(source,/else checkIntakeDates\(values\)/);
+assert.match(source,/form\.requestSubmit\(\)/);
+assert.match(admin,/admin\/entities\/\$\{state\.type\}\/\$\{entityId\}`,'PATCH'/);
+console.log('SUCCESS: W2-1 A03 create and edit preflights retain original Admin PATCH and block reversed intake dates.');
