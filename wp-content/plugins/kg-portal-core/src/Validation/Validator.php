@@ -140,9 +140,15 @@ final class KGP_Validator {
         if (!in_array($v['unit'] ?? '', ['semester', 'month', 'year', 'one_time', 'program_total', 'term', 'other'], true)) {
             self::fail('Money item needs an official charge unit.');
         }
+        // Reject ambiguous/incomplete money forms. A value is either one official
+        // amount or a complete official range, never both or a half-range.
         $has_amount = array_key_exists('amount', $v);
-        $has_range = array_key_exists('min_amount', $v) && array_key_exists('max_amount', $v);
-        if ($has_amount === $has_range) self::fail('Money item must contain either amount or min_amount/max_amount.');
+        $has_min = array_key_exists('min_amount', $v);
+        $has_max = array_key_exists('max_amount', $v);
+        $has_range = $has_min && $has_max;
+        if (($has_amount && ($has_min || $has_max)) || (!$has_amount && !$has_range)) {
+            self::fail('Money item must contain either amount or a complete min_amount/max_amount range.');
+        }
         if ($has_amount) {
             $v['amount'] = self::decimal($v['amount'], 'amount');
         } else {
