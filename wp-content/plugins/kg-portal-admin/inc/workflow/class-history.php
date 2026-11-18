@@ -40,7 +40,10 @@ final class KGP_Operator_History {
         return ['old'=>['id'=>$a['id'],'value'=>$a['decoded_value'],'sources'=>$a['source_links'],'status'=>$a['review_status']],
             'new'=>['id'=>$b['id'],'value'=>$b['decoded_value'],'sources'=>$b['source_links'],'status'=>$b['review_status']],
             'value_changed'=>$a['decoded_value']!==$b['decoded_value'],
-            'sources_changed'=>$a['source_links']!==$b['source_links']];
+            'sources_changed'=>$a['source_links']!==$b['source_links'],
+            'old_evidence_current'=>(bool)KGP_Evidence_Repository::verified_sources_for_version((int)$a['id']),
+            'new_evidence_current'=>(bool)KGP_Evidence_Repository::verified_sources_for_version((int)$b['id']),
+            'restoration_policy'=>'A restore creates a new draft; official source/applicability must be reviewed again.'];
     }
     public static function restore_field(int $entry_id,int $source_version_id,int $expected_lock): array {
         KGP_Access::require_cap('kgp_edit_entries');

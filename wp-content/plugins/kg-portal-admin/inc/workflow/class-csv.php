@@ -269,10 +269,78 @@ final class KGP_Operator_CSV {
         else $rows=$wpdb->get_results($wpdb->prepare("SELECT * FROM $t WHERE created_by=%d ORDER BY id DESC LIMIT 25",get_current_user_id()),ARRAY_A);
         return ['items'=>$rows?:[]];
     }
+    /** Explicitly refresh un-applied preview snapshots after a conflict, without writing Core data. */
+    public static function refresh(int $batch_id): array {
+        KGP_Access::require_cap('kgp_edit_entries');
+        $batch=self::get_batch($batch_id);
+        if ((int)$batch['batch']['created_by']!==get_current_user_id() && !current_user_can('manage_options')) {
+            throw new KGP_Domain_Exception('forbidden','Only batch author or site admin may refresh this preview.');
+        }
+        $known=[];
+        foreach ($batch['rows'] as $row) {
+            if ($row['status']!=='ready' && $row['status']!=='applied') continue;
+            $r=$row['normalized'];
+            if (!is_array($r)) continue;
+            $key=$r['entity_type']==='field' ? self::field_identity($r) : $r['entity_type'].'|'.$r['public_id'];
+            $known[$key]=['line'=>(int)$row['csv_line']];
+        }
+        $updated=0;$failed=0;
+        global $wpdb;$t=KGP_Operator_Workflow_Schema::table('csv_rows');
+        foreach ($batch['rows'] as $row) {
+            if ($row['status']!=='ready') continue;
+            $r=$row['normalized'];
+            try {
+                if (!is_array($r)) throw new InvalidArgumentException('Invalid staged row.');
+                $r=self::validate($r,$known);
+                [$action,$before]=self::preview_row($r);
+                if ($action==='error') throw new InvalidArgumentException('Official source/issuer data cannot be overwritten.');
+                $ok=KGP_DB::transaction(static function()use($wpdb,$t,$row,$action,$before){
+                    $locked=$wpdb->get_row($wpdb->prepare("SELECT id,status FROM $t WHERE id=%d FOR UPDATE",(int)$row['id']),ARRAY_A);
+                    if (!$locked || $locked['status']!=='ready') throw new KGP_Domain_Exception('version_conflict','CSV row status changed while refreshing.');
+                    return $wpdb->update($t,['action_code'=>$action,
+                        'before_json'=>$before?wp_json_encode($before,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR):null,
+                        'error_json'=>'[]'],['id'=>(int)$row['id']]);
+                });
+                if ($ok===false) throw new RuntimeException('Unable to refresh CSV preview.');
+                ++$updated;
+            } catch(Throwable $e) {
+                ++$failed;
+                $wpdb->update($t,['error_json'=>wp_json_encode([$e->getMessage()],JSON_UNESCAPED_UNICODE)],['id'=>(int)$row['id']]);
+            }
+        }
+        KGP_DB::audit('csv.preview_refreshed','import_batch',$batch_id,null,['refreshed'=>$updated,'failed'=>$failed]);
+        return ['refreshed'=>$updated,'failed'=>$failed,'batch'=>self::get_batch($batch_id)];
+    }
     private static function resolve(string $type,string $public_id): int {
         $row=self::lookup($type,$public_id);
         if (!$row) throw new InvalidArgumentException("Referenced $type $public_id is not registered or was not selected in this import.");
         return (int)$row['id'];
+    }
+    /** The operator approved a preview of these exact bytes. Reject intervening edits. */
+    public static function assert_preview_snapshot(?array $before, ?array $current): void {
+        // Newly created rows must remain absent until they are actually applied.
+        if ($before === null && $current === null) return;
+        if ($before === null || $current === null) {
+            throw new KGP_Domain_Exception('version_conflict','CSV preview is outdated; refresh it and review the changed rows before applying.');
+        }
+        // $wpdb returns string-valued columns; JSON roundtrip preserves the same shape.
+        if (array_keys($before) !== array_keys($current)) {
+            throw new KGP_Domain_Exception('version_conflict','CSV preview row shape changed; refresh the preview.');
+        }
+        foreach ($before as $key => $value) {
+            if ($value !== $current[$key]) {
+                throw new KGP_Domain_Exception('version_conflict','CSV preview is outdated (changed: '.$key.'). Refresh it and check the new values.');
+            }
+        }
+    }
+    private static function preview_current(array $r): ?array {
+        // Called inside the row transaction; hold the existing entity lock until apply finishes.
+        if ($r['entity_type']==='field') {
+            $entry=self::field_entry($r);
+            return $entry ? KGP_DB::require_row('field_entries',(int)$entry['id'],true) : null;
+        }
+        $existing=self::lookup($r['entity_type'],$r['public_id']);
+        return $existing ? KGP_DB::require_row(self::TABLES[$r['entity_type']],(int)$existing['id'],true) : null;
     }
     private static function data_for(array $r): array {
         $type=$r['entity_type'];$data=['public_id'=>$r['public_id']];
@@ -357,6 +425,9 @@ final class KGP_Operator_CSV {
                     $locked=$wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE id=%d FOR UPDATE",$id),ARRAY_A);
                     if (!$locked || $locked['status']!=='ready') throw new InvalidArgumentException('Row already applied or no longer ready.');
                     $r=json_decode($locked['normalized_json'],true,512,JSON_THROW_ON_ERROR);
+                    // Never overwrite a row different from the one approved in the preview.
+                    $before=json_decode($locked['before_json']??'null',true,512,JSON_THROW_ON_ERROR);
+                    self::assert_preview_snapshot($before,self::preview_current($r));
                     // Rerun validation at commit time: references, permissions and data can change.
                     $r=self::validate($r,[]);
                     $done=self::apply_one($r);
@@ -370,7 +441,9 @@ final class KGP_Operator_CSV {
                 $result['rows'][]=['id'=>$id,'status'=>'applied']+$out;
             } catch(Throwable $e) {
                 ++$result['failed'];$result['rows'][]=['id'=>$id,'status'=>'error','error'=>$e->getMessage()];
-                $wpdb->update($t,['status'=>'error','error_json'=>wp_json_encode([$e->getMessage()])],['id'=>$id]);
+                // A stale preview is recoverable by refreshing and reviewing it again.
+                $stale=$e instanceof KGP_Domain_Exception && $e->slug()==='version_conflict';
+                $wpdb->update($t,['status'=>$stale?'ready':'error','error_json'=>wp_json_encode([$e->getMessage()])],['id'=>$id]);
             }
         }
         $b=KGP_Operator_Workflow_Schema::table('csv_batches');

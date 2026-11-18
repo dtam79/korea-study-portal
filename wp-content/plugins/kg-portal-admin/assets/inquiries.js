@@ -5,7 +5,7 @@
   if (!conf || !root || !['inquiries','settings'].includes(conf.page)) return;
   const cap=conf.permissions||{};
   const escapeHTML=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let busy=false,state={page:1,status:'',q:'',current:null};
+  let busy=false,state={page:1,status:'',q:'',current:null,currentRecord:null};
   const known=['new','in_progress','completed'];
   const names={new:'신규',in_progress:'처리 중',completed:'완료'};
   const link=(page)=>conf.adminBase+page;
@@ -49,6 +49,7 @@
   async function detail(id){
     const data=await req('inquiries/'+id);state.current=id;
     const r=data.inquiry,e=data.events;
+    state.currentRecord={id:Number(id),handling_status:r.handling_status,assigned_to:r.assigned_to===null?null:Number(r.assigned_to)};
     const target=document.getElementById('kgpai-detail');
     if(!target)return;
     target.innerHTML=`<section class="kgpa-panel"><h3>문의 상세 #${escapeHTML(r.receipt_code)}</h3>
@@ -99,7 +100,9 @@
         state.status=f.get('status')||'';state.q=String(f.get('q')||'').trim();state.page=1;await list();return;
       }
       if(form.id==='kgpai-update'){
-        await req('inquiries/'+form.dataset.id+'/update','POST',{handling_status:f.get('handling_status'),assigned_to:f.get('assigned_to')||null});
+        if(!state.currentRecord||state.currentRecord.id!==Number(form.dataset.id))throw Error('문의 상세를 다시 열어 주세요.');
+        await req('inquiries/'+form.dataset.id+'/update','POST',{handling_status:f.get('handling_status'),assigned_to:f.get('assigned_to')||null,
+          expected_status:state.currentRecord.handling_status,expected_assigned_to:state.currentRecord.assigned_to});
         await detail(Number(form.dataset.id));show('문의 상태·담당자를 저장했습니다.');return;
       }
       if(form.id==='kgpai-note'){

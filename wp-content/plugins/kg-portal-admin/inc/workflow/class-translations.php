@@ -60,12 +60,14 @@ final class KGP_Operator_Translations {
         return self::check_shape($original,$translation);
     }
     public static function get(int $version_id): array {
-        self::source($version_id);
+        [$version,$entry]=self::source($version_id);
         global $wpdb; $t=KGP_Operator_Workflow_Schema::table('translation_drafts');
         $draft=$wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE field_version_id=%d AND locale=%s",$version_id,self::LOCALE),ARRAY_A);
         $v=KGP_DB::require_row('field_versions',$version_id);
+        $current=(int)$entry['published_version_id']===$version_id && $version['review_status']==='approved';
         return ['draft'=>$draft,'source_version_id'=>$version_id,'source_value'=>json_decode($v['value_json'],true),
-            'source_value_type'=>$v['value_type']];
+            'source_value_type'=>$v['value_type'],'original_current'=>$current,
+            'can_submit'=>$current && KGP_Evidence_Repository::verified_sources_for_version($version_id)];
     }
     public static function save(int $version_id,$value,int $expected_revision): array {
         KGP_Access::require_cap('kgp_edit_entries');
@@ -109,6 +111,12 @@ final class KGP_Operator_Translations {
             if ((int)$r['revision']!==$revision) throw new KGP_Domain_Exception('version_conflict','Translation draft changed.');
             if ($status==='pending') {
                 KGP_Access::require_edit_for(KGP_Entity_Repository::university_id($e['entity_type'],(int)$e['entity_id']));
+                if ((int)$e['published_version_id']!==(int)$v['id'] || $v['review_status']!=='approved') {
+                    throw new InvalidArgumentException('The original version is no longer published. Translate the current approved version.');
+                }
+                if (!KGP_Evidence_Repository::verified_sources_for_version((int)$v['id'])) {
+                    throw new InvalidArgumentException('The original evidence needs re-verification before translation review.');
+                }
                 if (!in_array($r['status'],['draft','rejected'],true)) throw new InvalidArgumentException('Only drafts can be submitted.');
                 $changes=['status'=>'pending','submitted_by'=>get_current_user_id(),'submitted_at'=>KGP_DB::now(),
                     'rejection_reason'=>null,'revision'=>$revision+1,'updated_at'=>KGP_DB::now()];
@@ -169,6 +177,8 @@ final class KGP_Operator_Translations {
         foreach ($rows as &$row) {[$v,$e,$original]=self::source((int)$row['field_version_id']);
             $row['entry']=['entity_type'=>$e['entity_type'],'entity_id'=>$e['entity_id'],'section_code'=>$e['section_code'],'field_key'=>$e['field_key']];
             $row['source_value']=$original;
+            $row['original_current']=(int)$e['published_version_id']===(int)$v['id'] && $v['review_status']==='approved';
+            $row['evidence_current']=$row['original_current'] && KGP_Evidence_Repository::verified_sources_for_version((int)$v['id']);
             $links=KGP_DB::table('field_version_sources');$sources=KGP_DB::table('sources');
             $row['sources']=$wpdb->get_results($wpdb->prepare("SELECT s.document_title,s.public_url,s.checked_at,l.original_locator,l.applies_to FROM $links l INNER JOIN $sources s ON s.id=l.source_id WHERE l.field_version_id=%d",(int)$v['id']),ARRAY_A) ?: [];
         } unset($row);

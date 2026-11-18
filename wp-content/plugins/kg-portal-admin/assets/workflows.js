@@ -41,11 +41,12 @@
     const current=draft?JSON.parse(draft.translated_json):v;
     let html=`<section class="kgpa-panel"><h3>원문 버전 #${esc(d.source_version_id)} · 영어 번역</h3>
       <p>원문과 번역이 연결된 버전은 고정됩니다. 금액·날짜·통화·출처 URL은 수정할 수 없습니다.</p>
+      ${!d.can_submit?'<p role="alert">현재 승인·게시된 원문 및 공식 출처가 확인되지 않았습니다. 번역 초안은 저장할 수 있지만 검토 요청은 불가능합니다.</p>':''}
       <div class="kgpaw-columns"><div><strong>원문(승인 정보)</strong>${pre(v)}</div><div><strong>영문 번역 초안</strong><label for="kgpaw-translation">${text?'영문 내용':'영문 JSON (원문의 키·숫자·URL 유지)'}</label>
       <textarea id="kgpaw-translation" rows="13" spellcheck="false" ${text?'':'data-json="1"'}>${esc(text?current:json(current))}</textarea></div></div>
       <p>상태: <strong>${esc(draft?.status||'미작성')}</strong> · 수정 버전: ${revision}</p><div class="kgpa-actions">
       ${permissions.edit?button('translation-save','번역 초안 저장','',true):''}
-      ${permissions.edit && draft && ['draft','rejected'].includes(draft.status)?button('translation-submit','검토 요청'):''}
+      ${permissions.edit && d.can_submit && draft && ['draft','rejected'].includes(draft.status)?button('translation-submit','검토 요청'):''}
       </div></section>`;
     return html;
   }
@@ -71,9 +72,10 @@
       <h4>번역 #${esc(x.id)} · 원문 버전 #${esc(x.field_version_id)} · ${esc(x.entry.entity_type)} #${esc(x.entry.entity_id)}</h4>
       <p>${esc(x.entry.section_code)}/${esc(x.entry.field_key)} · 작성자 #${esc(x.created_by)} · 제출자 #${esc(x.submitted_by)}</p>
       <p><strong>공식 근거:</strong> ${(x.sources||[]).map(s=>{const url=safeLink(s.public_url);return url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(s.document_title)}</a> · 원문 위치 ${esc(s.original_locator||'확인 필요')} · 확인일 ${esc(s.checked_at||'미확인')}`:esc(s.document_title);}).join('; ')||'연결된 공식 문서 없음'}</p>
+      ${!x.evidence_current?'<p role="alert">이 원문은 현재 공개·승인 상태이거나 출처 검증 상태가 아닙니다. 이전 번역을 승인하지 말고 반려 후 최신 원문을 재번역하세요.</p>':''}
       <div class="kgpaw-columns"><div><strong>검토 대상 원문</strong>${pre(x.source_value)}</div><div><strong>영문 초안</strong>${pre(JSON.parse(x.translated_json))}</div></div>
       <label class="kgpaw-check"><input type="checkbox" id="kgpaw-confirm-${x.id}"> 원문과 번역의 의미·조건·적용 대상이 일치함을 직접 대조했습니다.</label>
-      <div class="kgpa-actions">${button('translation-approve','번역 승인',`data-id="${x.id}" data-revision="${x.revision}"`,true)}${button('translation-reject','반려',`data-id="${x.id}" data-revision="${x.revision}"`)}</div>
+      <div class="kgpa-actions">${x.evidence_current?button('translation-approve','번역 승인',`data-id="${x.id}" data-revision="${x.revision}"`,true):''}${button('translation-reject','반려',`data-id="${x.id}" data-revision="${x.revision}"`)}</div>
       </article>`).join(''):'<p>검토 대기 중인 영어 번역이 없습니다.</p>';
   }
   function csvTemplate(){const header=['entity_type','public_id','university_ref','campus_ref','program_ref','intake_ref','issuer_ref','official_name_ko','official_name_en','official_website','institution_type','region_code','is_primary','field_code','level_code','language_code','department_url','academic_year','academic_term','admission_type','start_date','end_date','application_url','variant_code','issuer_type','official_name','official_domain','document_title','public_url','document_locator','applicable_to','valid_from','valid_to','target_type','target_public_id','section_code','field_key','item_key','value_json','source_ref','source_locator'];
@@ -85,11 +87,11 @@
     return `<section class="kgpa-panel"><h3>배치 #${esc(data.batch.id)} · ${esc(data.batch.original_filename)}</h3><p>${rows.length}행 · 상태: ${esc(data.batch.status)}</p>
     <label class="kgpaw-check"><input id="kgpaw-select-all" type="checkbox"> 정상 행 전체 선택</label>
     <div class="kgpa-table-wrap"><table class="widefat striped kgpa-table"><thead><tr><th>반영</th><th>행</th><th>유형·식별자</th><th>예상 작업</th><th>검증 결과</th></tr></thead><tbody>
-    ${rows.map(x=>`<tr><td>${x.status==='ready'?`<input type="checkbox" class="kgpaw-row" value="${x.id}" aria-label="CSV ${x.csv_line}행 선택">`:'—'}</td>
+    ${rows.map(x=>`<tr><td>${x.status==='ready' && !(x.errors||[]).length?`<input type="checkbox" class="kgpaw-row" value="${x.id}" aria-label="CSV ${x.csv_line}행 선택">`:'—'}</td>
     <td>${esc(x.csv_line)}</td><td>${esc(x.entity_type)} / ${esc(x.public_id||x.normalized?.target_public_id||'—')}</td><td>${esc(x.action_code)}</td>
     <td>${x.errors?.length?`<strong class="kgpaw-error">${esc(x.errors.join('; '))}</strong>`:esc(x.status)}
     <details><summary>변경 전·후 검토</summary><div class="kgpaw-columns"><div><strong>현재 데이터</strong>${pre(x.before)}</div><div><strong>CSV 입력</strong>${pre(x.normalized)}</div></div></details></td></tr>`).join('')}
-    </tbody></table></div><div class="kgpa-actions">${button('csv-apply','선택한 정상 행을 내부 초안으로 반영', '',true)}</div>
+    </tbody></table></div><div class="kgpa-actions">${button('csv-refresh','미리보기 기준값 새로 확인')}${button('csv-apply','선택한 정상 행을 내부 초안으로 반영', '',true)}</div>
     <p class="description">미리보기는 대학 정보를 변경하지 않습니다. 반영해도 공개 승인이나 출처 검증이 자동으로 완료되지 않습니다.</p></section>`;
   }
   async function loadBatch(id){const d=await req('csv/'+id);const el=document.getElementById('kgpaw-preview');if(el)el.innerHTML=csvRows(d);}
@@ -172,19 +174,26 @@
       }
       if(action==='csv-template'){csvTemplate();return;}
       if(action==='csv-open'){await loadBatch(num(b.dataset.id,'배치 ID'));return;}
+      if(action==='csv-refresh'){
+        const d=state.csv;if(!d)throw Error('CSV 배치를 먼저 열어 주세요.');
+        if(!confirm('미적용 CSV 행의 기준값을 현재 데이터로 새로 조회합니다. 변경된 값을 확인한 뒤 적용해 주세요.'))return;
+        const out=await req('csv/'+d.batch.id+'/refresh','POST',{});
+        await loadBatch(d.batch.id);message(`미리보기 갱신 ${out.refreshed}건 · 확인 필요 ${out.failed}건. 변경 내용을 검토해 주세요.`,out.failed>0);return;
+      }
       if(action==='csv-apply'){
         const d=state.csv;if(!d)throw Error('CSV 미리보기를 먼저 생성하거나 열어 주세요.');
         const rows=[...root.querySelectorAll('.kgpaw-row:checked')].map(x=>num(x.value,'CSV 행'));
         if(!rows.length)throw Error('반영할 정상 행을 선택해 주세요.');
         if(!confirm(`${rows.length}개의 정상 행을 내부 데이터/초안에 실제 반영합니다. 승인된 공개 값으로 자동 게시되지는 않습니다. 계속할까요?`))return;
         const outcome=await req('csv/'+d.batch.id+'/apply','POST',{row_ids:rows});await loadBatch(d.batch.id);await loadBatches();
-        message(`적용 ${outcome.applied}건 · 유지 ${outcome.kept}건 · 실패 ${outcome.failed}건. 실패 행은 미리보기에서 확인하세요.`,outcome.failed>0);return;
+        message(`적용 ${outcome.applied}건 · 유지 ${outcome.kept}건 · 실패 ${outcome.failed}건. '미리보기 만료' 오류는 기준값 갱신 후 재검토·재적용하세요.`,outcome.failed>0);return;
       }
       if(action==='history-compare'){
         const d=state.history;if(!d)throw Error('필드 이력을 먼저 열어 주세요.');
         const out=await req('history/entry/'+d.entry.id+'/compare?'+new URLSearchParams({old:val('kgpaw-old'),new:val('kgpaw-new')}));
         document.getElementById('kgpaw-diff').innerHTML=`<div class="kgpaw-columns"><section><h4>이전 버전 #${esc(out.old.id)}</h4>${pre(out.old.value)}${pre(out.old.sources)}</section>
-        <section><h4>비교 버전 #${esc(out.new.id)}</h4>${pre(out.new.value)}${pre(out.new.sources)}</section></div><p>값 변경: ${out.value_changed?'있음':'없음'} / 출처 변경: ${out.sources_changed?'있음':'없음'}</p>`;return;
+        <section><h4>비교 버전 #${esc(out.new.id)}</h4>${pre(out.new.value)}${pre(out.new.sources)}</section></div><p>값 변경: ${out.value_changed?'있음':'없음'} / 출처 변경: ${out.sources_changed?'있음':'없음'}</p>
+        <p>과거 출처 유효: ${out.old_evidence_current?'예':'재검증 필요'} / 비교 출처 유효: ${out.new_evidence_current?'예':'재검증 필요'}. 복구는 항상 새 초안으로 생성되며 재승인해야 합니다.</p>`;return;
       }
       if(action==='history-restore-field'){
         const d=state.history;if(!d)throw Error('이력을 먼저 선택해 주세요.');

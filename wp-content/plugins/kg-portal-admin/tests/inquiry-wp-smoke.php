@@ -44,7 +44,14 @@ try {
         kgpa80_assert((bool)$row && $row['email_delivery_status']==='failed','Mail failure does not roll back saved inquiry');
         kgpa80_assert($row['consent_policy_version']==='QA-2026-v1' && $row['delete_after']>$row['created_at'],'Consent version and deletion deadline retained');
         $id=(int)$row['id'];
-        KGP_Operator_Inquiries::update($id,['handling_status'=>'in_progress','assigned_to'=>get_current_user_id()]);
+        KGP_Operator_Inquiries::update($id,['handling_status'=>'in_progress','assigned_to'=>get_current_user_id(),
+            'expected_status'=>'new','expected_assigned_to'=>null]);
+        $conflict=false;
+        try {
+            KGP_Operator_Inquiries::update($id,['handling_status'=>'completed','assigned_to'=>get_current_user_id(),
+                'expected_status'=>'new','expected_assigned_to'=>null]);
+        } catch (KGP_Domain_Exception $e) {$conflict=$e->slug()==='version_conflict';}
+        kgpa80_assert($conflict,'Stale inquiry status/assignee update is rejected without overwriting');
         KGP_Operator_Inquiries::note($id,'Synthetic internal note');
         $detail=KGP_Operator_Inquiries::detail($id);
         kgpa80_assert($detail['inquiry']['handling_status']==='in_progress' && count($detail['events'])>=4,'Inquiry status and audit trail');

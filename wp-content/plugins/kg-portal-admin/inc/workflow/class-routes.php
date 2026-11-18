@@ -73,6 +73,7 @@ final class KGP_Operator_Workflow_Routes {
             return KGP_Operator_CSV::preview($bytes,(string)$file['name']);
         },'kgp_edit_entries');
         self::route('/csv/(?P<id>\d+)','GET',static fn($r)=>KGP_Operator_CSV::get_batch(self::int($r['id'],'batch ID')),'kgp_edit_entries');
+        self::route('/csv/(?P<id>\d+)/refresh','POST',static fn($r)=>KGP_Operator_CSV::refresh(self::int($r['id'],'batch ID')),'kgp_edit_entries');
         self::route('/csv/(?P<id>\d+)/apply','POST',static function($r){$b=self::body($r);
             if (!isset($b['row_ids'])||!is_array($b['row_ids'])||!array_is_list($b['row_ids'])) throw new InvalidArgumentException('row_ids must be an array.');
             $ids=array_map(static fn($x)=>self::int($x,'row_id'),$b['row_ids']);

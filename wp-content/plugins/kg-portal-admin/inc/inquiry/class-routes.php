@@ -14,7 +14,8 @@ final class KGP_Operator_Inquiry_Routes {
                     }
                     return rest_ensure_response($handler($request));
                 } catch(KGP_Domain_Exception $e) {
-                    return new WP_Error('kgpa_'.$e->slug(),$e->getMessage(),['status'=>$e->slug()==='forbidden'?403:($e->slug()==='not_found'?404:422)]);
+                    $status=match($e->slug()){'forbidden'=>403,'not_found'=>404,'version_conflict'=>409,default=>422};
+                    return new WP_Error('kgpa_'.$e->slug(),$e->getMessage(),['status'=>$status]);
                 } catch(InvalidArgumentException $e) {
                     return new WP_Error('kgpa_validation',$e->getMessage(),['status'=>422]);
                 } catch(Throwable $e) {

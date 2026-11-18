@@ -154,10 +154,24 @@ final class KGP_Operator_Inquiries {
     }
     public static function update(int $id,array $fields): array {
         self::manager();
-        $allowed=['handling_status','assigned_to'];
+        $allowed=['handling_status','assigned_to','expected_status','expected_assigned_to'];
         if (!$fields || array_diff(array_keys($fields),$allowed)) throw new InvalidArgumentException('Unsupported update fields.');
-        return KGP_DB::transaction(static function()use($id,$fields){
+        if (!array_key_exists('expected_status',$fields) || !array_key_exists('expected_assigned_to',$fields)) {
+            throw new InvalidArgumentException('Refresh inquiry detail before saving. Expected status and assignee are required.');
+        }
+        if (!in_array($fields['expected_status'],self::STATUS,true)) throw new InvalidArgumentException('Invalid expected_status.');
+        $expectedAssignee=$fields['expected_assigned_to'];
+        if ($expectedAssignee!==null && (!is_int($expectedAssignee) && !ctype_digit((string)$expectedAssignee))) {
+            throw new InvalidArgumentException('Invalid expected_assigned_to.');
+        }
+        if ($expectedAssignee!==null && (int)$expectedAssignee<1) throw new InvalidArgumentException('Invalid expected_assigned_to.');
+        if (!array_key_exists('handling_status',$fields) && !array_key_exists('assigned_to',$fields)) throw new InvalidArgumentException('Nothing to update.');
+        return KGP_DB::transaction(static function()use($id,$fields,$expectedAssignee){
             $row=KGP_DB::require_row('inquiries',$id,true);
+            if ($row['handling_status']!==$fields['expected_status'] ||
+                ($row['assigned_to']===null ? null : (int)$row['assigned_to'])!==($expectedAssignee===null?null:(int)$expectedAssignee)) {
+                throw new KGP_Domain_Exception('version_conflict','Another operator changed the status or assignee. Reload inquiry detail and review it before saving.');
+            }
             $clean=[];
             if (isset($fields['handling_status'])) {
                 if (!in_array($fields['handling_status'],self::STATUS,true)) throw new InvalidArgumentException('Invalid handling_status.');
@@ -172,8 +186,15 @@ final class KGP_Operator_Inquiries {
                     $clean['assigned_to']=(int)$idUser;
                 }
             }
-            KGP_DB::update('inquiries',$clean,['id'=>$id]);
-            self::event($id,'updated','Status: '. $row['handling_status'].' -> '.($clean['handling_status']??$row['handling_status']).'; Assignee ID: '.($row['assigned_to']??'none').' -> '.($clean['assigned_to']??$row['assigned_to']??'none'),get_current_user_id());
+            $changed=false;
+            foreach ($clean as $field=>$value) {
+                $prior=$field==='assigned_to' ? ($row[$field]===null?null:(int)$row[$field]) : $row[$field];
+                if ($prior!==$value) { $changed=true; break; }
+            }
+            if ($changed) {
+                KGP_DB::update('inquiries',$clean,['id'=>$id]);
+                self::event($id,'updated','Status: '. $row['handling_status'].' -> '.($clean['handling_status']??$row['handling_status']).'; Assignee ID: '.($row['assigned_to']??'none').' -> '.($clean['assigned_to']??$row['assigned_to']??'none'),get_current_user_id());
+            }
             return self::detail($id);
         });
     }
