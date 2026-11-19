@@ -1,4 +1,4 @@
-# KG Portal Operations v1.0.0 — official source review, scheduled checks, sitemap and safe caching
+# KG Portal Operations v1.0.2 — official source review, scheduled checks, sitemap and safe caching
 
 This is the next milestone after FE v0.5.0, Admin v0.8.0 and Content v0.9.0. **It is a new, independent WordPress plugin.** It does not overwrite the Core plugin, Kadence child theme, shared Header/Footer patch, contact templates, or content editor. No current approved university fields, source verification flags, privacy settings or operator inquiry records are changed by this installation.
 
@@ -122,3 +122,8 @@ Suggested commit after DDEV smoke tests:
 git add wp-content/plugins/kg-portal-ops
 git commit -m "feat(ops): add official source monitor review queue and safe SEO"
 ```
+
+
+## W3-2: release-readiness audit (v1.0.2)
+
+Read-only `wp kgpo release audit --mode=staging` checks plugin/schema status, public-data evidence, 20-university approved publication minimum, KO/EN approved content, anonymous private REST denial and operational prerequisites. `--strict` exits nonzero on automated blockers; neither mode certifies manual signoff or modifies data. See [W3-2-RELEASE-QA.md](docs/W3-2-RELEASE-QA.md) for isolated restore and staging load check procedures, including six explicit manual release gates. Local tools: `tools/verify_backup.py` and `tools/load_probe.py`.

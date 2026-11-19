@@ -2,13 +2,13 @@
 /**
  * Plugin Name: KG Portal Operations
  * Description: Read-only source change monitoring, reviewer queue, safe sitemap and cache guard.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Requires PHP: 8.3
  * Requires Plugins: kg-portal-core
  * Text Domain: kg-portal-ops
  */
 defined('ABSPATH') || exit;
-define('KGPO_VERSION','1.0.1');
+define('KGPO_VERSION','1.0.2');
 define('KGPO_DIR',plugin_dir_path(__FILE__));
 require_once KGPO_DIR.'inc/class-schema.php';
 require_once KGPO_DIR.'inc/class-policy.php';
@@ -17,6 +17,7 @@ require_once KGPO_DIR.'inc/class-admin.php';
 require_once KGPO_DIR.'inc/class-rest.php';
 require_once KGPO_DIR.'inc/class-seo.php';
 require_once KGPO_DIR.'inc/class-cli.php';
+require_once KGPO_DIR.'inc/class-release.php';
 register_activation_hook(__FILE__,['KGPO_Schema','activate']);
 register_deactivation_hook(__FILE__,['KGPO_Schema','deactivate']);
 add_action('admin_init',['KGPO_Schema','maybe_upgrade']);
@@ -33,4 +34,7 @@ add_filter('robots_txt',['KGPO_SEO','robots'],10,2);
 add_filter('wp_robots',['KGPO_SEO','robot_directives'],20);
 add_filter('wp_sitemaps_enabled',['KGPO_SEO','core_sitemaps'],20);
 add_filter('pre_handle_404',['KGPO_SEO','no_404'],15);
-if (defined('WP_CLI') && WP_CLI) WP_CLI::add_command('kgpo','KGPO_CLI');
+if (defined('WP_CLI') && WP_CLI) {
+    WP_CLI::add_command('kgpo','KGPO_CLI');
+    WP_CLI::add_command('kgpo release','KGPO_Release_Command');
+}

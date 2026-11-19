@@ -2,7 +2,7 @@
 /** Source contract checks. Pure PHP, no WordPress required. */
 $root=dirname(__DIR__);
 $files=['kg-portal-ops.php','inc/class-schema.php','inc/class-policy.php','inc/class-monitor.php',
-'inc/class-rest.php','inc/class-admin.php','inc/class-cli.php','inc/class-seo.php',
+'inc/class-rest.php','inc/class-admin.php','inc/class-cli.php','inc/class-release.php','inc/class-seo.php',
 'assets/operator.js','assets/operator.css','README.md','tests/wp-smoke.php'];
 foreach($files as $f)if(!is_file($root.'/'.$f))throw new RuntimeException('Missing file: '.$f);
 $entry=file_get_contents($root.'/kg-portal-ops.php');
