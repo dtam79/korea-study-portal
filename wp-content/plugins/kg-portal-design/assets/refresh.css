@@ -382,3 +382,43 @@ body.kgp-public.kgds-filter-route .kgp-shell input.kgds-filter-clear:hover{
 @media(max-width:380px){
   body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-active-chip{max-width:128px;}
 }
+
+body.kgp-public .kgp-site-header,body.kgpa-contact-page .kgp-site-header{position:relative}
+/* BG/WF/UI v1.2 reconciliation - C01 text identity and one compact native menu on every public viewport. */
+body.kgp-public .kgp-site-header .kgp-header-line,
+body.kgpa-contact-page .kgp-site-header .kgp-header-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0}
+body.kgp-public .kgp-brand-copy,body.kgpa-contact-page .kgp-brand-copy{display:block;min-width:0}
+body.kgp-public .kgp-brand,body.kgpa-contact-page .kgp-brand{min-width:0;max-width:100%;text-decoration:none}
+body.kgp-public .kgp-brand-copy strong,body.kgpa-contact-page .kgp-brand-copy strong{display:block;font-size:13px;line-height:1.4;overflow-wrap:anywhere}
+body.kgp-public .kgp-brand-copy small,body.kgpa-contact-page .kgp-brand-copy small{font-size:10px;line-height:1.4}
+body.kgp-public .kgp-header-actions,body.kgpa-contact-page .kgp-header-actions{display:flex;align-items:center;gap:8px;min-width:0}
+body.kgp-public .kgp-header-actions .kgp-language,body.kgpa-contact-page .kgp-header-actions .kgp-language{gap:3px;font-size:12px;flex-shrink:0}
+body.kgp-public .kgp-header-actions .kgp-language a,body.kgpa-contact-page .kgp-header-actions .kgp-language a{min-height:44px;display:inline-flex;align-items:center;padding:5px 2px}
+body.kgp-public .kgp-site-header .kgp-menu,body.kgpa-contact-page .kgp-site-header .kgp-menu{flex:none}
+body.kgp-public .kgp-site-header .kgp-menu>summary,body.kgpa-contact-page .kgp-site-header .kgp-menu>summary{cursor:pointer;list-style:none;display:flex;gap:5px;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px;border:1px solid #cbd5e1;border-radius:8px;color:#1d4ed8;font-weight:600;font-size:12px;background:#fff}
+body.kgp-public .kgp-site-header .kgp-menu>summary::-webkit-details-marker,body.kgpa-contact-page .kgp-site-header .kgp-menu>summary::-webkit-details-marker{display:none}
+body.kgp-public .kgp-menu-icon,body.kgpa-contact-page .kgp-menu-icon{font-size:19px;line-height:1}
+body.kgp-public .kgp-site-header .kgp-menu .kgp-nav,body.kgpa-contact-page .kgp-site-header .kgp-menu .kgp-nav{position:absolute;left:0;right:0;top:100%;display:grid!important;grid-template-columns:minmax(0,1fr);gap:1px;background:#fff;border:1px solid #cbd5e1;box-shadow:0 9px 20px rgba(15,23,42,.12);padding:8px!important;max-height:min(65dvh,460px);overflow-y:auto;overflow-x:hidden;z-index:20;white-space:normal}
+body.kgp-public .kgp-site-header .kgp-menu .kgp-nav a,body.kgpa-contact-page .kgp-site-header .kgp-menu .kgp-nav a{font-size:14px;min-height:44px;padding:11px 12px;display:flex;align-items:center;white-space:normal}
+body.kgp-public .kgp-site-header .kgp-menu:not([open]) .kgp-nav,body.kgpa-contact-page .kgp-site-header .kgp-menu:not([open]) .kgp-nav{display:none!important}
+body.kgp-public .kgp-quick-links{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+body.kgp-public .kgp-quick-links a{display:flex;align-items:center;min-height:48px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;line-height:20px;overflow-wrap:anywhere}
+body.kgp-public .kgp-quick-links a:hover{background:#eff6ff}
+body.kgp-public .kgp-applied{margin:15px 0 18px;padding:14px 0;border-block:1px solid #cbd5e1}
+body.kgp-public .kgp-applied>strong{display:block;font-size:14px;margin-bottom:9px}
+body.kgp-public .kgp-applied-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+body.kgp-public .kgp-applied-links a{display:inline-flex;gap:7px;min-height:44px;align-items:center;border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;font-size:13px;line-height:18px;text-decoration:none;overflow-wrap:anywhere}
+body.kgp-public .kgp-detail-toc>summary{display:list-item;font-weight:700;min-height:44px;padding:10px 4px;cursor:pointer;line-height:22px}
+body.kgp-public .kgp-detail-toc>ul{margin-top:8px}
+body.kgp-public .kgpc-sources{border:1px solid #cbd5e1;border-radius:10px;margin-top:24px;padding:0!important;max-width:100%;background:#fff}
+body.kgp-public .kgpc-sources>summary{padding:14px 16px;cursor:pointer;min-height:48px;display:list-item;font-weight:700;font-size:14px;line-height:20px}
+body.kgp-public .kgpc-sources>ul{margin:0;padding:12px 16px 16px 28px;border-top:1px solid #cbd5e1}
+body.kgp-public .kgpc-sources li small{display:block;overflow-wrap:anywhere}
+body.kgp-public .kgp-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),select,textarea),body.kgpa-contact-page .kgpa-public-main :is(input:not([type="checkbox"]),select,textarea){border-color:#64748b;min-height:48px}
+@media(max-width:350px){body.kgp-public .kgp-header-actions,body.kgpa-contact-page .kgp-header-actions{gap:3px}body.kgp-public .kgp-site-header .kgp-menu>summary span:last-child,body.kgpa-contact-page .kgp-site-header .kgp-menu>summary span:last-child{display:none}body.kgp-public .kgp-quick-links{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){body.kgp-public *,body.kgpa-contact-page *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* P09 receipt: both next-step actions visible on the same narrow column. */
+body.kgp-public .kgpa-receipt-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:20px}
+body.kgp-public .kgpa-receipt-actions a{min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;border-radius:8px;padding:11px 14px}
+body.kgp-public .kgpa-receipt-actions .kgpa-secondary-link{border:1px solid #cbd5e1;background:#fff;color:#1d4ed8;font-weight:600}

@@ -12,8 +12,8 @@ for name,expected in hashes.items():
  assert got==expected, f'Logic changed unexpectedly: {name}'
  print('PASS: byte-for-byte unchanged',name)
 boot=(root/'kg-portal-design.php').read_text()
-assert 'Version: 2.1.4' in boot
-assert "define('KGDS_VERSION','2.1.4')" in boot
+assert 'Version: 2.1.5' in boot
+assert "define('KGDS_VERSION','2.1.5')" in boot
 # Existing business logic stays fingerprint-identical; only a scoped A03 UI asset is enqueued.
 assert "require_once KGDS_DIR.'includes/class-lookup.php'" in boot
 assert "assets/a03-workflow.js" in boot

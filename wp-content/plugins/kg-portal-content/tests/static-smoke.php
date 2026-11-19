@@ -19,10 +19,11 @@ foreach(['is_current','published','sources','template'] as $x) {
  if(!str_contains($p,$x))throw new RuntimeException('No public gate: '.$x);
 }
 $template=file_get_contents($root.'/templates/public.php');
-foreach(['kgp-shell','kgp-site-header','kgp-nav','kgp-brand','kgp-language','kgp-footer','kgpc-faq','KGPC_Review::is_current'] as $x) {
+foreach(['kgp-shell','kgp-header.php','kgp-footer','kgpc-faq','KGPC_Review::is_current'] as $x) {
  if ($x==='KGPC_Review::is_current')continue;
  if(!str_contains($template,$x))throw new RuntimeException('Missing shared shell/FAQ element: '.$x);
 }
+if(!is_file($root.'/../../themes/kg-portal-child/partials/kgp-header.php'))throw new RuntimeException('Shared header partial missing.');
 if(str_contains($template,'<?php get_header(')||str_contains($template,'<?php get_footer('))throw new RuntimeException('This must not fall back to Kadence default header.');
 require $root.'/includes/class-content.php';
 if(count(KGPC_Content::TOPICS)!==6)throw new RuntimeException('Six mandatory topics missing.');

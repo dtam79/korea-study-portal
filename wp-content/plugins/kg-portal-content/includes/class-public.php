@@ -114,22 +114,28 @@ final class KGPC_Public {
     public static function sources(array $snap,string $lang): string {
         $ids=$snap['source_ids']??[];
         if (!$ids)return '';
-        $html='<section class="kgpc-sources"><h2>'.esc_html(self::text('source',$lang)).'</h2><ul>';
+        $items='';
         foreach ($ids as $id) {
             try {
                 if (!KGP_Evidence_Repository::valid_source((int)$id))continue;
                 $src=KGP_DB::require_row('sources',(int)$id);
+                $issuer=KGP_DB::require_row('issuers',(int)$src['issuer_id']);
                 $url=esc_url((string)($src['public_url']??''),['https','http']);
                 if (!$url)continue;
                 $name=esc_html((string)($src['document_title']??'Official source'));
+                $publisher=esc_html((string)($issuer['official_name']??''));
                 $checked=esc_html((string)($src['checked_at']??''));
                 $locator=esc_html((string)($snap['source_locator']??$src['document_locator']??''));
-                $html.='<li><a href="'.$url.'" target="_blank" rel="noopener noreferrer">'.$name.' ↗</a>';
-                if($checked)$html.='<small>'.esc_html(self::text('checked',$lang)).': '.$checked.'</small>';
-                if($locator)$html.='<small>'.esc_html(self::text('locator',$lang)).': '.$locator.'</small>';
-                $html.='</li>';
+                $applicability=esc_html((string)($src['applicable_to']??''));
+                $items.='<li><a href="'.$url.'" target="_blank" rel="noopener noreferrer">'.$name.' ↗</a>';
+                if($publisher)$items.='<small>'.($lang==='ko'?'발행기관':'Publisher').': '.$publisher.'</small>';
+                if($locator)$items.='<small>'.esc_html(self::text('locator',$lang)).': '.$locator.'</small>';
+                if($applicability)$items.='<small>'.esc_html(self::text('audience',$lang)).': '.$applicability.'</small>';
+                if($checked)$items.='<small>'.esc_html(self::text('checked',$lang)).': '.$checked.'</small>';
+                $items.='</li>';
             } catch(Throwable $e) {continue;}
         }
-        return $html.'</ul></section>';
+        if (!$items)return '';
+        return '<details class="kgpc-sources"><summary>'.esc_html(self::text('source',$lang)).'</summary><ul>'.$items.'</ul></details>';
     }
 }

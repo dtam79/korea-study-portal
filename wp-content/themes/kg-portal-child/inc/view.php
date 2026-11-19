@@ -30,6 +30,68 @@ function kgp_fe_filter_params(array $raw, bool $keep_page = true): array {
     return $out;
 }
 
+
+/** Sanitize shareable UI query parameters without guessing administrator-configured taxonomy codes. */
+function kgp_fe_ui_query(array $raw): array {
+    $params=kgp_fe_filter_params($raw);
+    $removed=false;
+    foreach ($params as $key=>$value) {
+        if (in_array($key,['region','field','level','teaching_lang','admission_status'],true)) {
+            $items=explode(',',(string)$value);
+            $valid=array_values(array_unique(array_filter($items,static fn($v)=>preg_match('/^[A-Za-z0-9_-]{1,48}$/D',$v))));
+            if (count($items)!==count($valid) || count($valid)>20) $removed=true;
+            if (count($valid)>20) $valid=array_slice($valid,0,20);
+            if ($valid) $params[$key]=implode(',',$valid); else unset($params[$key]);
+        } elseif ($key==='sort' && !in_array($value,['name','tuition','deadline'],true)) {
+            unset($params[$key]);$removed=true;
+        } elseif (in_array($key,['certified','english_only'],true) && !in_array($value,['true','false','1','0'],true)) {
+            unset($params[$key]);$removed=true;
+        } elseif ($key==='cost_unit' && !in_array($value,['semester','month','year','one_time','program_total','term','other'],true)) {
+            unset($params[$key]);$removed=true;
+        } elseif (in_array($key,['tuition_min','tuition_max'],true) && (!preg_match('/^\d{1,16}(?:\.\d{1,2})?$/D',(string)$value) || !is_finite((float)$value))) {
+            unset($params[$key]);$removed=true;
+        } elseif ($key==='page' && (!ctype_digit((string)$value) || (int)$value<1 || (int)$value>1000000)) {
+            unset($params[$key]);$removed=true;
+        } elseif ($key==='q' && (function_exists('mb_strlen')?mb_strlen((string)$value,'UTF-8'):strlen((string)$value))>120) {
+            unset($params[$key]);$removed=true;
+        }
+    }
+    if (isset($params['tuition_min'],$params['tuition_max']) && (float)$params['tuition_min']>(float)$params['tuition_max']) {
+        unset($params['tuition_min'],$params['tuition_max']);$removed=true;
+    }
+    if ((!empty($params['tuition_min']) || !empty($params['tuition_max']) || array_key_exists('tuition_min',$params) || array_key_exists('tuition_max',$params)) && empty($params['cost_unit'])) {
+        unset($params['tuition_min'],$params['tuition_max']);$removed=true;
+    }
+    if (($params['sort']??'')==='tuition' && (empty($params['cost_unit']) || count(explode(',',(string)($params['level']??'')))!==1)) {
+        unset($params['sort']);$removed=true;
+    }
+    return ['params'=>$params,'removed'=>$removed];
+}
+
+/** Applied selection links, separate from inputs that have not yet been submitted. */
+function kgp_fe_applied_summary(string $lang,string $route,array $params): void {
+    $items=[];
+    $base=kgp_fe_url($lang,$route);
+    foreach ($params as $key=>$value) {
+        if ($key==='page' || $key==='sort' && $value==='name') continue;
+        foreach (in_array($key,['region','field','level','teaching_lang','admission_status'],true) ? explode(',',(string)$value) : [(string)$value] as $piece) {
+            if ($piece==='')continue;
+            $next=$params;
+            if (in_array($key,['region','field','level','teaching_lang','admission_status'],true)) {
+                $remaining=array_values(array_filter(explode(',',(string)$value),static fn($x)=>$x!==$piece));
+                if ($remaining) $next[$key]=implode(',',$remaining); else unset($next[$key]);
+            } else unset($next[$key]);
+            unset($next['page']);
+            $items[]=['label'=>kgp_fe_t('filter.'.$key,ucfirst(str_replace('_',' ',$key))).': '.$piece,
+                'url'=>add_query_arg($next,$base)];
+        }
+    }
+    if (!$items) return;
+    echo '<nav class="kgp-applied" aria-label="'.esc_attr(kgp_fe_t('filter.applied','Applied filters')).'">';
+    echo '<strong>'.esc_html(kgp_fe_t('filter.applied','Applied filters')).'</strong><div class="kgp-applied-links">';
+    foreach ($items as $item)echo '<a href="'.esc_url($item['url']).'" aria-label="'.esc_attr(kgp_fe_t('filter.remove','Remove').' '.$item['label']).'">'.esc_html($item['label']).' <span aria-hidden="true">×</span></a>';
+    echo '</div><a class="kgp-textlink" href="'.esc_url($base).'">'.esc_html(kgp_fe_t('action.reset','Reset all')).'</a></nav>';
+}
 /** All requests pass through the exact public REST contract (no direct table reads). */
 function kgp_fe_api(string $path, array $params = []): array {
     $req = new WP_REST_Request('GET', '/kgp/v1/' . ltrim($path, '/'));

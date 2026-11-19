@@ -37,24 +37,12 @@ if ($both_locales && !($article['_fallback']??false)):
 <?php wp_body_open(); ?>
 <a class="kgp-skip" href="#kgpc-main"><?php echo $lang==='ko'?'본문으로 이동':'Skip to content'; ?></a>
 <div class="kgp-shell">
-  <header class="kgp-site-header">
-    <div class="kgp-header-line">
-      <a class="kgp-brand" href="<?php echo esc_url(KGPC_Public::url($lang,'')); ?>">
-        <span class="kgp-brand-symbol" aria-hidden="true">K</span>
-        <span class="kgp-brand-copy"><strong><?php echo $lang==='ko'?'한국 대학 유학 정보 포털':'Korea University Study Portal'; ?></strong><small><?php echo $lang==='ko'?'공식 대학 정보 안내':'Verified official university information'; ?></small></span>
-      </a>
-      <nav class="kgp-language" aria-label="Language">
-        <a href="<?php echo esc_url(KGPC_Public::url('ko',$requested_path)); ?>" <?php if($lang==='ko')echo 'aria-current="true"'; ?>>한국어</a><span aria-hidden="true">/</span>
-        <a href="<?php echo esc_url(KGPC_Public::url('en',$requested_path)); ?>" <?php if($lang==='en')echo 'aria-current="true"'; ?>>EN</a>
-      </nav>
-    </div>
-    <nav class="kgp-nav" aria-label="<?php echo $lang==='ko'?'주 메뉴':'Main navigation'; ?>">
-      <?php foreach ([['','홈','Home'],['universities/','대학 찾기','Find universities'],['admissions/','모집 일정','Admissions'],['guides/','한국 유학 가이드','Study in Korea'],['faq/','FAQ','FAQ'],['contact/','문의하기','Contact']] as $nav):
-        $active=($view==='guides'||$view==='guide')?$nav[0]==='guides/':$view==='faq'&&$nav[0]==='faq/'; ?>
-        <a href="<?php echo esc_url(KGPC_Public::url($lang,$nav[0])); ?>" <?php if ($active)echo 'aria-current="page"'; ?>><?php echo esc_html($nav[$lang==='en'?2:1]); ?></a>
-      <?php endforeach; ?>
-    </nav>
-  </header>
+  <?php
+  $kgp_header_lang = $lang;
+  $kgp_header_active = in_array($view,['guide','guides'],true) ? 'guides' : ($view==='faq' ? 'faq' : '');
+  $kgp_header_switch = ['ko'=>KGPC_Public::url('ko',$requested_path), 'en'=>KGPC_Public::url('en',$requested_path)];
+  require get_stylesheet_directory() . '/partials/kgp-header.php';
+  ?>
   <main id="kgpc-main" class="kgpc-main" tabindex="-1">
   <?php if ($view==='guides'): ?>
     <div class="kgpc-eyebrow"><?php echo esc_html($t('guides')); ?></div>

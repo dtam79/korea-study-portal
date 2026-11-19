@@ -1,10 +1,10 @@
 <?php
 /**
- * Korea Study Portal FE 0.5.2.
+ * Korea Study Portal FE 0.5.3.
  * Public pages use a Kadence child theme, with v0.4.0 KGP REST routes as the sole data source.
  */
 defined('ABSPATH') || exit;
-define('KGP_FE_VERSION', '0.5.2');
+define('KGP_FE_VERSION', '0.5.3');
 define('KGP_FE_DIR', get_stylesheet_directory());
 require_once KGP_FE_DIR . '/inc/routes.php';
 require_once KGP_FE_DIR . '/inc/view.php';

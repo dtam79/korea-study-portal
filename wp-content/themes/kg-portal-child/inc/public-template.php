@@ -7,14 +7,6 @@ $valid_screens=['home','search','university','admissions','guides','guide','faq'
 if (!in_array($screen,$valid_screens,true)) {status_header(404);$screen='not_found';}
 else {status_header(200);}
 if ($screen==='university' && !preg_match('/^[A-Za-z0-9_-]{2,64}$/D',(string)get_query_var('kgp_uni'))) {status_header(404);$screen='not_found';}
-$menu=[
-    ['home','',kgp_fe_t('nav.home','Home')],
-    ['search','universities/',kgp_fe_t('nav.search','Find universities')],
-    ['admissions','admissions/',kgp_fe_t('nav.admissions','Admissions')],
-    ['guides','guides/',kgp_fe_t('nav.guides','Study guides')],
-    ['faq','faq/','FAQ'],
-    ['contact','contact/',kgp_fe_t('nav.contact','Contact')],
-];
 ?><!doctype html>
 <html lang="<?php echo esc_attr($lang); ?>">
 <head>
@@ -26,24 +18,12 @@ $menu=[
 <?php wp_body_open(); ?>
 <a class="kgp-skip" href="#kgp-main"><?php echo esc_html(kgp_fe_t('nav.skip','Skip to main content')); ?></a>
 <div class="kgp-shell">
-<header class="kgp-site-header">
-    <div class="kgp-header-line">
-        <a class="kgp-brand" href="<?php echo esc_url(kgp_fe_url($lang)); ?>">
-            <span class="kgp-brand-symbol" aria-hidden="true">K</span>
-            <span><strong><?php echo esc_html(kgp_fe_t('brand.title','Korea Study Portal')); ?></strong><small><?php echo esc_html(kgp_fe_t('brand.subtitle','Official university information')); ?></small></span>
-        </a>
-        <div class="kgp-language" aria-label="<?php echo esc_attr(kgp_fe_t('nav.language','Language')); ?>">
-            <a href="<?php echo esc_url(kgp_fe_switch_url('ko')); ?>" <?php echo $lang==='ko'?'aria-current="true"':''; ?>>한국어</a>
-            <span aria-hidden="true">/</span>
-            <a href="<?php echo esc_url(kgp_fe_switch_url('en')); ?>" <?php echo $lang==='en'?'aria-current="true"':''; ?>>EN</a>
-        </div>
-    </div>
-    <nav class="kgp-nav" aria-label="<?php echo esc_attr(kgp_fe_t('nav.main','Main navigation')); ?>">
-        <?php foreach ($menu as [$id,$route,$title]): ?>
-            <a href="<?php echo esc_url(kgp_fe_url($lang,$route)); ?>" <?php echo ($screen===$id||($id==='guides'&&$screen==='guide')||($id==='search'&&$screen==='university'))?'aria-current="page"':''; ?>><?php echo esc_html($title); ?></a>
-        <?php endforeach; ?>
-    </nav>
-</header>
+<?php
+$kgp_header_lang = $lang;
+$kgp_header_active = match ($screen) { 'university'=>'search', 'guide'=>'guides', default=>$screen };
+$kgp_header_switch = ['ko'=>kgp_fe_switch_url('ko'), 'en'=>kgp_fe_switch_url('en')];
+require get_stylesheet_directory() . '/partials/kgp-header.php';
+?>
 <main id="kgp-main" tabindex="-1">
 <?php
 if ($screen==='home') kgp_fe_screen_home($lang);
@@ -74,6 +54,15 @@ function kgp_fe_screen_home(string $lang): void {
             <div class="kgp-search-row"><input id="kgp-home-q" type="search" name="q" maxlength="120" placeholder="<?php echo esc_attr(kgp_fe_t('home.search_placeholder','Name of a university or major')); ?>"><button type="submit" class="kgp-button"><?php echo esc_html(kgp_fe_t('action.search','Search')); ?></button></div>
         </form>
         <p class="kgp-micro"><?php echo esc_html(kgp_fe_t('home.no_account','No account is required to browse. Applications are completed on official external websites.')); ?></p>
+    </section>
+    <section class="kgp-section kgp-quick" aria-labelledby="kgp-quick-title">
+      <h2 id="kgp-quick-title"><?php echo esc_html(kgp_fe_t('home.quick','Quick exploration')); ?></h2>
+      <nav class="kgp-quick-links" aria-label="<?php echo esc_attr(kgp_fe_t('home.quick','Quick exploration')); ?>">
+        <a href="<?php echo esc_url(add_query_arg('region','seoul',kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('home.region_seoul','Seoul')); ?></a>
+        <a href="<?php echo esc_url(add_query_arg('field','engineering',kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('home.field_engineering','Engineering')); ?></a>
+        <a href="<?php echo esc_url(add_query_arg('level','master',kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('home.level_master','Master’s courses')); ?></a>
+        <a href="<?php echo esc_url(add_query_arg('cost_unit','semester',kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('home.tuition_semester','Tuition per semester')); ?></a>
+      </nav>
     </section>
     <section class="kgp-section" aria-labelledby="kgp-featured-title">
         <div class="kgp-section-head"><h2 id="kgp-featured-title"><?php echo esc_html(kgp_fe_t('home.open','Currently open admissions')); ?></h2><a class="kgp-textlink" href="<?php echo esc_url(kgp_fe_url($lang,'universities/?admission_status=open')); ?>"><?php echo esc_html(kgp_fe_t('action.all','View all')); ?></a></div>
@@ -115,11 +104,12 @@ function kgp_fe_filter_form(string $lang, string $route, array $values, bool $ad
         'admission_status'=>['filter.admission_status','Admission status']];
     ?>
     <form class="kgp-filter-form" id="kgp-filter-form" method="get" action="<?php echo esc_url(kgp_fe_url($lang,$route)); ?>">
+      <input type="hidden" name="kgp_applied" value="1">
       <?php if (!$admissions): ?>
         <label for="kgp-query"><?php echo esc_html(kgp_fe_t('search.name','University or program')); ?></label>
         <div class="kgp-search-row"><input id="kgp-query" type="search" name="q" maxlength="120" value="<?php echo kgp_fe_attr($values['q']??''); ?>" placeholder="<?php echo esc_attr(kgp_fe_t('search.placeholder','Search verified names')); ?>"><button class="kgp-button" type="submit"><?php echo esc_html(kgp_fe_t('action.search','Search')); ?></button></div>
       <?php endif; ?>
-      <details class="kgp-filter-panel" <?php echo count($values)>0?'open':''; ?>>
+      <details class="kgp-filter-panel" <?php echo (count($values)>0 || (isset($_GET['kgp_applied']) && is_scalar($_GET['kgp_applied']) && $_GET['kgp_applied']==='1'))?'open':''; ?>>
         <summary><?php echo esc_html(kgp_fe_t('filter.title','Filter by conditions')); ?></summary>
         <div class="kgp-filter-content">
           <?php foreach ($choiceSets as $key=>$options):
@@ -162,17 +152,25 @@ function kgp_fe_filter_form(string $lang, string $route, array $values, bool $ad
     <?php
 }
 function kgp_fe_screen_search(string $lang): void {
-    $query=kgp_fe_filter_params($_GET);
+    $ui=kgp_fe_ui_query($_GET);$query=$ui['params'];
     $result=kgp_fe_api('catalog',array_merge($query,['locale'=>$lang]));
     ?>
     <section class="kgp-section kgp-page-head"><p class="kgp-eyebrow"><?php echo esc_html(kgp_fe_t('search.eyebrow','Verified courses and admission rounds')); ?></p><h1><?php echo esc_html(kgp_fe_t('nav.search','Find universities')); ?></h1><p><?php echo esc_html(kgp_fe_t('search.intro','Results represent matching programs and admission rounds, not just university counts.')); ?></p></section>
+    <?php if ($ui['removed']): ?>
+      <p class="kgp-notice" role="status"><?php echo esc_html(kgp_fe_t('filter.invalid_url','Invalid URL filter values were removed. Review the valid conditions below.')); ?> <a href="<?php echo esc_url(add_query_arg($query,kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('filter.corrected','Open corrected search')); ?></a></p>
+    <?php endif; ?>
     <?php kgp_fe_filter_form($lang,'universities/',$query); ?>
+    <?php kgp_fe_applied_summary($lang,'universities/',$query); ?>
     <section class="kgp-section" aria-labelledby="kgp-results-heading">
       <div class="kgp-results-title"><h2 id="kgp-results-heading"><?php echo esc_html(kgp_fe_t('search.results','Search results')); ?></h2>
       <?php if ($result['ok']): ?><span><?php echo esc_html(number_format((int)($result['data']['total']??0))); ?> <?php echo esc_html(kgp_fe_t('search.matches','matching offerings')); ?></span><?php endif; ?></div>
-      <?php if (!$result['ok']): kgp_fe_notice($result['status']===422?(string)$result['message']:kgp_fe_t('state.api_error','Information is temporarily unavailable. Please retry.'),'error');
+      <?php if (!$result['ok']): kgp_fe_notice($result['status']===422?kgp_fe_t('filter.invalid_url','Invalid URL filter values were removed. Review the valid conditions below.'):kgp_fe_t('state.api_error','Information is temporarily unavailable. Please retry.'),'error'); ?>
+        <p><a class="kgp-textlink" href="<?php echo esc_url(add_query_arg($query,kgp_fe_url($lang,'universities/'))); ?>"><?php echo esc_html(kgp_fe_t('action.retry','Retry with these conditions')); ?></a></p>
+      <?php
       else: ?>
-        <?php if (empty($result['data']['items'])):kgp_fe_notice(kgp_fe_t('state.no_results','No approved results match these conditions. Change the filters or reset them.')); endif; ?>
+        <?php if (empty($result['data']['items'])):kgp_fe_notice(kgp_fe_t('state.no_results','No approved results match these conditions. Change the filters or reset them.')); ?>
+            <p><a href="<?php echo esc_url(kgp_fe_url($lang,'universities/')); ?>"><?php echo esc_html(kgp_fe_t('action.reset','Reset all')); ?></a></p>
+          <?php endif; ?>
         <?php foreach (($result['data']['items']??[]) as $item) kgp_fe_card($item,$lang); ?>
         <?php kgp_fe_pager($result['data'],'universities/',$query); ?>
       <?php endif; ?>
@@ -237,32 +235,19 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
         <?php if ($startDisplay!==''): ?><div><dt><?php echo esc_html(kgp_fe_t('label.opening','Opens')); ?></dt><dd><?php echo kgp_fe_h($startDisplay); ?><?php if (kgp_fe_admission_time_unpublished($admission,'start')): ?><span class="kgp-small"> <?php echo esc_html(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
         <?php if ($endDisplay!==''): ?><div><dt><?php echo esc_html(kgp_fe_t('label.deadline','Deadline')); ?></dt><dd><?php echo kgp_fe_h($endDisplay); ?><?php if (kgp_fe_admission_time_unpublished($admission,'end')): ?><span class="kgp-small"> <?php echo esc_html(kgp_fe_t('label.check_time','Check official time')); ?></span><?php endif; ?></dd></div><?php endif; ?>
       </dl>
-      <div class="kgp-action-stack">
-      <?php if (!empty($d['intake']['application_url'])):
-        $url=kgp_fe_safe_url($d['intake']['application_url']);
-        if ($url): ?><a class="kgp-button" href="<?php echo esc_url($url); ?>" rel="noopener noreferrer" target="_blank"><?php echo esc_html(kgp_fe_t('action.apply_official','Go to official application site')); ?> <span aria-hidden="true">&nearr;</span></a><?php endif; ?>
-      <?php endif; ?>
-      <?php if (!empty($d['university']['official_website'])):
-        $url=kgp_fe_safe_url($d['university']['official_website']);
-        if ($url): ?><a class="kgp-button kgp-button--secondary" href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html(kgp_fe_t('action.official_site','Official university website')); ?></a><?php endif; ?>
-      <?php endif; ?>
-      <a class="kgp-button kgp-button--secondary" href="<?php echo esc_url(add_query_arg(['university'=>$public_id,'offering'=>$selected],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_operator','Contact the portal operator')); ?></a>
-      <a class="kgp-textlink" href="<?php echo esc_url(add_query_arg(['type'=>'university','university'=>$public_id],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_university','Contact the university directly')); ?></a>
-      </div>
-      <p class="kgp-micro"><?php echo esc_html(kgp_fe_t('detail.external','The portal does not receive applications. Always verify the latest official requirements.')); ?></p>
     </section>
     <section class="kgp-section" aria-labelledby="kgp-sections-heading">
       <h2 id="kgp-sections-heading"><?php echo esc_html(kgp_fe_t('detail.sections','Published details and evidence')); ?></h2>
       <?php if (empty($d['sections'])):kgp_fe_notice(kgp_fe_t('state.no_sections','No section-level evidence has been published yet.')); ?>
       <?php else: ?>
-        <nav class="kgp-detail-toc" aria-label="<?php echo esc_attr(kgp_fe_t('detail.contents','On this page')); ?>">
-          <p class="kgp-detail-toc__title"><?php echo esc_html(kgp_fe_t('detail.contents','On this page')); ?></p>
+        <details class="kgp-detail-toc" open>
+          <summary class="kgp-detail-toc__title"><?php echo esc_html(kgp_fe_t('detail.contents','On this page')); ?></summary>
           <ul>
           <?php foreach ($d['sections'] as $tocSection): ?>
             <li><a href="#<?php echo esc_attr('kgp-det-'.($tocSection['id']??'')); ?>"><?php echo kgp_fe_h($tocSection['title']??$tocSection['id']); ?></a></li>
           <?php endforeach; ?>
           </ul>
-        </nav>
+        </details>
         <?php foreach ($d['sections'] as $sectionIndex=>$section): ?>
             <details class="kgp-detail-section" id="<?php echo esc_attr('kgp-det-'.($section['id']??'')); ?>" <?php echo $sectionIndex===0?'open':''; ?>><summary><?php echo kgp_fe_h($section['title']??$section['id']); ?></summary><div class="kgp-detail-body">
               <?php foreach (($section['groups']??[]) as $group): ?>
@@ -281,18 +266,42 @@ function kgp_fe_screen_university(string $lang,string $public_id): void {
           <?php endforeach; ?>
       <?php endif; ?>
     </section>
+    <section class="kgp-section kgp-detail-next" aria-label="<?php echo esc_attr(kgp_fe_t('detail.next','Next steps')); ?>">
+      <h2><?php echo esc_html(kgp_fe_t('detail.next','Next steps')); ?></h2>
+      <div class="kgp-action-stack">
+      <?php if (!empty($d['intake']['application_url'])):
+        $url=kgp_fe_safe_url($d['intake']['application_url']);
+        if ($url): ?><a class="kgp-button" href="<?php echo esc_url($url); ?>" rel="noopener noreferrer" target="_blank"><?php echo esc_html(kgp_fe_t('action.apply_official','Go to official application site')); ?> <span aria-hidden="true">&nearr;</span></a><?php endif; ?>
+      <?php endif; ?>
+      <?php if (!empty($d['university']['official_website'])):
+        $url=kgp_fe_safe_url($d['university']['official_website']);
+        if ($url): ?><a class="kgp-button kgp-button--secondary" href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html(kgp_fe_t('action.official_site','Official university website')); ?></a><?php endif; ?>
+      <?php endif; ?>
+      <a class="kgp-button kgp-button--secondary" href="<?php echo esc_url(add_query_arg(['university'=>$public_id,'offering'=>$selected],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_operator','Contact the portal operator')); ?></a>
+      <a class="kgp-textlink" href="<?php echo esc_url(add_query_arg(['type'=>'university','university'=>$public_id],kgp_fe_url($lang,'contact/'))); ?>"><?php echo esc_html(kgp_fe_t('action.contact_university','Contact the university directly')); ?></a>
+      </div>
+      <p class="kgp-micro"><?php echo esc_html(kgp_fe_t('detail.external','The portal does not receive applications. Always verify the latest official requirements.')); ?></p>
+    </section>
     <?php
 }
 function kgp_fe_screen_admissions(string $lang): void {
-    $params=kgp_fe_filter_params($_GET);
+    $ui=kgp_fe_ui_query($_GET);$params=$ui['params'];
     $result=kgp_fe_api('admissions',array_merge($params,['locale'=>$lang]));
     ?>
     <section class="kgp-section kgp-page-head"><p class="kgp-eyebrow"><?php echo esc_html(kgp_fe_t('admissions.eyebrow','Official university application dates')); ?></p><h1><?php echo esc_html(kgp_fe_t('nav.admissions','Admissions')); ?></h1><p><?php echo esc_html(kgp_fe_t('admissions.intro','Dates and times follow each official publication. An unpublished deadline time is not assumed.')); ?></p></section>
+    <?php if ($ui['removed']): ?>
+      <p class="kgp-notice" role="status"><?php echo esc_html(kgp_fe_t('filter.invalid_url','Invalid URL filter values were removed. Review the valid conditions below.')); ?> <a href="<?php echo esc_url(add_query_arg($params,kgp_fe_url($lang,'admissions/'))); ?>"><?php echo esc_html(kgp_fe_t('filter.corrected','Open corrected search')); ?></a></p>
+    <?php endif; ?>
     <?php kgp_fe_filter_form($lang,'admissions/',$params,true); ?>
+    <?php kgp_fe_applied_summary($lang,'admissions/',$params); ?>
     <section class="kgp-section" aria-labelledby="kgp-admissions-heading">
       <div class="kgp-results-title"><h2 id="kgp-admissions-heading"><?php echo esc_html(kgp_fe_t('admissions.list','Admission rounds')); ?></h2><?php if ($result['ok']): ?><span><?php echo esc_html((string)($result['data']['total']??0)); ?></span><?php endif; ?></div>
-      <?php if (!$result['ok']):kgp_fe_notice(kgp_fe_t('state.api_error','Information is temporarily unavailable. Please retry.'),'error');
-      elseif (empty($result['data']['items'])):kgp_fe_notice(kgp_fe_t('state.no_results','No approved results match these conditions. Change the filters or reset them.'));
+      <?php if (!$result['ok']):kgp_fe_notice(kgp_fe_t('state.api_error','Information is temporarily unavailable. Please retry.'),'error'); ?>
+        <p><a href="<?php echo esc_url(add_query_arg($params,kgp_fe_url($lang,'admissions/'))); ?>"><?php echo esc_html(kgp_fe_t('action.retry','Retry with these conditions')); ?></a></p>
+      <?php
+      elseif (empty($result['data']['items'])):kgp_fe_notice(kgp_fe_t('state.no_results','No approved results match these conditions. Change the filters or reset them.')); ?>
+        <p><a href="<?php echo esc_url(kgp_fe_url($lang,'admissions/')); ?>"><?php echo esc_html(kgp_fe_t('action.reset','Reset all')); ?></a></p>
+      <?php
       else:
          foreach ($result['data']['items'] as $item) kgp_fe_card($item,$lang);
          kgp_fe_pager($result['data'],'admissions/',$params);

@@ -15,8 +15,8 @@ window.addEventListener('load',()=>setTimeout(()=>{
   const cert=document.getElementById('cert'),english=document.getElementById('eng');
   const summary=[];
   function ok(test,description){summary.push((test?'PASS: ':'FAIL: ')+description);}
-  ok(opts.length===2,'Both boolean segments present');
-  ok(opts.every(x=>x.querySelectorAll('button').length===2),'Only two choices per segment');
+  ok(opts.length===3,'Both boolean segments present');
+  ok(opts.every(x=>x.querySelectorAll('button').length===3),'Three choices per segment');
   ok(opts[0]?.textContent==='인증전체 보기','Certification choice labels');
   ok(opts[1]?.textContent==='100% 영어 학위전체 보기','English degree choice labels');
   let n=0;cert.addEventListener('change',()=>n++);

@@ -248,8 +248,19 @@
   "label.intake_round": "모집 학년도·학기",
   "action.contact_operator": "포털 운영자에게 문의",
   "action.contact_university": "대학에 직접 문의",
-  "detail.contents": "이 페이지의 목차",
+  "detail.contents": "목차",
+  "detail.next": "다음 단계",
   "label.source_check": "공식 자료 확인일",
   "label.source_check_note": "표시 자료에 연결된 출처 중 가장 이른 확인일",
-  "field.publisher": "발행기관"
+  "field.publisher": "발행기관",
+  "home.quick": "빠른 조건 탐색",
+  "home.region_seoul": "서울 소재 대학",
+  "home.field_engineering": "공학 계열",
+  "home.level_master": "석사 과정",
+  "home.tuition_semester": "학기당 등록금 보기",
+  "filter.applied": "적용된 검색 조건",
+  "filter.remove": "조건 제거",
+  "filter.invalid_url": "잘못된 URL 검색 조건을 제거했습니다. 현재 조건을 다시 확인해 주세요.",
+  "filter.corrected": "정리된 조건으로 다시 검색",
+  "action.retry": "같은 조건으로 다시 시도"
 }

@@ -13,7 +13,7 @@ const document={
   addEventListener(name,handler){if(name==='click')clickHandler=handler;},
 };
 const win={location:{hash:'#kgp-det-DET-03'},addEventListener(name,handler){if(name==='hashchange')hashHandler=handler;}};
-vm.runInNewContext(code,{document,window:win,requestAnimationFrame:fn=>fn(),console});
+vm.runInNewContext(code,{document,window:win,URLSearchParams,requestAnimationFrame:fn=>fn(),console});
 assert.equal(target.open,true,'direct hash opens a published detail section');
 assert.equal(typeof clickHandler,'function');
 assert.equal(typeof hashHandler,'function');

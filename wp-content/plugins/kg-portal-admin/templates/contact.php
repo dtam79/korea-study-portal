@@ -32,40 +32,12 @@ status_header($is_done&&$receipt===''?404:200);
 <?php wp_body_open(); ?>
 <a class="kgp-skip" href="#kgpa-contact-main"><?php echo $lang === 'ko' ? '본문으로 이동' : 'Skip to content'; ?></a>
 <div class="kgp-shell">
-  <header class="kgp-site-header">
-    <div class="kgp-header-line">
-      <a class="kgp-brand" href="<?php echo esc_url(home_url('/' . $lang . '/')); ?>">
-        <span class="kgp-brand-symbol" aria-hidden="true">K</span>
-        <span class="kgp-brand-copy">
-          <strong><?php echo $lang === 'ko' ? '한국 대학 유학 정보 포털' : 'Korea University Study Portal'; ?></strong>
-          <small><?php echo $lang === 'ko' ? '공식 대학 정보 안내' : 'Verified official university information'; ?></small>
-        </span>
-      </a>
-      <nav class="kgp-language" aria-label="Language">
-        <a href="<?php echo esc_url(KGP_Operator_Contact_Pages::url('ko')); ?>" <?php if ($lang === 'ko') echo 'aria-current="true"'; ?>>한국어</a>
-        <span aria-hidden="true">/</span>
-        <a href="<?php echo esc_url(KGP_Operator_Contact_Pages::url('en')); ?>" <?php if ($lang === 'en') echo 'aria-current="true"'; ?>>EN</a>
-      </nav>
-    </div>
-    <nav class="kgp-nav" aria-label="<?php echo $lang === 'ko' ? '주 메뉴' : 'Main navigation'; ?>">
-      <?php
-      $kgpa_items = [
-        ['', '홈', 'Home'],
-        ['universities/', '대학 찾기', 'Find universities'],
-        ['admissions/', '모집 일정', 'Admissions'],
-        ['guides/', '한국 유학 가이드', 'Study in Korea'],
-        ['faq/', 'FAQ', 'FAQ'],
-        ['contact/', '문의하기', 'Contact'],
-      ];
-      foreach ($kgpa_items as $kgpa_item):
-        $kgpa_path = $kgpa_item[0];
-        $kgpa_href = home_url('/' . $lang . '/' . $kgpa_path);
-        $kgpa_label = $lang === 'ko' ? $kgpa_item[1] : $kgpa_item[2];
-      ?>
-        <a href="<?php echo esc_url($kgpa_href); ?>" <?php if ($kgpa_path === 'contact/') echo 'aria-current="page"'; ?>><?php echo esc_html($kgpa_label); ?></a>
-      <?php endforeach; ?>
-    </nav>
-  </header>
+  <?php
+  $kgp_header_lang = $lang;
+  $kgp_header_active = 'contact';
+  $kgp_header_switch = ['ko'=>KGP_Operator_Contact_Pages::url('ko'),'en'=>KGP_Operator_Contact_Pages::url('en')];
+  require get_stylesheet_directory() . '/partials/kgp-header.php';
+  ?>
   <main id="kgpa-contact-main" class="kgpa-public-main" tabindex="-1">
 <?php if ($is_done): ?>
   <?php if ($receipt): ?>
@@ -73,7 +45,10 @@ status_header($is_done&&$receipt===''?404:200);
     <div class="kgpa-receipt"><span><?php echo esc_html($t('receipt')); ?></span><strong><?php echo esc_html($receipt); ?></strong></div>
     <p><?php echo esc_html($t('keep')); ?></p>
   <?php else: ?><h1>Page not found</h1><?php endif; ?>
-  <a class="kgpa-primary-link" href="<?php echo esc_url(home_url('/'.$lang.'/')); ?>"><?php echo esc_html($t('home')); ?></a>
+  <div class="kgpa-receipt-actions">
+    <a class="kgpa-primary-link" href="<?php echo esc_url(home_url('/'.$lang.'/universities/')); ?>"><?php echo esc_html($lang==='ko'?'대학 찾기':'Find a university'); ?></a>
+    <a class="kgpa-secondary-link" href="<?php echo esc_url(home_url('/'.$lang.'/')); ?>"><?php echo esc_html($t('home')); ?></a>
+  </div>
 <?php else: ?>
   <h1><?php echo esc_html($t('title')); ?></h1><p class="kgpa-intro"><?php echo esc_html($t('intro')); ?></p>
   <nav class="kgpa-tabs" aria-label="Inquiry recipient">

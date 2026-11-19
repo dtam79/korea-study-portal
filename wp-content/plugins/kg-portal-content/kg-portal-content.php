@@ -2,12 +2,12 @@
 /**
  * Plugin Name: KG Portal Content
  * Description: Evidence-reviewed bilingual study guides, FAQ and operator-approved policy pages.
- * Version: 0.9.2
+ * Version: 0.9.3
  * Requires PHP: 8.3
  * Text Domain: kg-portal-content
  */
 defined('ABSPATH') || exit;
-define('KGPC_VERSION','0.9.2');
+define('KGPC_VERSION','0.9.3');
 define('KGPC_DIR', plugin_dir_path(__FILE__));
 require_once KGPC_DIR.'includes/class-content.php';
 require_once KGPC_DIR.'includes/class-review.php';

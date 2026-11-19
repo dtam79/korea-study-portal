@@ -28,6 +28,16 @@
   });
   if (window.location.hash?.startsWith('#')) openDetail(window.location.hash.slice(1));
 
+  // After Apply or pagination, focus the results summary, not the filter controls.
+  const query = new URLSearchParams(window.location.search);
+  if (query.get('kgp_applied') === '1' || (query.has('page') && Number(query.get('page')) > 1)) {
+    const title = document.getElementById('kgp-results-heading') || document.getElementById('kgp-admissions-heading');
+    if (title) {
+      title.setAttribute('tabindex','-1');
+      requestAnimationFrame(() => title.focus({preventScroll:false}));
+    }
+  }
+
   const form = document.getElementById('kgp-filter-form');
   if (!form) return;
   const min = form.querySelector('[name="tuition_min"]');

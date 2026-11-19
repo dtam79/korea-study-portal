@@ -1,4 +1,4 @@
-/* KG Portal Design 2.1.2: native filters with keyword-only reset + active-selection summary. */
+/* KG Portal Design 2.1.5: faithful native filter values, applied-condition summary and Reset all. */
 (() => {
   'use strict';
   const path=location.pathname;
@@ -8,10 +8,10 @@
   const configs=[
     {test:/인증\s*대학\s*여부|accredit(?:ed|ation)\s+university|university\s+accreditation|certified\s+university/i,
      title:en?'University accreditation':'인증대학 여부',
-     yes:en?'Accredited':'인증', all:en?'View all':'전체 보기'},
+     yes:en?'Accredited':'인증', no:en?'Not accredited':'비해당', all:en?'View all':'전체 보기'},
     {test:/100\s*%\s*영어\s*학위\s*과정|영어\s*전용\s*(?:학위\s*)?과정|100\s*%\s*english|fully\s*english\s*(?:taught|degree)|english.only.degree/i,
      title:en?'Degree language':'학위 과정 수업 언어',
-     yes:en?'100% English degree':'100% 영어 학위', all:en?'View all':'전체 보기'},
+     yes:en?'100% English degree':'100% 영어 학위', no:en?'Not English-only':'비해당', all:en?'View all':'전체 보기'},
   ];
   const normalize=v=>String(v??'').toLowerCase().replace(/\s+/g,' ').trim();
   function kind(option){
@@ -46,9 +46,12 @@
     choices.setAttribute('role','group');choices.setAttribute('aria-labelledby',caption.id);
     const yes=document.createElement('button');yes.type='button';yes.className='kgds-bool-option';
     yes.textContent=config.yes;yes.setAttribute('aria-pressed','false');
+    const no=Object.hasOwn(values,'no')?document.createElement('button'):null;
+    if(no){no.type='button';no.className='kgds-bool-option';no.textContent=config.no;no.setAttribute('aria-pressed','false');}
     const all=document.createElement('button');all.type='button';all.className='kgds-bool-option';
     all.textContent=config.all;all.setAttribute('aria-pressed','false');
-    choices.append(yes,all);box.append(caption,choices);
+    if(no)choices.append(yes,no,all);else choices.append(yes,all);
+    box.append(caption,choices);
     const nativeSet=value=>{
       if(select.value===value)return;
       select.value=value;
@@ -56,14 +59,15 @@
       select.dispatchEvent(new Event('change',{bubbles:true}));
     };
     const sync=()=>{
-      // A legacy 'no only' state is not representable in this two-choice control.
-      if(Object.hasOwn(values,'no') && select.value===values.no)nativeSet(values.all);
       const selectedYes=select.value===values.yes;
+      const selectedNo=!!no&&select.value===values.no;
       yes.setAttribute('aria-pressed',String(selectedYes));
-      all.setAttribute('aria-pressed',String(!selectedYes));
-      box.classList.toggle('kgds-bool-active',selectedYes);
+      if(no)no.setAttribute('aria-pressed',String(selectedNo));
+      all.setAttribute('aria-pressed',String(!selectedYes&&!selectedNo));
+      box.classList.toggle('kgds-bool-active',selectedYes||selectedNo);
     };
     yes.addEventListener('click',()=>{nativeSet(values.yes);sync();});
+    if(no)no.addEventListener('click',()=>{nativeSet(values.no);sync();});
     all.addEventListener('click',()=>{nativeSet(values.all);sync();});
     select.addEventListener('change',sync);
     select.form?.addEventListener('reset',()=>setTimeout(sync,0));
@@ -89,42 +93,11 @@
     }
     return forms;
   }
-  // This UI adapter never rewrites search handlers, REST calls, or native field names.
-  // Query-only reset drops ALL filter parameters, retaining just the current keyword.
+  // UI adapter never changes the submitted query or the native filter data contract.
+  // The template's Reset all link is a plain navigation to the default search URL;
+  // collapsing the native disclosure never applies or clears pending form values.
   const keywordKeys=new Set(['q','s','keyword','search','query','term','search_query','search_keyword','search_term']);
-  const keywordInputSelector=[...keywordKeys].map(k=>`input[name="${k}"]`).join(',')+',input[type="search"]';
   const text=v=>String(v??'').replace(/\s+/g,' ').trim();
-  function keyword(main){
-    const fields=[...main.querySelectorAll(keywordInputSelector)].filter(input=>
-      !input.disabled && input.type!=='hidden' && input.name &&
-      (keywordKeys.has(input.name.toLowerCase()) || input.type==='search'));
-    // Prefer the visible typed query to the previous URL: deleting a keyword must count.
-    if(fields.length) return {name:fields[0].name,value:fields[0].value.trim()};
-    const query=new URL(location.href).searchParams;
-    for(const key of keywordKeys){if(query.has(key))return {name:key,value:query.get(key)?.trim()||''};}
-    return null;
-  }
-  function clearForKeyword(main,form){
-    const query=keyword(main);
-    // Reflect the reset immediately. The next GET request is made through the
-    // original page route with no filter parameters, never a new API contract.
-    for(const el of form.querySelectorAll('select,input,textarea')){
-      if(el.disabled || (el.name && keywordKeys.has(el.name.toLowerCase())) || el.type==='hidden') continue;
-      if(el.tagName==='SELECT'){
-        const all=[...el.options].find(o=>kind(o)==='all'||o.value==='') || el.options[0];
-        if(all)el.value=all.value;
-      }else if(el.type==='checkbox'||el.type==='radio'){el.checked=false;}
-      else if(!['button','submit','reset','file'].includes(el.type)){el.value='';}
-      el.dispatchEvent(new Event('input',{bubbles:true}));
-      el.dispatchEvent(new Event('change',{bubbles:true}));
-    }
-    updateSummary(form);
-    // Search keyword remains the ONLY URL criterion. This also removes page,
-    // sort, amount, certification, region, program and unknown legacy filters.
-    const url=new URL(location.pathname,location.origin);
-    if(query && query.value)url.searchParams.set(query.name,query.value);
-    window.location.assign(url.toString());
-  }
   function labelFor(form,el){
     const labels=[...form.querySelectorAll('label')];
     return labels.find(label=>label.control===el || label.contains?.(el) ||
@@ -146,9 +119,10 @@
       if(el.tagName==='SELECT'){
         const chosen=el.options[el.selectedIndex]||[...el.options].find(o=>o.value===el.value);
         if(el.classList.contains('kgds-bool-native-select')){
-          active=kind(chosen||{value:el.value,textContent:''})==='yes';
+          const choice=kind(chosen||{value:el.value,textContent:''});
+          active=choice==='yes'||choice==='no';
           const config=configs.find(c=>c.test.test(normalize(name)));
-          shown=config?.yes||name;
+          shown=choice==='no'?(config?.no||name):(config?.yes||name);
         }else{
           const first=[...el.options].find(o=>kind(o)==='all'||o.value==='') || el.options[0];
           active=!!(chosen&&chosen.value!==first?.value);
@@ -216,22 +190,8 @@
   function installReset(main,form){
     if(form.dataset.kgdsClearReady==='1')return;
     form.dataset.kgdsClearReady='1';
-    const candidates=[...form.querySelectorAll('button,input[type="reset"]')];
-    let reset=candidates.find(button=>button.type==='reset'||
-      /(?:필터|전체|조건).*초기화|초기화|clear\s*filters|reset\s*filters|reset/i.test(text(button.textContent||button.value)));
-    if(!reset){
-      const actions=form.querySelector('.kgp-filter-actions,.kgp-filter-footer,.kgds-filter-actions')||form;
-      reset=document.createElement('button');reset.type='button';actions.append(reset);
-    }
-    reset.classList.add('kgds-filter-clear');
-    reset.textContent=en?'Clear filters':'필터 초기화';
-    if(reset.tagName==='INPUT')reset.value=en?'Clear filters':'필터 초기화';
-    reset.setAttribute('aria-label',en?'Clear filters and search using keywords only':'필터 조건만 초기화하고 검색어로만 검색');
-    // Capture prevents a legacy native reset from dropping the keyword.
-    reset.addEventListener('click',event=>{
-      event.preventDefault();event.stopImmediatePropagation();
-      clearForKeyword(main,form);
-    },true);
+    // Reuse the server-rendered Reset all anchor, do not inject a second action.
+    // Do not navigate or preserve the keyword from this adapter.
     form.addEventListener('change',()=>updateSummary(form));
     form.addEventListener('input',()=>updateSummary(form));
     form.addEventListener('reset',()=>setTimeout(()=>updateSummary(form),0));

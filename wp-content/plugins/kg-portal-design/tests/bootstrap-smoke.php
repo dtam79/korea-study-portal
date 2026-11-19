@@ -19,7 +19,7 @@ function wp_json_encode($x){return json_encode($x);}
 function wp_add_inline_script(...$args){}
 require dirname(__DIR__).'/kg-portal-design.php';
 function check($condition,$text){if(!$condition)throw new RuntimeException('FAIL: '.$text);echo "PASS: $text\n";}
-check(KGDS_VERSION==='2.1.4','Version');
+check(KGDS_VERSION==='2.1.5','Version');
 check(($actions['wp_enqueue_scripts'][0]['priority']??0)===999,'Public styles load after original template styles');
 check(($actions['admin_enqueue_scripts'][0]['priority']??0)===999,'Admin styles load after original styles');
 $_SERVER['REQUEST_URI']='/ko/guides/';$GLOBALS['is_admin']=false;
