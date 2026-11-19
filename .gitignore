@@ -13,6 +13,7 @@
 !/wp-content/plugins/kg-portal-content/
 !/wp-content/plugins/kg-portal-design/
 !/wp-content/plugins/kg-portal-ops/
+!/wp-content/plugins/kg-portal-translate/
 
 /wp-content/themes/*
 !/wp-content/themes/kg-portal-child/
