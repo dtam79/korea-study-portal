@@ -2,13 +2,13 @@
 /**
  * Plugin Name: KG Portal Operations
  * Description: Read-only source change monitoring, reviewer queue, safe sitemap and cache guard.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires PHP: 8.3
  * Requires Plugins: kg-portal-core
  * Text Domain: kg-portal-ops
  */
 defined('ABSPATH') || exit;
-define('KGPO_VERSION','1.0.0');
+define('KGPO_VERSION','1.0.1');
 define('KGPO_DIR',plugin_dir_path(__FILE__));
 require_once KGPO_DIR.'inc/class-schema.php';
 require_once KGPO_DIR.'inc/class-policy.php';

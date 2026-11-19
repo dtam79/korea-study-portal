@@ -5,7 +5,10 @@ final class KGP_Operator_Inquiry_Export {
     /** Stop spreadsheet formula injection even when CSV values begin with whitespace. */
     public static function cell($value): string {
         $text=(string)($value??'');
-        if (preg_match('/^[\x00-\x20]*[=+\-@\t\r]/u',$text)) return "'".$text;
+        // Treat leading Unicode separators, BOM and zero-width format marks as
+        // ignorable: spreadsheet apps may discard them before parsing formulas.
+        // Keep original text unchanged after the apostrophe escape.
+        if (preg_match('/^[\x00-\x20\p{Z}\x{FEFF}\x{200B}-\x{200F}\x{2060}]*[=+\-@]/u', $text)) return "'".$text;
         return $text;
     }
     public static function export(): void {

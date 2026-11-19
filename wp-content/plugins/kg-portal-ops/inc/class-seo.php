@@ -45,8 +45,7 @@ final class KGPO_SEO {
                 if (!$entity || empty($entity['public_id']))continue;
                 $idValue=(string)$entity['public_id'];
                 // Public catalog gates the complete relevant identity, not a mere DB record.
-                $public=KGP_Public_Catalog::university($idValue,'ko');
-                if (!$public || empty($public['offerings']))continue;
+                if (!KGP_Public_Catalog::university_has_published_offering((int)$id)) continue;
                 $rows[]=['id'=>$idValue,'name_ko'=>(string)($entity['official_name_ko']??''),
                     'name_en'=>(string)($entity['official_name_en']??'')];
             }catch(Throwable $e){continue;}

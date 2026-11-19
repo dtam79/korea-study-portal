@@ -122,6 +122,7 @@ status_header($is_done&&$receipt===''?404:200);
       </select>
       <p class="kgpa-help"><?php echo $lang==='en'?'To choose a program, select a university and load its published offerings.':'전공을 선택하려면 대학을 선택한 뒤 아래 버튼을 눌러 주세요.'; ?></p>
       <button type="button" id="kgpa-load-university" data-endpoint="<?php echo esc_url(rest_url('kgpa/v1/offerings')); ?>" class="kgpa-secondary"><?php echo $lang==='en'?'Load programs':'전공 목록 불러오기'; ?></button>
+      <p id="kgpa-offerings-status" class="kgpa-help" role="status" aria-live="polite" hidden></p>
       <label for="kgpa-preferred-intake"><?php echo esc_html($t('intake')); ?></label>
       <input type="text" maxlength="100" name="preferred_intake" id="kgpa-preferred-intake" placeholder="2027 Fall">
       <label for="kgpa-message"><?php echo esc_html($t('message')); ?> <span aria-hidden="true">*</span></label>

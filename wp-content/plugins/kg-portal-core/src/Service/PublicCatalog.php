@@ -32,6 +32,20 @@ final class KGP_Public_Catalog {
         return $id ? (int)$id : null;
     }
 
+    /**
+     * Sitemap existence probe: retain the same complete approved-offering gate
+     * without serializing every offering card for each university.
+     * No cross-request cache: invalidated sources must take effect immediately.
+     */
+    public static function university_has_published_offering(int $university_id): bool {
+        if ($university_id < 1) return false; // build() checks the approved university identity.
+        foreach (self::all_offering_ids($university_id) as $offering_id) {
+            $card = self::build($offering_id, 'ko', false);
+            if ($card !== null && (int)$card['university_internal_id'] === $university_id) return true;
+        }
+        return false;
+    }
+
     public static function university(string $public_id, string $locale = 'ko'): ?array {
         $locale = self::locale($locale);
         $id = self::eid('universities',$public_id);
@@ -233,7 +247,10 @@ final class KGP_Public_Catalog {
             foreach (KGP_Field_Catalog::sections() as $section=>$meta) {
                 $available=[];
                 foreach ($scopes as $type=>$id) {
-                    $values=self::scope_fields($type,$id,$section,$locale);
+                    // The card already read these nine published sections above.
+                    // Reuse their current approved values within this one request;
+                    // never cache them between separate requests or mutations.
+                    $values=$fields[$type][$section]??self::scope_fields($type,$id,$section,$locale);
                     if ($values) $available[]=['scope'=>$type,'fields'=>$values];
                 }
                 if ($available) $sections[]=['id'=>$section,'title'=>$locale==='en'?(self::SECTION_EN[$section]??$meta['title']):$meta['title'],'groups'=>$available];

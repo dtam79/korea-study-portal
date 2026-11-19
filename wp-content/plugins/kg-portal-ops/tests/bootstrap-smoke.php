@@ -8,7 +8,7 @@ function register_deactivation_hook($file,$callback){}
 function add_action($name,$fn,$priority=10){global $actions;$actions[$name][]=$fn;}
 function add_filter($name,$fn,$priority=10,$args=1){global $filters;$filters[$name][]=$fn;}
 require dirname(__DIR__).'/kg-portal-ops.php';
-if (KGPO_VERSION!=='1.0.0')throw new RuntimeException('Wrong version.');
+if (KGPO_VERSION!=='1.0.1')throw new RuntimeException('Wrong version.');
 foreach (['KGPO_Schema','KGPO_Policy','KGPO_Monitor','KGPO_Admin','KGPO_REST','KGPO_SEO','KGPO_CLI'] as $class) {
     if (!class_exists($class))throw new RuntimeException('Missing class '.$class);
 }
