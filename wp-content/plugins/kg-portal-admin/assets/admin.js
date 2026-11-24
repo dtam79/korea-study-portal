@@ -9,7 +9,7 @@
     sourcePage:1, sourceKind:'sources', reviewKind:'field', reviewPage:1,
     entity:null, identity:null, records:[], fieldTarget:null, fieldList:[],
     fieldCatalog:null, draft:null, draftSources:[], currentSourceList:[], sources:[],
-    loading:false, busy:false};
+    loading:false, busy:false, selectedUniversities:new Set(),bulkResults:null};
   const params = new URLSearchParams(location.search);
   if (['university','campus','program','intake','offering'].includes(params.get('type'))) state.type=params.get('type');
   if (params.has('id') && /^\d+$/.test(params.get('id'))) state.fieldTarget={type:state.type,id:Number(params.get('id'))};
@@ -125,15 +125,43 @@
     }
     return out;
   }
+  /** Each mutation goes through the existing permission-checked, audited Core assignment route. */
+  async function assignSelectedUniversities(ids,userId,send=core){
+    const results=[];
+    for(const id of ids){
+      try{const saved=await send('admin/assignments','POST',{user_id:userId,university_id:id});results.push({id,ok:true,assignment_id:saved?.id||null});}
+      catch(error){results.push({id,ok:false,error:String(error?.message||error)});}
+    }
+    return results;
+  }
+  function entityBulkResults(){
+    if(!state.bulkResults)return '';
+    const rows=state.bulkResults;
+    const okay=rows.filter(x=>x.ok).length;
+    return `<div class="kgpa-bulk-result" role="status"><strong>담당자 배정 결과: 성공 ${okay}건 / 실패 ${rows.length-okay}건</strong>
+      <ul>${rows.map(x=>`<li>대학 #${h(x.id)}: ${x.ok?'배정 요청 처리 완료':`실패 · ${h(x.error)}`}</li>`).join('')}</ul>
+      <p class="description">이미 배정된 담당자는 Core에서 중복 생성하지 않습니다. 다른 배정을 삭제하거나 게시 상태를 변경하지 않습니다.</p></div>`;
+  }
+  function bulkActionPanel(){
+    if(state.type!=='university'||!cap('assign'))return '';
+    return `<section class="kgpa-bulk-panel" aria-label="현재 페이지 대학 담당자 일괄 배정">
+      <form id="kgpa-bulk-assign-form" class="kgpa-inline-form">
+        <label>배정할 사용자 ID<input type="number" name="user_id" min="1" step="1" required></label>
+        <span id="kgpa-bulk-count" aria-live="polite">현재 페이지에서 ${state.selectedUniversities.size}개 대학 선택됨</span>
+        <button type="submit" class="button button-primary">선택 대학에 담당자 배정</button>
+      </form><p class="description">현재 표시된 대학만 선택할 수 있습니다. 배정은 추가만 가능하며, 각 대학의 권한 검사·기록은 기존 Core API가 수행합니다. 실패한 대학은 별도로 표시됩니다.</p>
+      ${entityBulkResults()}</section>`;
+  }
   async function entities(){
     frame('대학·모집 데이터',note('대학 데이터를 읽는 중입니다…'));
     const result=await op(`entities?type=${encodeURIComponent(state.type)}&q=${encodeURIComponent(state.q)}&page=${state.pageNumber}&per_page=20`);
     state.records=result.items||[];
+    const canBulk=state.type==='university'&&cap('assign');
     const select=`<label>관리 대상<select id="kgpa-entity-type">${types.map(t=>`<option value="${h(t)}" ${state.type===t?'selected':''}>${h(title[t])}</option>`).join('')}</select></label>`;
-    let table=`<div class="kgpa-table-wrap"><table class="widefat striped kgpa-table"><thead><tr><th scope="col">ID</th><th scope="col">공식 식별 ID</th><th scope="col">데이터</th><th scope="col">작업</th></tr></thead><tbody>`;
-    table+=state.records.length?state.records.map(r=>`<tr><td>${h(r.id)}</td><td><code>${h(r.public_id)}</code></td><td>${h(summaryLabel(r,state.type))}</td><td class="kgpa-actions">${button('열기','entity-open',attr('id',r.id))}${cap('edit')||cap('review')?`<a class="button" href="${h(adminLink('kgp-operator-fields',{type:state.type,id:r.id}))}">필드</a>`:''}</td></tr>`).join(''):`<tr><td colspan="4">이 조건에 해당하는 데이터가 없습니다.</td></tr>`;
+    let table=`<div class="kgpa-table-wrap"><table class="widefat kgpa-table"><thead><tr>${canBulk?'<th scope="col"><label class="kgpa-bulk-select"><input id="kgpa-bulk-all" type="checkbox" aria-label="현재 페이지의 모든 대학 선택">선택</label></th>':''}<th scope="col">ID</th><th scope="col">공식 식별 ID</th><th scope="col">데이터</th><th scope="col">작업</th></tr></thead><tbody>`;
+    table+=state.records.length?state.records.map(r=>`<tr>${canBulk?`<td><input type="checkbox" class="kgpa-bulk-row" aria-label="대학 ${h(summaryLabel(r,state.type))} 선택" value="${h(r.id)}" ${state.selectedUniversities.has(Number(r.id))?'checked':''}></td>`:''}<td>${h(r.id)}</td><td><code>${h(r.public_id)}</code></td><td>${h(summaryLabel(r,state.type))}</td><td class="kgpa-actions">${button('열기','entity-open',attr('id',r.id))}${cap('edit')||cap('review')?`<a class="button" href="${h(adminLink('kgp-operator-fields',{type:state.type,id:r.id}))}">필드</a>`:''}</td></tr>`).join(''):`<tr><td colspan="${canBulk?5:4}">이 조건에 해당하는 데이터가 없습니다.</td></tr>`;
     table+='</tbody></table></div>';
-    frame('대학·모집 데이터',`<section class="kgpa-panel"><div class="kgpa-toolbar">${select}<form id="kgpa-entity-search" class="kgpa-inline-form"><label>현재 종류 검색<input name="q" value="${h(state.q)}" placeholder="ID 또는 공식 명칭"></label><button class="button" type="submit">검색</button></form>${canCreateEntity(state.type)?button('새 데이터 등록','entity-create','', 'primary'):''}</div>${table}${pager(result.total,result.page,result.per_page,'entity-page')}</section><div id="kgpa-entity-editor"></div>`);
+    frame('대학·모집 데이터',`<section class="kgpa-panel"><div class="kgpa-toolbar">${select}<form id="kgpa-entity-search" class="kgpa-inline-form"><label>현재 종류 검색<input name="q" value="${h(state.q)}" placeholder="ID 또는 공식 명칭"></label><button class="button" type="submit">검색</button></form>${canCreateEntity(state.type)?button('새 데이터 등록','entity-create','', 'primary'):''}</div>${table}${pager(result.total,result.page,result.per_page,'entity-page')}${bulkActionPanel()}</section><div id="kgpa-entity-editor"></div>`);
     if(state.entity&&state.entity.type===state.type)await openEntity(state.entity.id,false);
   }
   async function openEntity(id,scroll=true){
@@ -419,7 +447,23 @@
 
   root.addEventListener('change',event=>{
     const t=event.target;
-    if(t.id==='kgpa-entity-type'){state.type=t.value;state.entity=null;state.q='';state.pageNumber=1;withBusy(entities);}
+    if(t.id==='kgpa-entity-type'){state.type=t.value;state.entity=null;state.q='';state.pageNumber=1;state.selectedUniversities.clear();state.bulkResults=null;withBusy(entities);}
+    if(t.id==='kgpa-bulk-all'){
+      for(const cb of root.querySelectorAll('.kgpa-bulk-row')){
+        cb.checked=t.checked;
+        const id=Number(cb.value);
+        if(t.checked)state.selectedUniversities.add(id);else state.selectedUniversities.delete(id);
+      }
+    }
+    if(t.matches?.('.kgpa-bulk-row')){
+      const id=Number(t.value);
+      if(t.checked)state.selectedUniversities.add(id);else state.selectedUniversities.delete(id);
+      const all=[...root.querySelectorAll('.kgpa-bulk-row')];
+      const master=document.getElementById('kgpa-bulk-all');if(master)master.checked=all.length>0&&all.every(cb=>cb.checked);
+    }
+    if(t.id==='kgpa-bulk-all'||t.matches?.('.kgpa-bulk-row')){
+      const count=document.getElementById('kgpa-bulk-count');if(count)count.textContent=`현재 페이지에서 ${state.selectedUniversities.size}개 대학 선택됨`;
+    }
     if(t.id==='kgpa-section'){fillFieldSelector();changeTypePreview();}
     if(t.id==='kgpa-field-key')changeTypePreview();
     if(t.id==='kgpa-field-datum-status'){
@@ -464,7 +508,7 @@
       if(a==='entity-create'){const el=document.getElementById('kgpa-entity-editor');if(el){el.innerHTML=entityCreateForm();el.scrollIntoView({block:'nearest'});}return;}
       if(a==='entity-cancel'){const el=document.getElementById('kgpa-entity-editor');if(el)el.innerHTML='';return;}
       if(a==='entity-open'){await openEntity(integer(btn.dataset.id,'대상 ID'));return;}
-      if(a==='entity-page'){state.pageNumber=integer(btn.dataset.page,'페이지');state.entity=null;await entities();return;}
+      if(a==='entity-page'){state.pageNumber=integer(btn.dataset.page,'페이지');state.entity=null;state.selectedUniversities.clear();state.bulkResults=null;await entities();return;}
       if(a==='source-kind'){state.sourceKind=btn.dataset.kind;state.sourcePage=1;await sourcePage();return;}
       if(a==='source-page'){state.sourcePage=integer(btn.dataset.page,'페이지');await sourcePage();return;}
       if(a==='source-detail'){await showSource(integer(btn.dataset.id,'출처 ID'));return;}
@@ -571,7 +615,23 @@
         const data={user_id:integer(text(form,'user_id'),'사용자 ID'),university_id:integer(text(form,'university_id'),'대학 ID')};
         await core('admin/assignments','POST',data);success('정보 담당자가 배정되었습니다.');return;
       }
-      if(id==='kgpa-entity-search'){state.q=text(form,'q');state.pageNumber=1;state.entity=null;await entities();return;}
+      if(id==='kgpa-entity-search'){state.q=text(form,'q');state.pageNumber=1;state.entity=null;state.selectedUniversities.clear();state.bulkResults=null;await entities();return;}
+      if(id==='kgpa-bulk-assign-form'){
+        if(state.type!=='university'||!cap('assign'))throw new Error('대학 담당자 일괄 배정 권한이 없습니다.');
+        const userId=integer(text(form,'user_id'),'배정할 사용자 ID');
+        const visible=new Map(state.records.map(r=>[Number(r.id),r]));
+        const ids=[...state.selectedUniversities].filter(id=>visible.has(id)).sort((a,b)=>a-b);
+        if(!ids.length)throw new Error('현재 페이지에서 대학을 하나 이상 선택해 주세요.');
+        const targets=ids.map(id=>`${visible.get(id).public_id||'#'+id} (#${id})`).join(', ');
+        if(!window.confirm(`선택 대학 ${ids.length}곳 (${targets})에 사용자 #${userId}를 담당자로 추가 배정할까요? 기존 배정과 게시 상태는 유지됩니다.`))return;
+        const results=await assignSelectedUniversities(ids,userId);
+        state.bulkResults=results;
+        state.selectedUniversities=new Set(results.filter(x=>!x.ok).map(x=>x.id));
+        await entities();
+        const count=results.filter(x=>x.ok).length;
+        success(`대학 담당자 배정: ${count}건 성공 / ${results.length-count}건 실패. 아래 행별 결과를 확인하세요.`);
+        return;
+      }
       if(id==='kgpa-entity-create-form'){
         const result=await core(`admin/entities/${state.type}`,'POST',parseForm(form,state.type,'create'));
         state.entity={type:state.type,id:Number(result.id)};

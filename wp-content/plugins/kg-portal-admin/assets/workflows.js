@@ -35,20 +35,82 @@
   async function core(path){const response=await fetch(conf.apiRoot+path,{credentials:'same-origin',headers:{'X-WP-Nonce':conf.nonce}});const data=await response.json();if(!response.ok)throw Error(data.message||'Core API 오류');return data;}
   async function busy(fn){if(state.busy)return;state.busy=true;root.setAttribute('aria-busy','true');try{await fn();}catch(e){message(e.message||e,true);}finally{state.busy=false;root.removeAttribute('aria-busy');}}
   function linkToField(n){return `<a href="${esc(conf.adminBase+'kgp-operator-fields')}&type=${esc(n.entry?.entity_type||'university')}&id=${esc(n.entry?.entity_id||0)}">원본 필드 관리</a>`;}
+  // Reflect the existing KGP_Operator_Translations::check_shape() whitelist, not a new permission rule.
+  const translatedTextKeys=new Set(['name','title','description','benefit','details','guidance','notes','address','department',
+    'condition','method','applicability','label','organization','target_population','instructions','explanation',
+    'requirements','document_name','translation','content']);
+  const object=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+  const own=(x,k)=>x!==null&&typeof x==='object'&&Object.prototype.hasOwnProperty.call(x,k);
+  function translationRows(source,current,type){
+    const out=[];
+    const crawl=(original,value,path,parent,depth)=>{
+      if(depth>8)throw Error('원문 번역 구조가 너무 깊습니다.');
+      if(Array.isArray(original)||object(original)){
+        if(Array.isArray(original)!==Array.isArray(value)||object(original)!==object(value))throw Error('현재 번역 초안의 자료형이 원문과 다릅니다.');
+        const keys=Object.keys(original);
+        if(keys.length!==Object.keys(value).length||keys.some(k=>!own(value,k)))throw Error('현재 번역 초안의 필드 구조가 원문과 다릅니다.');
+        for(const k of keys)crawl(original[k],value[k],[...path,k],Array.isArray(original)?parent:k,depth+1);
+      }else{
+        const writable=typeof original==='string' && (path.length===0&&type==='localized_text'||translatedTextKeys.has(parent));
+        out.push({path,label:path.length?path.map((k,i)=>/^\d+$/.test(k)?`[${Number(k)+1}]`:`${i?'.':''}${k}`).join(''):'본문',source:original,current:value,writable,changed:original!==value});
+      }
+    };
+    crawl(source,current,[], '',0);
+    return out;
+  }
+  function fieldText(value){return value===null?'null':typeof value==='string'?value:JSON.stringify(value);}
+  function translationComparison(source,translation,type,readonly=false){
+    let rows;
+    try{rows=translationRows(source,translation,type);}catch(error){if(!readonly)state.translationRows=null;return `<p role="alert">${esc(error.message)} JSON 원문을 확인하세요.</p>`;}
+    if(!readonly)state.translationRows=rows;
+    const trimmed=rows.slice(0,120);
+    return `<div class="kgpaw-field-compare"><table class="widefat kgpaw-compare-table"><thead><tr><th scope="col">항목</th><th scope="col">승인 원문</th><th scope="col">${readonly?'검토할 번역':'번역 입력 / 공유값'}</th></tr></thead><tbody>
+      ${trimmed.map((r,i)=>`<tr class="${r.changed?'kgpaw-diff-changed':''}"><th scope="row">${esc(r.label)} ${r.writable?'':'<small>(공통값 · 수정 불가)</small>'}</th>
+      <td>${esc(fieldText(r.source))}</td><td>${r.writable&&!readonly?`<label class="kgpaw-visually-hidden" for="kgpaw-text-${i}">${esc(r.label)} 번역</label><textarea id="kgpaw-text-${i}" data-i18n-index="${i}" rows="${String(r.current??'').length>130?'4':'2'}" spellcheck="true">${esc(fieldText(r.current))}</textarea>`:
+      `<span>${esc(fieldText(r.current))}</span>`}</td></tr>`).join('')}</tbody></table></div>${rows.length>trimmed.length?`<p role="status">${rows.length}개 값 중 120개만 표시했습니다. 고급 JSON 보기에서 전체 구조를 확인하세요.</p>`:''}`;
+  }
+  function collectTranslationDraft(mode){
+    const d=state.translation;if(!d)throw Error('번역 원문을 먼저 불러오세요.');
+    const original=d.source_value;
+    if(mode==='json'){
+      const raw=document.getElementById('kgpaw-translation');if(!raw)throw Error('JSON 편집기가 없습니다.');
+      if(typeof original==='string')return raw.value;
+      try{return JSON.parse(raw.value);}catch{throw Error('번역 JSON 형식이 올바르지 않습니다.');}
+    }
+    const rows=state.translationRows;
+    if(!Array.isArray(rows))throw Error('번역 원문과 초안 구조가 다릅니다. 고급 JSON에서 확인하고 다시 불러오세요.');
+    if(rows.length>120)throw Error('구조화 화면에서 편집할 수 있는 항목이 120개를 초과했습니다. 고급 JSON 편집기를 이용하세요.');
+    let result=JSON.parse(JSON.stringify(original));
+    for(let i=0;i<rows.length;i++){
+      const row=rows[i];if(!row.writable)continue;
+      const el=document.getElementById('kgpaw-text-'+i);
+      if(!el)throw Error('번역 입력 필드가 없습니다: '+row.label);
+      const path=row.path;
+      if(path.some(k=>['__proto__','constructor','prototype'].includes(k)))throw Error('허용되지 않는 필드명입니다.');
+      if(path.length===0){result=el.value;continue;}
+      let node=result;
+      for(const k of path.slice(0,-1))node=node[k];
+      node[path[path.length-1]]=el.value;
+    }
+    return result;
+  }
   function translationEditor(d){
-    const v=d.source_value, draft=d.draft, text=typeof v==='string', revision=Number(draft?.revision||0);
+    const v=d.source_value, draft=d.draft, isText=typeof v==='string', rev=Number(draft?.revision||0);
     state.translation=d;
     const current=draft?JSON.parse(draft.translated_json):v;
-    let html=`<section class="kgpa-panel"><h3>원문 버전 #${esc(d.source_version_id)} · 영어 번역</h3>
-      <p>원문과 번역이 연결된 버전은 고정됩니다. 금액·날짜·통화·출처 URL은 수정할 수 없습니다.</p>
-      ${!d.can_submit?'<p role="alert">현재 승인·게시된 원문 및 공식 출처가 확인되지 않았습니다. 번역 초안은 저장할 수 있지만 검토 요청은 불가능합니다.</p>':''}
-      <div class="kgpaw-columns"><div><strong>원문(승인 정보)</strong>${pre(v)}</div><div><strong>영문 번역 초안</strong><label for="kgpaw-translation">${text?'영문 내용':'영문 JSON (원문의 키·숫자·URL 유지)'}</label>
-      <textarea id="kgpaw-translation" rows="13" spellcheck="false" ${text?'':'data-json="1"'}>${esc(text?current:json(current))}</textarea></div></div>
-      <p>상태: <strong>${esc(draft?.status||'미작성')}</strong> · 수정 버전: ${revision}</p><div class="kgpa-actions">
-      ${permissions.edit?button('translation-save','번역 초안 저장','',true):''}
-      ${permissions.edit && d.can_submit && draft && ['draft','rejected'].includes(draft.status)?button('translation-submit','검토 요청'):''}
-      </div></section>`;
-    return html;
+    const pending=draft?.status==='pending';
+    let comparison=translationComparison(v,current,isText?'localized_text':d.source_value_type);
+    return `<section class="kgpa-panel"><h3>원문 버전 #${esc(d.source_version_id)} · 영어 번역</h3>
+      <p>공식 원문·버전이 고정됩니다. 번역 가능 문장만 편집하며, 금액·날짜·통화·식별자·출처 링크는 공통값으로 유지합니다.</p>
+      ${!d.can_submit?'<p role="alert">현재 승인된 원문 또는 공식 출처가 확인되지 않았습니다. 초안 저장 후 검토 요청은 불가능할 수 있습니다.</p>':''}
+      <label class="kgpaw-mode">편집 방식<select id="kgpaw-editor-mode"><option value="structured">항목별 입력</option><option value="json">고급 JSON 입력</option></select></label>
+      <div id="kgpaw-structured-editor">${comparison}</div>
+      <div id="kgpaw-json-editor" hidden><label for="kgpaw-translation">${isText?'번역 원문 텍스트':'영문 JSON (원문 키·숫자·URL 유지)'}</label>
+        <textarea id="kgpaw-translation" rows="14" spellcheck="false" ${isText?'':'data-json="1"'}>${esc(isText?current:json(current))}</textarea><p class="description">고급 입력은 서버에서 원문 구조 및 수정 금지 값을 다시 검사합니다. 번역이 승인 없이 자동 게시되지는 않습니다.</p></div>
+      <p>상태: <strong>${esc(draft?.status||'미작성')}</strong> · 수정 버전: ${rev}</p>
+      <div class="kgpa-actions">${permissions.edit&&!pending?button('translation-save','번역 초안 저장','',true):''}
+      ${permissions.edit&&d.can_submit&&draft&&['draft','rejected'].includes(draft.status)?button('translation-submit','검토 요청'):''}</div>
+      ${pending?'<p>검토 대기 중인 번역은 수정할 수 없습니다. 검토 결과를 기다리세요.</p>':''}</section>`;
   }
   async function loadVersion(id){const d=await req('translations/version/'+id);const el=document.getElementById('kgpaw-translation-editor');if(el)el.innerHTML=translationEditor(d);}
   async function translationPage(){
@@ -73,7 +135,8 @@
       <p>${esc(x.entry.section_code)}/${esc(x.entry.field_key)} · 작성자 #${esc(x.created_by)} · 제출자 #${esc(x.submitted_by)}</p>
       <p><strong>공식 근거:</strong> ${(x.sources||[]).map(s=>{const url=safeLink(s.public_url);return url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(s.document_title)}</a> · 원문 위치 ${esc(s.original_locator||'확인 필요')} · 확인일 ${esc(s.checked_at||'미확인')}`:esc(s.document_title);}).join('; ')||'연결된 공식 문서 없음'}</p>
       ${!x.evidence_current?'<p role="alert">이 원문은 현재 공개·승인 상태이거나 출처 검증 상태가 아닙니다. 이전 번역을 승인하지 말고 반려 후 최신 원문을 재번역하세요.</p>':''}
-      <div class="kgpaw-columns"><div><strong>검토 대상 원문</strong>${pre(x.source_value)}</div><div><strong>영문 초안</strong>${pre(JSON.parse(x.translated_json))}</div></div>
+      ${translationComparison(x.source_value,JSON.parse(x.translated_json),typeof x.source_value==='string'?'localized_text':'structured',true)}
+      <details><summary>원문·번역 JSON 확인</summary><div class="kgpaw-columns"><div>${pre(x.source_value)}</div><div>${pre(JSON.parse(x.translated_json))}</div></div></details>
       <label class="kgpaw-check"><input type="checkbox" id="kgpaw-confirm-${x.id}"> 원문과 번역의 의미·조건·적용 대상이 일치함을 직접 대조했습니다.</label>
       <div class="kgpa-actions">${x.evidence_current?button('translation-approve','번역 승인',`data-id="${x.id}" data-revision="${x.revision}"`,true):''}${button('translation-reject','반려',`data-id="${x.id}" data-revision="${x.revision}"`)}</div>
       </article>`).join(''):'<p>검토 대기 중인 영어 번역이 없습니다.</p>';
@@ -110,6 +173,32 @@
       `<div class="kgpaw-batch"><span>#${esc(x.id)} · ${esc(x.original_filename)} · ${esc(x.row_count)}행 · ${esc(x.status)}</span>
       ${button('csv-open','열기',`data-id="${esc(x.id)}"`)}</div>`).join(''):'<p>아직 업로드된 CSV 배치가 없습니다.</p>';
   }
+  function diffRows(before,after){
+    const rows=[];const MISSING=Symbol('missing');
+    const flat=(a,b,path,depth)=>{
+      if(rows.length>=150)return;
+      if(depth<10&&((Array.isArray(a)&&Array.isArray(b))||(object(a)&&object(b)))){
+        const keys=[...new Set([...Object.keys(a),...Object.keys(b)])];
+        for(const k of keys){
+          const pa=own(a,k)?a[k]:MISSING, pb=own(b,k)?b[k]:MISSING;
+          const label=Array.isArray(a)?`${path}[${Number(k)+1}]`:`${path?path+'.':''}${k}`;
+          flat(pa,pb,label,depth+1);
+        }
+        return;
+      }
+      const same=a!==MISSING&&b!==MISSING&&json(a)===json(b);
+      rows.push({path:path||'값',before:a===MISSING?'(없음)':fieldText(a),after:b===MISSING?'(없음)':fieldText(b),changed:!same});
+    };
+    flat(before,after,'',0);
+    return rows;
+  }
+  function diffTable(before,after,heading='변경 항목 비교'){
+    const rows=diffRows(before,after);const changed=rows.filter(x=>x.changed).length;
+    return `<section class="kgpaw-diff"><h4>${esc(heading)} · 변경 ${changed}개 / 표시 ${rows.length}개</h4><div class="kgpa-table-wrap">
+      <table class="widefat kgpaw-diff-table"><thead><tr><th scope="col">항목</th><th scope="col">이전</th><th scope="col">이후</th><th scope="col">변경</th></tr></thead><tbody>
+        ${rows.map(x=>`<tr class="${x.changed?'kgpaw-diff-changed':''}"><th scope="row">${esc(x.path)}</th><td>${esc(x.before)}</td><td>${esc(x.after)}</td><td>${x.changed?'변경':'동일'}</td></tr>`).join('')||'<tr><td colspan="4">변경된 값이 없습니다.</td></tr>'}
+        </tbody></table></div>${rows.length===150?'<p class="description">상위 150개 항목만 표시합니다. 전체 내용은 원본 JSON을 확인하세요.</p>':''}</section>`;
+  }
   async function historyPage(){const params=new URLSearchParams(location.search);
     frame('A07 · 변경 이력·복구',`<section class="kgpa-panel"><h3>항목별 버전 비교·복원</h3>
     <form class="kgpa-inline-form" id="kgpaw-field-history-form"><label>필드 ID<input type="number" name="entry_id" min="1" required value="${esc(params.get('entry_id')||'')}"></label>
@@ -135,8 +224,8 @@
     const el=document.getElementById('kgpaw-audit-history');
     if(el)el.innerHTML=`<h4>${esc(type)} #${esc(id)} · 총 ${esc(d.total)}건 (최근 30건)</h4>
       ${(d.items||[]).map(x=>`<details class="kgpaw-audit"><summary>#${esc(x.id)} · ${esc(x.recorded_at)} · ${esc(x.event_type)} · 담당자 #${esc(x.actor_id)}</summary>
-        <div class="kgpaw-columns"><div><strong>변경 전</strong>${pre(x.before_json)}</div><div><strong>변경 후</strong>${pre(x.after_json)}</div></div>
-        ${pre(x.details_json)}
+        ${diffTable(x.before_json,x.after_json,'감사 기록 변경 내역')}
+        <details><summary>원본 JSON·추가 메타데이터</summary><div class="kgpaw-columns"><div><strong>변경 전</strong>${pre(x.before_json)}</div><div><strong>변경 후</strong>${pre(x.after_json)}</div></div>${pre(x.details_json)}</details>
         ${permissions.edit||permissions.assign?['identity.published','identity.unpublished'].includes(x.event_type)?button('history-restore-identity','과거 기본정보 복구 초안',`data-audit="${x.id}"`):'':''}
       </details>`).join('')}`;
   }
@@ -155,8 +244,8 @@
       if(action==='translation-open'){await loadVersion(num(b.dataset.id,'원문 버전'));return;}
       if(action==='translation-save'){
         const d=state.translation;if(!d)throw Error('원문 버전을 먼저 선택하세요.');
-        const input=document.getElementById('kgpaw-translation');if(!input)throw Error('번역 입력이 없습니다.');
-        let value=input.value;if(input.dataset.json==='1'){try{value=JSON.parse(value);}catch{throw Error('영문 JSON 문법이 올바르지 않습니다.');}}
+        const mode=document.getElementById('kgpaw-editor-mode')?.value||'structured';
+        const value=collectTranslationDraft(mode);
         const response=await req('translations/version/'+d.source_version_id+'/save','POST',{translation:value,expected_revision:revision(d.draft?.revision||0)});
         await loadVersion(d.source_version_id);message('번역 초안을 저장했습니다. 상태: '+response.status);return;
       }
@@ -193,9 +282,10 @@
       if(action==='history-compare'){
         const d=state.history;if(!d)throw Error('필드 이력을 먼저 열어 주세요.');
         const out=await req('history/entry/'+d.entry.id+'/compare?'+new URLSearchParams({old:val('kgpaw-old'),new:val('kgpaw-new')}));
-        document.getElementById('kgpaw-diff').innerHTML=`<div class="kgpaw-columns"><section><h4>이전 버전 #${esc(out.old.id)}</h4>${pre(out.old.value)}${pre(out.old.sources)}</section>
-        <section><h4>비교 버전 #${esc(out.new.id)}</h4>${pre(out.new.value)}${pre(out.new.sources)}</section></div><p>값 변경: ${out.value_changed?'있음':'없음'} / 출처 변경: ${out.sources_changed?'있음':'없음'}</p>
-        <p>과거 출처 유효: ${out.old_evidence_current?'예':'재검증 필요'} / 비교 출처 유효: ${out.new_evidence_current?'예':'재검증 필요'}. 복구는 항상 새 초안으로 생성되며 재승인해야 합니다.</p>`;return;
+        document.getElementById('kgpaw-diff').innerHTML=`<div class="kgpaw-diff-summary">기존 #${esc(out.old.id)} (${esc(out.old.status)}) → 비교 #${esc(out.new.id)} (${esc(out.new.status)}) · 값 변경: ${out.value_changed?'있음':'없음'} · 출처 변경: ${out.sources_changed?'있음':'없음'}</div>
+        ${diffTable(out.old.value,out.new.value,'값·반복 항목')}${diffTable(out.old.sources,out.new.sources,'출처 ID·원문 위치·적용 범위')}
+        <p>과거 출처 유효: ${out.old_evidence_current?'예':'재검증 필요'} / 비교 출처 유효: ${out.new_evidence_current?'예':'재검증 필요'}. 복구는 항상 새 초안으로 생성되며 재승인해야 합니다.</p>
+        <details><summary>원본 JSON 전체 보기</summary><div class="kgpaw-columns"><section>${pre(out.old.value)}${pre(out.old.sources)}</section><section>${pre(out.new.value)}${pre(out.new.sources)}</section></div></details>`;return;
       }
       if(action==='history-restore-field'){
         const d=state.history;if(!d)throw Error('이력을 먼저 선택해 주세요.');
@@ -223,6 +313,13 @@
     });
   });
   root.addEventListener('change',e=>{
+    if(e.target.id==='kgpaw-editor-mode'){
+      const mode=e.target.value;
+      const structured=document.getElementById('kgpaw-structured-editor');
+      const advanced=document.getElementById('kgpaw-json-editor');
+      if(structured)structured.hidden=mode==='json';
+      if(advanced)advanced.hidden=mode!=='json';
+    }
     if(e.target.id==='kgpaw-select-all')root.querySelectorAll('.kgpaw-row').forEach(x=>x.checked=e.target.checked);
   });
   ({translations:translationPage,imports:csvPage,history:historyPage})[conf.page]().catch(e=>{

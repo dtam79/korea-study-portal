@@ -104,3 +104,24 @@
 @media(max-width:1250px){.kgp-operator-wrap .kgpa-review-columns{grid-template-columns:1fr 1fr}.kgp-operator-wrap .kgpa-review-columns>section:last-child{grid-column:1/-1}}
 @media(max-width:1100px){.kgp-operator-wrap .kgpa-task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.kgp-operator-wrap .kgpa-field-editor-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.kgp-operator-wrap .kgpa-review-columns,.kgp-operator-wrap .kgpa-task-grid{grid-template-columns:1fr}.kgp-operator-wrap .kgpa-review-columns>section:last-child{grid-column:auto}.kgp-operator-wrap .kgpa-structured-helper .kgpa-form-grid{grid-template-columns:1fr}.kgp-operator-wrap .kgpaw-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* A02/A05/A07: table-driven operations, no changes to the Core write contracts. */
+.kgp-operator-wrap .kgpa-bulk-select{display:inline-flex;flex-direction:row;align-items:center;gap:6px;min-width:0;font-weight:600}
+.kgp-operator-wrap .kgpa-bulk-panel{border-top:1px solid #d6dde6;margin-top:18px;padding:16px 0 2px}
+.kgp-operator-wrap .kgpa-bulk-panel .kgpa-inline-form{align-items:end;gap:14px}
+.kgp-operator-wrap .kgpa-bulk-panel #kgpa-bulk-count{font-size:13px;color:#475569;padding:9px 0}
+.kgp-operator-wrap .kgpa-bulk-result{margin:16px 0 6px;border:1px solid #d6dde6;background:#fafcff;border-radius:6px;padding:12px}
+.kgp-operator-wrap .kgpa-bulk-result ul{margin:8px 0 8px 20px;list-style:disc;max-height:180px;overflow-y:auto}
+.kgp-operator-wrap .kgpaw-mode{max-width:260px;margin:14px 0}
+.kgp-operator-wrap .kgpaw-field-compare,.kgp-operator-wrap .kgpaw-diff{overflow-x:auto;max-width:100%;margin:15px 0}
+.kgp-operator-wrap .kgpaw-compare-table,.kgp-operator-wrap .kgpaw-diff-table{table-layout:fixed;width:100%;border-collapse:collapse;min-width:650px}
+.kgp-operator-wrap .kgpaw-compare-table th,.kgp-operator-wrap .kgpaw-compare-table td,.kgp-operator-wrap .kgpaw-diff-table th,.kgp-operator-wrap .kgpaw-diff-table td{padding:11px;border-bottom:1px solid #e2e8f0;vertical-align:top;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;font-size:13px}
+.kgp-operator-wrap .kgpaw-compare-table th:first-child,.kgp-operator-wrap .kgpaw-diff-table th:first-child{width:22%}
+.kgp-operator-wrap .kgpaw-diff-table th:last-child{width:9%}
+.kgp-operator-wrap .kgpaw-compare-table textarea{min-height:70px;width:100%;max-width:100%;font:inherit;resize:vertical}
+.kgp-operator-wrap .kgpaw-compare-table small{display:block;color:#64748b;font-weight:400;margin:4px 0}
+.kgp-operator-wrap .kgpaw-diff-changed{background:#fff9eb}
+.kgp-operator-wrap .kgpaw-diff-summary{padding:10px 12px;background:#f1f5f9;border-left:3px solid #475569;font-size:13px;margin-top:10px}
+.kgp-operator-wrap .kgpaw-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.kgp-operator-wrap [hidden]{display:none!important}
+@media(max-width:900px){.kgp-operator-wrap .kgpaw-compare-table,.kgp-operator-wrap .kgpaw-diff-table{min-width:610px}}

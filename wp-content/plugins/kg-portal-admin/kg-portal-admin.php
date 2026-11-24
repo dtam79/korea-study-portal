@@ -2,14 +2,14 @@
 /**
  * Plugin Name: KG Portal Admin
  * Description: Private operator dashboard for KG Portal Core. Draft entry and evidence review.
- * Version: 0.8.4
+ * Version: 0.8.5
  * Requires PHP: 8.3
  * Requires Plugins: kg-portal-core
  * Text Domain: kg-portal-admin
  */
 defined('ABSPATH') || exit;
 
-define('KGP_ADMIN_VERSION', '0.8.4');
+define('KGP_ADMIN_VERSION', '0.8.5');
 define('KGP_ADMIN_DIR', plugin_dir_path(__FILE__));
 
 require_once KGP_ADMIN_DIR . 'inc/class-admin.php';
