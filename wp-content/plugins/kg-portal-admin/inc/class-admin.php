@@ -12,16 +12,16 @@ final class KGP_Operator_Admin {
         'inquiries' => 'kgp_manage_inquiries',
     ];
     private const SCREENS = [
-        'kgp-operator' => ['Overview', 'overview'],
-        'kgp-operator-entities' => ['University data', 'entities'],
-        'kgp-operator-sources' => ['Official sources', 'sources'],
-        'kgp-operator-fields' => ['Field drafts', 'fields'],
-        'kgp-operator-review' => ['Review & publish', 'review'],
-        'kgp-operator-translations' => ['Translations', 'translations'],
-        'kgp-operator-imports' => ['CSV imports', 'imports'],
-        'kgp-operator-history' => ['History & restore', 'history'],
-        'kgp-operator-inquiries' => ['Inquiries', 'inquiries'],
-        'kgp-operator-settings' => ['Operating settings', 'settings'],
+        'kgp-operator' => ['대시보드', 'overview'],
+        'kgp-operator-entities' => ['대학·모집 목록', 'entities'],
+        'kgp-operator-sources' => ['공식 출처', 'sources'],
+        'kgp-operator-fields' => ['항목별 데이터', 'fields'],
+        'kgp-operator-review' => ['검토·게시', 'review'],
+        'kgp-operator-translations' => ['번역 관리', 'translations'],
+        'kgp-operator-imports' => ['CSV 가져오기', 'imports'],
+        'kgp-operator-history' => ['변경 이력·복구', 'history'],
+        'kgp-operator-inquiries' => ['문의 관리', 'inquiries'],
+        'kgp-operator-settings' => ['운영 설정', 'settings'],
     ];
 
     public static function ready(): bool {

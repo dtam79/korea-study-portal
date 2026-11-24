@@ -21,7 +21,7 @@
     return true;
   }).map(([name,label])=>`<a href="${esc(conf.adminBase+name)}" ${name==='kgp-operator-'+conf.page?'aria-current="page"':''}>${esc(label)}</a>`).join('')}</nav>`;}
   const button=(action,label,extra='',primary=false)=>`<button type="button" class="button ${primary?'button-primary':''}" data-wf="${esc(action)}" ${extra}>${esc(label)}</button>`;
-  function frame(title,body){root.innerHTML=navBar()+`<div class="kgpa-notice" id="kgpaw-feedback" role="status" aria-live="polite" hidden></div><div class="kgpa-heading"><h2>${esc(title)}</h2><p>번역·가져오기·복구는 출처 및 검토 규칙을 유지합니다.</p></div><div class="kgpa-content">${body}</div>`;}
+  function frame(title,body){root.innerHTML=`<div class="kgpa-notice" id="kgpaw-feedback" role="status" aria-live="polite" hidden></div><div class="kgpa-heading"><h2>${esc(title)}</h2><p>번역·가져오기·복구는 출처 및 검토 규칙을 유지합니다.</p></div><div class="kgpa-content">${body}</div>`;}
   function message(m,bad=false){const el=document.getElementById('kgpaw-feedback');if(!el)return;el.textContent=String(m);el.hidden=false;el.className='kgpa-notice '+(bad?'kgpa-notice-error':'kgpa-notice-success');el.scrollIntoView({block:'nearest'});}
   const pre=x=>`<pre class="kgpa-json">${esc(json(x))}</pre>`;
   async function req(path,method='GET',body=null,form=false){
@@ -82,7 +82,9 @@
     const blob=new Blob(['\uFEFF'+header.join(',')+'\r\n'],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download='kgp-import-template.csv';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
   }
+  function csvSteps(stage){const labels=['파일 선택','검증','미리보기·행 선택','초안 반영'];return `<ol class="kgpaw-steps" aria-label="CSV 가져오기 단계">${labels.map((name,i)=>`<li ${i===stage?'aria-current="step"':''} class="${i<stage?'is-done':i===stage?'is-active':''}">${i+1}. ${esc(name)}</li>`).join('')}</ol>`;}
   function csvRows(data){state.csv=data;
+    const step=document.getElementById('kgpaw-csv-steps');if(step)step.innerHTML=csvSteps(2);
     const rows=data.rows||[];
     return `<section class="kgpa-panel"><h3>배치 #${esc(data.batch.id)} · ${esc(data.batch.original_filename)}</h3><p>${rows.length}행 · 상태: ${esc(data.batch.status)}</p>
     <label class="kgpaw-check"><input id="kgpaw-select-all" type="checkbox"> 정상 행 전체 선택</label>
@@ -95,7 +97,7 @@
     <p class="description">미리보기는 대학 정보를 변경하지 않습니다. 반영해도 공개 승인이나 출처 검증이 자동으로 완료되지 않습니다.</p></section>`;
   }
   async function loadBatch(id){const d=await req('csv/'+id);const el=document.getElementById('kgpaw-preview');if(el)el.innerHTML=csvRows(d);}
-  async function csvPage(){frame('A06 · CSV 가져오기',`<section class="kgpa-panel"><h3>UTF-8 CSV 미리보기</h3>
+  async function csvPage(){frame('A06 · CSV 가져오기',`<div id="kgpaw-csv-steps">${csvSteps(0)}</div><section class="kgpa-panel"><h3>UTF-8 CSV 미리보기</h3>
     <p>최대 2MiB · 500행. 대학·캠퍼스·전공·회차·묶음·출처기관·출처·필드를 동일 양식으로 처리합니다.</p>
     <div class="kgpa-actions">${button('csv-template','표준 CSV 빈 양식 받기')}</div>
     <form id="kgpaw-csv-form"><label>CSV 파일<input type="file" accept=".csv,text/csv" name="file" required></label>
@@ -111,7 +113,7 @@
   async function historyPage(){const params=new URLSearchParams(location.search);
     frame('A07 · 변경 이력·복구',`<section class="kgpa-panel"><h3>항목별 버전 비교·복원</h3>
     <form class="kgpa-inline-form" id="kgpaw-field-history-form"><label>필드 ID<input type="number" name="entry_id" min="1" required value="${esc(params.get('entry_id')||'')}"></label>
-    <button class="button button-primary" type="submit">버전 조회</button></form><div id="kgpaw-field-history"></div></section>
+    <button class="button button-primary" type="submit">버전 조회</button></form><p class="description">기존 공개본과 과거 버전의 값·출처를 비교합니다. 복구는 언제나 새 비공개 초안으로 생성되며 재검토 후 승인해야 합니다.</p><div id="kgpaw-field-history"></div></section>
     <section class="kgpa-panel"><h3>대학·전공·회차 변경 감사 기록</h3><form id="kgpaw-audit-form" class="kgpa-inline-form">
     <label>종류<select name="type">${['university','campus','program','intake','offering'].map(x=>`<option>${x}</option>`).join('')}</select></label>
     <label>내부 ID<input type="number" name="entity_id" min="1" required></label><button type="submit" class="button button-primary">감사 기록 조회</button></form>

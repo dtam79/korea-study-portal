@@ -21,7 +21,7 @@
       return true;
     }).map(([page,label])=>`<a href="${escapeHTML(link(page))}" ${page==='kgp-operator-'+conf.page?'aria-current="page"':''}>${escapeHTML(label)}</a>`).join('')+'</nav>';
   }
-  function frame(title,contents){root.innerHTML=nav()+`<section class="kgpa-inquiry-panel"><h2>${escapeHTML(title)}</h2><div id="kgpai-message" role="status" aria-live="polite" hidden></div>${contents}</section>`;}
+  function frame(title,contents){root.innerHTML=`<section class="kgpa-inquiry-panel"><h2>${escapeHTML(title)}</h2><div id="kgpai-message" role="status" aria-live="polite" hidden></div>${contents}</section>`;}
   function show(message,bad=false){const x=document.getElementById('kgpai-message');if(x){x.hidden=false;x.className='kgpa-notice '+(bad?'kgpa-notice-error':'kgpa-notice-success');x.textContent=String(message);x.scrollIntoView({block:'nearest'});}}
   async function req(path,method='GET',data=null){
     const response=await fetch(conf.operatorRoot+path,{method,cache:'no-store',credentials:'same-origin',headers:{'X-WP-Nonce':conf.nonce,'Accept':'application/json',...(data!==null?{'Content-Type':'application/json'}:{})},...(data!==null?{body:JSON.stringify(data)}:{})});

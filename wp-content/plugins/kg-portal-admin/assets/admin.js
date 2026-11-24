@@ -65,7 +65,7 @@
   async function withBusy(job){if(state.busy)return;state.busy=true;root.setAttribute('aria-busy','true');try{await job();}catch(e){report(e)}finally{state.busy=false;root.removeAttribute('aria-busy')}}
   function nav(){const n=[['kgp-operator','대시보드'],['kgp-operator-entities','대학·모집 목록'],['kgp-operator-sources','공식 출처'],['kgp-operator-fields','항목별 데이터'],['kgp-operator-review','검토·게시'],['kgp-operator-translations','번역 관리'],['kgp-operator-imports','CSV 가져오기'],['kgp-operator-history','변경 이력·복구'],['kgp-operator-inquiries','문의 관리'],['kgp-operator-settings','운영 설정']];
     return `<nav class="kgpa-nav" aria-label="운영 메뉴">${n.filter(([id])=>{if(id==='kgp-operator-inquiries')return cap('inquiries');if(id==='kgp-operator-settings')return cap('assign');if(id==='kgp-operator-review')return cap('review');if(id==='kgp-operator-translations'||id==='kgp-operator-history')return cap('edit')||cap('review');if(id==='kgp-operator-imports')return cap('edit');if(id==='kgp-operator-sources')return cap('edit')||cap('source_review')||cap('issuers');if(id==='kgp-operator-fields')return cap('edit')||cap('review');if(id==='kgp-operator-entities')return cap('edit')||cap('review')||cap('assign');return true;}).map(([id,label])=>`<a href="${h(adminLink(id))}" ${id==='kgp-operator'+(state.page==='overview'?'':'-'+state.page)?'aria-current="page"':''}>${h(label)}</a>`).join('')}</nav>`;}
-  function frame(title,body){elt(nav()+`<div id="kgpa-feedback" class="kgpa-notice" role="status" aria-live="polite" hidden></div><div class="kgpa-heading"><h2>${h(title)}</h2><p>모든 등록·게시에는 서버 권한과 공식 출처 검증이 적용됩니다.</p></div><div class="kgpa-content">${body}</div>`);}
+  function frame(title,body){elt(`<div id="kgpa-feedback" class="kgpa-notice" role="status" aria-live="polite" hidden></div><div class="kgpa-heading"><h2>${h(title)}</h2><p>모든 등록·게시에는 서버 권한과 공식 출처 검증이 적용됩니다.</p></div><div class="kgpa-content">${body}</div>`);}
   const button=(text,action,meta='',variant='secondary')=>`<button type="button" class="button kgpa-button kgpa-button-${h(variant)}" data-action="${h(action)}" ${meta}>${h(text)}</button>`;
   function pager(total,p,size,action){const count=Math.max(1,Math.ceil(total/size));if(count===1)return'';return `<nav class="kgpa-pager" aria-label="페이지 이동">${p>1?button('이전',action,attr('page',p-1)):''}<span>${p} / ${count} · ${total}건</span>${p<count?button('다음',action,attr('page',p+1)):''}</nav>`;}
   function linkToSource(source){const url=safeUrl(source?.public_url||source?.source?.public_url);return url?`<a target="_blank" rel="noopener noreferrer" href="${h(url)}">${h(source?.document_title||source?.source?.document_title||'공식 원문 열기')} ↗</a>`:h(source?.document_title||'원문 링크 없음');}
@@ -77,10 +77,20 @@
     frame('운영 대시보드',note('데이터와 권한 정보를 확인하는 중입니다…'));
     const [health,s]=await Promise.all([op('health'),cap('review')||cap('assign')?core('admin/summary').catch(e=>({error:e.message})):Promise.resolve(null)]);
     const ready=health.db_complete;
-    const cards=[['Core 버전',health.core_version],['데이터 테이블',`${health.table_count}개 · ${ready?'정상':'설치 확인 필요'}`],['대기 중 기본정보',s?.pending_identities??'검토자 전용'],['대기 중 필드',s?.pending_field_versions??'검토자 전용']];
-    const content=`<div class="kgpa-stats">${cards.map(([key,val])=>`<article><small>${h(key)}</small><strong>${h(val)}</strong></article>`).join('')}</div>`+
+    const metric=(number)=>Number.isSafeInteger(Number(number))&&Number(number)>=0?`${Number(number)}건`:'확인 필요';
+    const tasks=[];
+    const addTask=(label,count,page,description)=>tasks.push(`<a class="kgpa-task" href="${h(adminLink(page))}"><span>${h(label)}</span><strong>${h(count)}</strong><small>${h(description)}</small></a>`);
+    if(cap('review')){
+      addTask('기본정보 검토 대기',s?.error?'조회 실패':metric(s?.pending_identities),'kgp-operator-review','검토 대기 목록 열기');
+      addTask('상세 항목 검토 대기',s?.error?'조회 실패':metric(s?.pending_field_versions),'kgp-operator-review','검토 대기 목록 열기');
+    }
+    if(cap('edit')||cap('review'))addTask('번역 작업','목록 확인','kgp-operator-translations','승인 원문·번역 상태 확인');
+    if(cap('source_review')||cap('edit')||cap('issuers'))addTask('공식 출처','목록 확인','kgp-operator-sources','원문 확인·재검토');
+    if(cap('inquiries'))addTask('문의 접수','목록 확인','kgp-operator-inquiries','담당자·진행 상태 확인');
+    if(cap('edit')||cap('assign'))addTask('대학·모집 데이터','목록 확인','kgp-operator-entities','초안 등록·수정');
+    const content=`<section aria-label="업무별 현황"><h3>업무별 현황</h3><div class="kgpa-task-grid">${tasks.join('')}</div><p class="description">숫자는 서버에서 확인된 검토 대기 건수만 표시합니다. 다른 항목은 목록에서 확인하세요.</p></section>`+
       (s?.error?note(s.error,'warning'):'')+(!ready?note('데이터베이스가 완전하지 않습니다. Core의 schema status/install 명령어를 확인하세요.','error'):'')+
-      `<div class="kgpa-panels"><section><h3>운영 순서</h3><ol><li>대학·캠퍼스·전공·모집 회차·Offering을 등록</li><li>공식 출처기관·자료를 등록하고 원문을 실제로 검증</li><li>기본정보와 항목별 필드를 초안으로 제출</li><li>검토자가 원문과 값을 대조하여 승인 또는 반려</li><li>공개 화면에서 승인된 자료만 조회되는지 확인</li></ol></section><section><h3>바로가기</h3><div class="kgpa-actions"><a class="button button-primary" href="${h(adminLink('kgp-operator-entities'))}">대학 목록 관리</a>${cap('edit')||cap('review')?`<a class="button" href="${h(adminLink('kgp-operator-fields'))}">필드 작성</a>`:''}${cap('edit')||cap('source_review')||cap('issuers')?`<a class="button" href="${h(adminLink('kgp-operator-sources'))}">출처 등록</a>`:''}${cap('review')?`<a class="button" href="${h(adminLink('kgp-operator-review'))}">승인 대기열</a>`:''}</div></section></div>`+
+      `<details class="kgpa-panel kgpa-system-details"><summary>시스템 상태와 운영 안내</summary><dl class="kgpa-definition"><div><dt>Core 버전</dt><dd>${h(health.core_version)}</dd></div><div><dt>데이터 테이블</dt><dd>${h(health.table_count)}개 · ${ready?'정상':'설치 확인 필요'}</dd></div></dl><ol><li>대학·캠퍼스·전공·모집 회차·Offering 등록</li><li>출처와 원문 위치 확인</li><li>자료 상태와 승인 상태 분리하여 검토</li><li>공개 화면의 승인 자료 확인</li></ol></details>`+
       (cap('assign')?`<section class="kgpa-panel"><h3>정보 담당자 배정</h3><p>WordPress 사용자 ID와 대학 내부 ID를 입력합니다. 배정 후 담당자는 해당 대학의 초안만 수정할 수 있습니다.</p><form id="kgpa-assignment-form" class="kgpa-inline-form"><label>WordPress 사용자 ID<input name="user_id" type="number" min="1" required></label><label>대학 내부 ID<input name="university_id" type="number" min="1" required></label><button type="submit" class="button button-primary">담당자 배정</button></form></section>`:'');
     frame('운영 대시보드',content);
   }
@@ -187,15 +197,75 @@
 
   function sectionOptions(){if(!state.fieldCatalog)return'';return Object.entries(state.fieldCatalog.sections).map(([code,section])=>`<option value="${h(code)}">${h(code)} · ${h(section.title)}</option>`).join('')}
   function jsonExample(type){const base=type.replace(/^repeat:/,'');
-    if(base==='money_item')return {currency:'KRW',unit:'semester',amount:'',label:'공식 항목명'};
-    if(base==='date_with_precision')return {date:'2027-03-01',precision:'day'};
+    if(base==='money_item')return {currency:'KRW',unit:'',amount:''};
+    if(base==='date_with_precision')return {date:'',precision:'day'};
     if(base==='structured_schedule')return {start:{date:'2027-03-01',precision:'day'},end:{date:'2027-03-15',precision:'day'}};
-    if(base==='duration')return {value:8,unit:'week'};
+    if(base==='duration')return {value:null,unit:''};
     if(base==='published_statistic')return {count:null,reference_date:{date:'2027-04-01',precision:'day'}};
     const required={document:{name:'공식 서류명'},document_authentication:{method:'인증 방식'},language_requirement:{test:'TOPIK',score:'4'},waiver:{condition:'공식 면제 조건'},official_major:{name:'공식 전공명'},scholarship:{name:'장학금명',benefit:'지원 내용'},official_evaluation:{organization:'기관명',year:2027},certification:{name:'인증명',course_type:'degree',status:'certified'},restriction:{name:'제한명',course_type:'degree'},official_address:{address:'공식 주소'},official_guidance:{title:'공식 가이드명',url:'https://example.org'},official_contact:{department:'국제교류 담당 부서'},official_program:{name:'프로그램명'},official_case:{title:'공식 사례 제목'}};
     return required[base]||{};
   }
   function fieldType(){const section=document.getElementById('kgpa-section')?.value;const key=document.getElementById('kgpa-field-key')?.value;return state.fieldCatalog?.sections?.[section]?.fields?.[key]||'localized_text';}
+  function optionSet(options,selected){return options.map(([code,label])=>`<option value="${h(code)}" ${String(selected)===String(code)?'selected':''}>${h(label)}</option>`).join('');}
+  function structuredHelper(type,value){
+    const v=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+    if(type==='money_item'){
+      const units=[['','단위 선택'],['semester','학기'],['month','월'],['year','연'],['one_time','1회'],['program_total','전체 과정'],['term','기간'],['other','기타']];
+      const range=Object.prototype.hasOwnProperty.call(v,'min_amount');
+      return `<fieldset class="kgpa-structured-helper" data-kind="money_item"><legend>등록금·비용 정형 입력</legend><div class="kgpa-form-grid">
+        <label>금액 방식<select data-part="mode">${optionSet([['amount','단일 금액'],['range','공식 범위']],range?'range':'amount')}</select></label>
+        <label>공식 단위<select data-part="unit">${optionSet(units,v.unit||'')}</select></label>
+        <label>단일 금액(KRW)<input data-part="amount" type="text" inputmode="decimal" value="${h(v.amount??'')}"></label>
+        <label>범위 최소액(KRW)<input data-part="min_amount" type="text" inputmode="decimal" value="${h(v.min_amount??'')}"></label>
+        <label>범위 최대액(KRW)<input data-part="max_amount" type="text" inputmode="decimal" value="${h(v.max_amount??'')}"></label>
+        <label>공식 항목명<input data-part="label" type="text" value="${h(v.label||'')}"></label>
+      </div><button type="button" class="button" data-action="structured-apply">입력값을 JSON에 반영</button><p class="description">공식 원문의 금액과 단위를 그대로 사용하세요. 통화는 KRW만 허용됩니다. 추가 메타데이터는 고급 JSON에서 유지·편집할 수 있습니다.</p></fieldset>`;
+    }
+    if(type==='date_with_precision'){
+      return `<fieldset class="kgpa-structured-helper" data-kind="date_with_precision"><legend>날짜·시각 정형 입력</legend><div class="kgpa-form-grid">
+        <label>공식 기준 정밀도<select data-part="precision">${optionSet([['year','연'],['month','연·월'],['day','날짜'],['minute','분'],['second','초']],v.precision||'day')}</select></label>
+        <label>공식 날짜/시각<input data-part="date" type="text" value="${h(v.date||'')}" placeholder="YYYY-MM-DD 또는 YYYY-MM-DDTHH:MM"></label>
+        <label>공식 시간대 (시각 포함 시 필수)<input data-part="timezone" type="text" value="${h(v.timezone||'')}" placeholder="예: Asia/Seoul (원문 확인 시만)"></label>
+      </div><button type="button" class="button" data-action="structured-apply">입력값을 JSON에 반영</button><p class="description">연: YYYY / 월: YYYY-MM / 일: YYYY-MM-DD / 분: YYYY-MM-DDTHH:MM. 확인되지 않은 시간대는 추정하지 마세요.</p></fieldset>`;
+    }
+    if(type==='duration'){
+      return `<fieldset class="kgpa-structured-helper" data-kind="duration"><legend>기간 정형 입력</legend><div class="kgpa-form-grid">
+        <label>기간 값<input data-part="value" type="number" min="1" step="1" value="${h(v.value??'')}"></label>
+        <label>공식 기간 단위<select data-part="unit">${optionSet([['','단위 선택'],['day','일'],['week','주'],['month','월'],['year','년'],['hour','시간']],v.unit||'')}</select></label>
+      </div><button type="button" class="button" data-action="structured-apply">입력값을 JSON에 반영</button></fieldset>`;
+    }
+    return '';
+  }
+  // Display helpers transform existing JSON only. Core validates and saves the unchanged data contract.
+  function composeStructuredValue(type,existing,parts){
+    const value=existing&&typeof existing==='object'&&!Array.isArray(existing)?{...existing}:{};
+    if(type==='money_item'){
+      if(!['semester','month','year','one_time','program_total','term','other'].includes(parts.unit))throw new Error('공식 금액 단위를 선택하세요.');
+      const decimal=s=>/^(?:0|[1-9]\d{0,13})(?:\.\d{1,2})?$/.test(String(s||''));
+      if(parts.mode==='range'){
+        if(!decimal(parts.min_amount)||!decimal(parts.max_amount)||Number(parts.min_amount)>Number(parts.max_amount))throw new Error('최소·최대 금액을 공식 원문대로 입력하세요.');
+        delete value.amount;value.min_amount=parts.min_amount;value.max_amount=parts.max_amount;
+      }else if(parts.mode==='amount'){
+        if(!decimal(parts.amount))throw new Error('공식 단일 금액을 입력하세요.');
+        delete value.min_amount;delete value.max_amount;value.amount=parts.amount;
+      }else throw new Error('금액 방식을 선택하세요.');
+      value.currency='KRW';value.unit=parts.unit;
+      if(parts.label)value.label=parts.label;else delete value.label;
+      return value;
+    }
+    if(type==='date_with_precision'){
+      if(!['year','month','day','minute','second'].includes(parts.precision)||!parts.date)throw new Error('날짜와 정밀도를 입력하세요.');
+      value.date=parts.date;value.precision=parts.precision;
+      if(parts.timezone)value.timezone=parts.timezone;else delete value.timezone;
+      if(['minute','second'].includes(parts.precision)&&!value.timezone)throw new Error('원문에 명시된 시간대를 입력하세요. 추정하지 마세요.');
+      return value;
+    }
+    if(type==='duration'){
+      if(!/^[1-9]\d*$/.test(String(parts.value||''))||!['day','week','month','year','hour'].includes(parts.unit))throw new Error('기간 값과 단위를 올바르게 입력하세요.');
+      value.value=Number(parts.value);value.unit=parts.unit;return value;
+    }
+    throw new Error('정형 입력을 지원하지 않는 필드입니다.');
+  }
   function typeInput(type,previous=undefined){
     const repeater=type.startsWith('repeat:');const t=type.replace(/^repeat:/,'');let value=previous;
     if(value===undefined)value=['localized_text','url','locale_code'].includes(t)?'':t==='year'?2027:t==='nullable_boolean'?null:t.startsWith('enum:')?t.slice(5).split('|')[0]:jsonExample(type);
@@ -203,7 +273,9 @@
     if(t.startsWith('enum:'))return `<label>필드 값<select id="kgpa-field-value">${t.slice(5).split('|').map(x=>`<option value="${h(x)}" ${value===x?'selected':''}>${h(x)}</option>`).join('')}</select></label>`;
     if(t==='localized_text')return `<label>공식 자료에 근거한 설명<textarea id="kgpa-field-value" rows="6" maxlength="15000">${h(value)}</textarea></label>`;
     if(t==='url'||t==='locale_code'||t==='year')return `<label>공식 값<input id="kgpa-field-value" type="${t==='year'?'number':t==='url'?'url':'text'}" value="${h(value)}" ${t==='year'?'min="1900" max="2200"':''}></label>`;
-    return `<label>구조화 값 (JSON, 반복 항목은 한 개씩 저장)<textarea id="kgpa-field-value" data-json="1" rows="9" spellcheck="false">${h(pretty(value))}</textarea></label><p class="description">자료에 없는 값은 예제 그대로 저장하지 마세요. 위 구조를 공식 원문과 일치하도록 수정하세요.</p>`;
+    const helper=structuredHelper(t,value);
+    return `${helper}<details class="kgpa-advanced-json" ${helper?'':'open'}><summary>고급 JSON ${helper?'확인·편집':'입력'} (실제 저장값)</summary><label>구조화 값 (반복 항목은 한 개씩 저장)<textarea id="kgpa-field-value" data-json="1" rows="9" spellcheck="false">${h(pretty(value))}</textarea></label></details>
+      <p class="description">공식 원문에 없는 수치·일자·시간대를 임의로 추가하지 마세요. 정형 입력을 사용했다면 'JSON에 반영' 후 저장하세요.</p>`;
   }
   function sourceRow(index,row={}){
     return `<div class="kgpa-source-row" data-index="${h(index)}"><label>출처 ID<input type="number" min="1" class="kgpa-source-id" value="${h(row.source_id||'')}" aria-label="근거 ID"></label><label>원문 위치<input class="kgpa-source-locator" maxlength="1000" value="${h(row.original_locator||'')}" placeholder="예: p. 7"></label><label>적용 대상<input class="kgpa-source-applies" value="${h(row.applies_to||'')}" maxlength="2000"></label><label>적용 시작일<input type="date" class="kgpa-source-from" value="${h(row.valid_from||'')}"></label><label>적용 종료일<input type="date" class="kgpa-source-to" value="${h(row.valid_to||'')}"></label>${button('출처 제거','source-row-remove',attr('index',index),'danger')}</div>`;
@@ -249,9 +321,9 @@
         <label>필드<select id="kgpa-field-key" ${readonly?'disabled':''}></select></label>
         <label id="kgpa-item-key-wrap">반복 항목 키(item_key)<input id="kgpa-item-key" maxlength="64" placeholder="예: tuition-2027" ${readonly?'readonly':''} value="${h(entry?.item_key||'')}"></label>
         <label>자료 상태<select id="kgpa-field-datum-status"><option value="available">공식 값 확인됨</option><option value="unpublished">자료 미공개</option><option value="under_review">내부 확인 중</option></select></label></div>
-        <div id="kgpa-value-container"></div><h4>공식 출처 연결</h4><p>서로 다른 적용 기간·조건에 해당하는 반복값은 각기 다른 항목 키와 출처를 사용하세요.</p>
-        <div id="kgpa-source-rows">${(sourceLinks.length?sourceLinks:[{}]).map((s,i)=>sourceRow(i,s)).join('')}</div>
-        ${button('출처 추가','source-row-add')}<div class="kgpa-actions"><button type="submit" class="button button-primary">새 초안 저장</button>${button('입력 취소','field-cancel')}</div></form></section>`;
+        <div class="kgpa-field-editor-grid"><section><h4>공식 값</h4><div id="kgpa-value-container"></div></section><section><h4>공식 출처 연결</h4><p>적용 기간·조건이 다른 반복값은 각기 다른 항목 키와 출처를 사용하세요.</p>
+        <div id="kgpa-source-rows">${(sourceLinks.length?sourceLinks:[{}]).map((s,i)=>sourceRow(i,s)).join('')}</div>${button('출처 추가','source-row-add')}</section></div>
+        <div class="kgpa-actions"><button type="submit" class="button button-primary">새 초안 저장</button>${button('입력 취소','field-cancel')}</div></form></section>`;
     container.innerHTML=html;
     document.getElementById('kgpa-section').value=section;fillFieldSelector();
     if(field)document.getElementById('kgpa-field-key').value=field;
@@ -307,10 +379,11 @@
     const valid=row.source_valid;
     return `<article class="kgpa-review-card"><div class="kgpa-review-head"><h3>${h(title[row.entity_type]||row.entity_type)} · 엔터티 #${h(row.entity_id)}</h3>${valid?status('verified'):status('unverified')}</div>
       <p>검토 요청자 ID: ${h(row.draft_by)} · 제출: ${h(row.draft_at)} · 잠금: ${h(row.lock_version)}</p>
-      <details><summary>제출된 기본정보 스냅샷</summary>${objectView(row.draft_value)}</details>
-      <section class="kgpa-evidence-panel"><h4>공식 원문 #${h(row.draft_source_id||'없음')}</h4><p>${linkToSource(src)}</p>
-      <p>발행기관: ${h(src.issuer_name||'알 수 없음')} · 기관 승인: ${h(src.issuer_status||'미승인')} · 문서 상태: ${h(src.evidence_status||'미검증')}</p>
-      <p>원문 위치: ${h(row.draft_source_locator||src.document_locator||'미기재')} · 확인일: ${h(src.checked_at||'미확인')}</p></section>
+      <div class="kgpa-review-columns" role="group" aria-label="기본정보 검토 비교">
+        <section><h4>기존 공개본</h4><div id="kgpa-review-before-identity-${h(row.id)}">${button('현재 공개본 불러오기','review-identity-previous',`${attr('rowid',row.id)} ${attr('entitytype',row.entity_type)} ${attr('entityid',row.entity_id)}`)}</div></section>
+        <section><h4>제출 초안</h4>${objectView(row.draft_value)}</section>
+        <section><h4>공식 원문</h4><p>${linkToSource(src)}</p><p>발행기관: ${h(src.issuer_name||'알 수 없음')}</p><p>기관 승인: ${h(src.issuer_status||'미승인')} · 자료 상태: ${h(src.evidence_status||'미검증')}</p><p>원문 위치: ${h(row.draft_source_locator||src.document_locator||'미기재')}</p><p>확인일: ${h(src.checked_at||'미확인')}</p></section>
+      </div>
       <div class="kgpa-action-panel"><label><input type="checkbox" id="kgpa-review-check-${h(row.id)}"> 원문과 제출된 기본정보, 발행기관, 적용 대상을 직접 대조했습니다.</label>
       <div class="kgpa-actions">${button('승인·게시','review-identity-approve',`${attr('entitytype',row.entity_type)} ${attr('entityid',row.entity_id)} ${attr('lock',row.lock_version)} ${attr('rowid',row.id)}`,'primary')}${button('반려','review-identity-reject',`${attr('entitytype',row.entity_type)} ${attr('entityid',row.entity_id)} ${attr('lock',row.lock_version)} ${attr('rowid',row.id)}`)}</div>
       <label>반려 사유<textarea id="kgpa-reason-${h(row.id)}" rows="2" placeholder="원문과 맞지 않는 내용을 구체적으로 기록"></textarea></label></div></article>`;
@@ -320,8 +393,11 @@
     const verified=links.length>0&&links.every(l=>l.source?.currently_valid);
     return `<article class="kgpa-review-card"><div class="kgpa-review-head"><h3>${h(row.section_code)} / ${h(row.field_key)} <small>${h(row.item_key||'')}</small></h3>${verified?status('verified'):status('unverified')}</div>
       <p>대상: ${h(title[row.entity_type]||row.entity_type)} #${h(row.entity_id)} · 필드 #${h(row.entry_id)} · v${h(row.version_number)} · 작성자 ID ${h(row.created_by)}</p>
-      <details open><summary>공개 요청된 값</summary>${objectView(row.value)}</details>
-      <section class="kgpa-evidence-panel"><h4>연결된 공식 원문</h4>${sourceEvidence(links)}</section>
+      <div class="kgpa-review-columns" role="group" aria-label="상세 항목 검토 비교">
+        <section><h4>기존 공개본</h4><div id="kgpa-review-before-field-${h(row.entry_id)}">${button('현재 공개본 불러오기','review-field-previous',attr('id',row.entry_id))}</div></section>
+        <section><h4>제출 초안</h4>${objectView(row.value)}</section>
+        <section><h4>공식 원문·출처</h4>${sourceEvidence(links)}</section>
+      </div>
       <div class="kgpa-action-panel"><label><input type="checkbox" id="kgpa-review-check-${h(row.entry_id)}"> 항목 값·단위·출처·적용 회차를 원문과 대조했습니다.</label>
       <div class="kgpa-actions">${button('승인·게시','review-field-publish',`${attr('id',row.entry_id)}`,'primary')}${button('반려','review-field-reject',`${attr('id',row.entry_id)}`)}${button('버전 보기','review-field-history',`${attr('id',row.entry_id)}`)}</div>
       <label>반려 사유<textarea id="kgpa-reason-${h(row.entry_id)}" rows="2" placeholder="수정이 필요한 이유"></textarea></label></div></article>`;
@@ -356,6 +432,35 @@
     const btn=event.target.closest('[data-action]');if(!btn||!root.contains(btn))return;
     const a=btn.dataset.action;
     withBusy(async()=>{
+      if(a==='review-field-previous'){
+        const id=integer(btn.dataset.id,'필드 ID');
+        const panel=document.getElementById(`kgpa-review-before-field-${id}`);
+        const history=await op(`versions/${id}`);
+        const current=history.versions?.find(v=>Number(v.id)===Number(history.entry?.published_version_id));
+        if(panel)panel.innerHTML=current?objectView(parseJSON(current.value_json))+sourceEvidence(current.source_links||[]):note('현재 공개된 승인 버전이 없습니다.');
+        return;
+      }
+      if(a==='review-identity-previous'){
+        const type=btn.dataset.entitytype;
+        if(!types.includes(type))throw new Error('잘못된 기본정보 유형입니다.');
+        const id=integer(btn.dataset.entityid,'기본정보 ID');
+        const panel=document.getElementById(`kgpa-review-before-identity-${integer(btn.dataset.rowid,'검토 ID')}`);
+        const current=await core(`admin/identities/${type}/${id}`);
+        const json=current?.review?.published_json;
+        if(panel)panel.innerHTML=json?objectView(parseJSON(json)):note('현재 공개된 승인 버전이 없습니다.');
+        return;
+      }
+      if(a==='structured-apply'){
+        const helper=btn.closest('.kgpa-structured-helper');
+        const textarea=document.getElementById('kgpa-field-value');
+        if(!helper||!textarea)throw new Error('정형 입력 또는 JSON 편집기를 찾을 수 없습니다.');
+        let current;try{current=JSON.parse(textarea.value)}catch{throw new Error('기존 JSON이 올바르지 않아 정형 입력을 반영할 수 없습니다.');}
+        const parts={};helper.querySelectorAll('[data-part]').forEach(input=>{parts[input.dataset.part]=input.value.trim();});
+        const composed=composeStructuredValue(helper.dataset.kind,current,parts);
+        textarea.value=pretty(composed);
+        const details=textarea.closest('details');if(details)details.open=true;
+        success('입력값을 실제 저장 JSON에 반영했습니다. 공식 원문과 출처를 확인한 뒤 저장하세요.');return;
+      }
       if(a==='entity-create'){const el=document.getElementById('kgpa-entity-editor');if(el){el.innerHTML=entityCreateForm();el.scrollIntoView({block:'nearest'});}return;}
       if(a==='entity-cancel'){const el=document.getElementById('kgpa-entity-editor');if(el)el.innerHTML='';return;}
       if(a==='entity-open'){await openEntity(integer(btn.dataset.id,'대상 ID'));return;}
