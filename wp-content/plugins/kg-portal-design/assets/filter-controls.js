@@ -198,6 +198,46 @@
     window.addEventListener('pageshow',()=>updateSummary(form));
     updateSummary(form);
   }
+  // Keep the final initially visible checkbox row whole instead of clipping a label halfway.
+  // This adjusts only the scroll viewport height; field values and the form itself are untouched.
+  function fitCompleteRows(grid){
+    grid.style.removeProperty('max-height');
+    const limit=parseFloat(getComputedStyle(grid).maxHeight);
+    if(!Number.isFinite(limit)||grid.scrollHeight<=grid.clientHeight+3)return;
+    const top=grid.getBoundingClientRect().top;
+    const bottoms=[...grid.children]
+      .filter(el=>el.classList.contains('kgp-check'))
+      .map(el=>el.getBoundingClientRect().bottom-top+grid.scrollTop);
+    const complete=bottoms.filter(y=>y<=limit-12);
+    if(!complete.length)return;
+    const height=Math.floor(Math.max(...complete)+9);
+    if(height<limit-2)grid.style.maxHeight=height+'px';
+  }
+  // A visual affordance only: all native checkbox fields and their request values stay untouched.
+  function refreshScrollHint(grid){
+    const hint=grid.nextElementSibling;
+    if(!hint?.classList.contains('kgds-filter-scroll-note'))return;
+    const overflow=grid.scrollHeight>grid.clientHeight+3;
+    const below=overflow && grid.scrollTop+grid.clientHeight<grid.scrollHeight-3;
+    hint.hidden=!below;
+    if(overflow)grid.setAttribute('aria-describedby',hint.id);
+    else grid.removeAttribute('aria-describedby');
+  }
+  function prepareScrollHints(form){
+    let idx=0;
+    for(const grid of form.querySelectorAll('.kgp-chip-grid')){
+      if(grid.dataset.kgdsScrollReady==='1')continue;
+      grid.dataset.kgdsScrollReady='1';
+      const hint=document.createElement('p');
+      hint.className='kgds-filter-scroll-note';
+      hint.id='kgds-scroll-note-'+(++idx)+'-'+(form.id||'filter');
+      hint.textContent=en?'Scroll down for more options':'아래로 스크롤하여 더 보기';
+      hint.hidden=true;
+      grid.insertAdjacentElement('afterend',hint);
+      grid.addEventListener('scroll',()=>refreshScrollHint(grid),{passive:true});
+      requestAnimationFrame(()=>{fitCompleteRows(grid);refreshScrollHint(grid);});
+    }
+  }
   function run(){
     const main=document.querySelector('.kgp-shell main');if(!main)return;
     let index=0;
@@ -211,10 +251,14 @@
       for(const select of form.querySelectorAll('select:not(.kgds-bool-native-select)'))select.classList.add('kgds-filter-select');
       for(const n of form.querySelectorAll('input[type="number"],input[inputmode="numeric"]'))n.classList.add('kgds-filter-number');
       installReset(main,form);
+      prepareScrollHints(form);
     }
   }
   function boot(){
     run();
+    window.addEventListener('resize',()=>{
+      for(const grid of document.querySelectorAll('.kgds-filter-form .kgp-chip-grid')){fitCompleteRows(grid);refreshScrollHint(grid);}
+    });
     const main=document.querySelector('.kgp-shell main');
     if(!main||!window.MutationObserver)return;
     let pending=false;

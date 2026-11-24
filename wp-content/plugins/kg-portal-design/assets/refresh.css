@@ -506,3 +506,16 @@ body.kgp-public .kgp-site-header .kgp-language select.kgpt-select {
   body.kgp-public .kgp-site-header .kgp-brand-copy strong {font-size: 13px;}
   body.kgp-public .kgp-site-header .kgp-language .kgpt-control-label {font-size: 11px;}
 }
+
+/* UI QA 2026-11-24: scrollable checkbox groups show a complete lower edge and a clear hint. */
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-form .kgp-chip-grid{
+  max-height:176px;overflow-y:auto;overflow-x:hidden;
+  padding:4px 9px 14px 1px;scroll-padding-bottom:14px;
+  scrollbar-width:thin;scrollbar-color:#94a3b8 #f8fafc;
+  scrollbar-gutter:stable;overscroll-behavior-y:contain;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-scroll-note{
+  margin:5px 0 10px;padding:0;color:#64748b;font-size:12px;line-height:18px;
+}
+body.kgp-public.kgds-filter-route .kgp-shell .kgds-filter-scroll-note[hidden]{display:none!important}
+body.kgp-public.kgds-filter-route .kgp-shell .kgp-chip-grid:focus-within{outline:2px solid #93c5fd;outline-offset:2px}

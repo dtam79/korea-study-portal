@@ -5,8 +5,8 @@ root=Path(__file__).resolve().parents[1]
 css=(root/'assets/public.css').read_text()
 js=(root/'assets/public.js').read_text()
 php=(root/'kg-portal-design.php').read_text()
-assert "Version: 2.1.6" in php
-assert "'2.1.6'" in php
+assert "Version: 2.1.7" in php
+assert "'2.1.7'" in php
 assert 'max-width:480px!important' in css, 'public 480px max missing'
 assert 'max-width:1200px!important' not in css, 'public 1200px cap violates BG v1.2'
 assert 'max-width:100%!important;border:none;box-shadow:none' not in css, 'old mobile override still active'

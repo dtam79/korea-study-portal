@@ -24,7 +24,11 @@ body.kgp-public.kgpc-public .kgp-shell{width:100%;max-width:480px;min-height:100
 .kgpc-category-nav a[aria-current="page"]{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;font-weight:750}
 .kgpc-faq{border:1px solid #cbd5e1;border-radius:9px;margin:10px 0;overflow:hidden}
 .kgpc-faq summary{cursor:pointer;padding:16px 13px;list-style:none;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;color:#0f172a}
-.kgpc-faq summary::-webkit-details-marker{display:none}.kgpc-faq[open] summary{border-bottom:1px solid #e2e8f0;background:#f8fafc}.kgpc-faq[open] .kgpc-expand{transform:rotate(45deg)}
+.kgpc-faq summary::-webkit-details-marker{display:none}
+.kgpc-faq .kgpc-faq-question{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.kgpc-faq>summary::after{content:"";display:block;flex:0 0 8px;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:5px}
+.kgpc-faq[open] summary{border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.kgpc-faq[open]>summary::after{transform:rotate(225deg)}
 .kgpc-faq-answer{padding:15px;font-size:14px}.kgpc-faq-answer .kgpc-sources{margin-top:15px}
 body.kgp-public.kgpc-public .kgp-footer{border-top:1px solid #cbd5e1;padding:17px 20px;color:#64748b;font-size:12px}
 body.kgp-public.kgpc-public .kgp-footer p{margin:0 0 8px}body.kgp-public.kgpc-public .kgp-footer a{color:#334155}

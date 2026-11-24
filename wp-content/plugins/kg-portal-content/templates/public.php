@@ -87,7 +87,7 @@ if ($both_locales && !($article['_fallback']??false)):
     foreach($groups as $variants){$pick=$variants[$lang]??($lang==='en'?($variants['ko']??null):null);if($pick){if($pick['lang']!==$lang)$pick['_fallback']=true;$visible[]=$pick;}}
     if(!$visible): ?><p class="kgpc-empty"><?php echo esc_html($t('empty')); ?></p><?php endif; ?>
     <?php foreach($visible as $faq): ?>
-      <details class="kgpc-faq"><summary><?php echo esc_html($faq['title']); ?> <span class="kgpc-expand" aria-hidden="true">＋</span></summary>
+      <details class="kgpc-faq"><summary><span class="kgpc-faq-question"><?php echo esc_html($faq['title']); ?></span></summary>
         <?php if(!empty($faq['_fallback'])): ?><p role="status" class="kgpc-notice"><?php echo esc_html($t('translation')); ?></p><?php endif; ?>
         <div class="kgpc-faq-answer"><?php echo KGPC_Public::preview_html($faq); ?>
           <?php if(!empty($faq['audience'])): ?><p><strong><?php echo esc_html($t('audience')); ?>:</strong> <?php echo esc_html($faq['audience']); ?></p><?php endif; ?>
