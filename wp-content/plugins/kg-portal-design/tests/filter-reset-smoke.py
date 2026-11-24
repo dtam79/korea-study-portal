@@ -12,7 +12,7 @@ checks={
  'summary badges show applied count':'kgds-filter-status-count' in js and 'kgds-filter-active-chip' in js,
  'summary survives collapsed details':'summary.append(status)' in js,
  'selected labels highlighted':'kgds-filter-active-label' in css,
- 'correct plugin version':"Version: 2.1.5" in php,
+ 'correct plugin version':"Version: 2.1.6" in php,
  'public 480px cap remains':'max-width:480px!important' in (root/'assets/public.css').read_text(),
 }
 

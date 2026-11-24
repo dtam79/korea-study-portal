@@ -422,3 +422,87 @@ body.kgp-public .kgp-shell :is(input:not([type="checkbox"]):not([type="radio"]):
 body.kgp-public .kgpa-receipt-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-top:20px}
 body.kgp-public .kgpa-receipt-actions a{min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;border-radius:8px;padding:11px 14px}
 body.kgp-public .kgpa-receipt-actions .kgpa-secondary-link{border:1px solid #cbd5e1;background:#fff;color:#1d4ed8;font-weight:600}
+
+/* Visual QA 2026-11-24 / C01: the Gemini selector must not crush the wordmark.
+   Keep v1.2's 480px single column; compose brand/menu and language rows without
+   changing the WordPress routes, link targets, controls, or translator behavior. */
+body.kgp-public .kgp-site-header .kgp-header-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  column-gap: 12px;
+  row-gap: 10px;
+}
+body.kgp-public .kgp-site-header .kgp-header-actions { display: contents; }
+body.kgp-public .kgp-site-header .kgp-brand {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  align-self: center;
+}
+body.kgp-public .kgp-site-header .kgp-brand-copy {
+  min-width: 0;
+  max-width: 100%;
+}
+body.kgp-public .kgp-site-header .kgp-brand-copy strong {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+body.kgp-public .kgp-site-header .kgp-menu {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+body.kgp-public .kgp-site-header .kgp-language {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  gap: 4px 12px;
+}
+body.kgp-public .kgp-site-header .kgp-language > a {
+  flex: none;
+  white-space: nowrap;
+}
+body.kgp-public .kgp-site-header .kgp-language .kgpt-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  font-weight: 500;
+}
+body.kgp-public .kgp-site-header .kgp-language .kgpt-control-label {
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+body.kgp-public .kgp-site-header .kgp-language select.kgpt-select {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  min-height: 44px;
+  padding: 7px 9px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 8px;
+}
+@media (max-width: 390px) {
+  body.kgp-public .kgp-site-header .kgp-header-line {row-gap: 8px;}
+  body.kgp-public .kgp-site-header .kgp-brand-copy strong {font-size: 13px;}
+  body.kgp-public .kgp-site-header .kgp-language .kgpt-control-label {font-size: 11px;}
+}

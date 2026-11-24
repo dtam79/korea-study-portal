@@ -8,6 +8,9 @@ final class KGPC_Public {
         add_rewrite_rule('^(ko|en)/faq/?$','index.php?kgpc_view=faq&kgpc_lang=$matches[1]','top');
         add_rewrite_rule('^(ko|en)/(privacy|terms|about)/?$','index.php?kgpc_view=policy&kgpc_lang=$matches[1]&kgpc_slug=$matches[2]','top');
         add_rewrite_rule('^(ko|en)/policy/(privacy|terms|about)/?$','index.php?kgpc_view=policy&kgpc_lang=$matches[1]&kgpc_slug=$matches[2]','top');
+        // Design v1.2 URLs are aliases of the same reviewer-approved policy snapshots.
+        add_rewrite_rule('^(ko|en)/policies/(privacy|terms|about)/?$','index.php?kgpc_view=policy&kgpc_lang=$matches[1]&kgpc_slug=$matches[2]','top');
+        add_rewrite_rule('^(ko|en)/policies/?$','index.php?kgpc_view=policies&kgpc_lang=$matches[1]','top');
         add_rewrite_rule('^(ko|en)/policy/?$','index.php?kgpc_view=policies&kgpc_lang=$matches[1]','top');
     }
     public static function query_vars(array $vars): array {return array_merge($vars,['kgpc_view','kgpc_lang','kgpc_slug']);}
