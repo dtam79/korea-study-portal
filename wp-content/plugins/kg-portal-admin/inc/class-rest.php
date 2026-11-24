@@ -15,6 +15,7 @@ final class KGP_Operator_REST {
         $routes = [
             ['/catalog', $common, [self::class,'catalog']],
             ['/entities', $editor, [self::class,'entities']],
+            ['/operations', static fn() => KGP_Operator_Admin::ready() && current_user_can('manage_options') && current_user_can('kgp_manage_assignments'), [self::class,'operations']],
             ['/queue', $review, [self::class,'queue']],
             ['/sources/(?P<id>\d+)', $common, [self::class,'source']],
             ['/versions/(?P<id>\d+)', $editor, [self::class,'versions']],
@@ -76,6 +77,48 @@ final class KGP_Operator_REST {
     public static function catalog(WP_REST_Request $r): array {
         return ['sections'=>KGP_Field_Catalog::sections(), 'entity_types'=>self::TYPES];
     }
+    /** Read-only A09 diagnostics: never return secrets, backup contents or license keys. */
+    public static function operations(WP_REST_Request $r): array {
+        return [
+            'wordpress_version' => get_bloginfo('version'),
+            'php_version' => PHP_VERSION,
+            'core_version' => defined('KGP_CORE_VERSION') ? KGP_CORE_VERSION : null,
+            'admin_version' => KGP_ADMIN_VERSION,
+            'ops_version' => defined('KGPO_VERSION') ? KGPO_VERSION : null,
+            'home_https' => str_starts_with(home_url('/'), 'https://'),
+            'wp_cron_disabled' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+            'recheck_next_utc' => ($next = wp_next_scheduled('kgpo_scan_due')) ? gmdate('Y-m-d H:i:s', (int)$next) : null,
+            'inquiry_cleanup_next_utc' => ($next = wp_next_scheduled('kgpa_inquiry_retention_cleanup')) ? gmdate('Y-m-d H:i:s', (int)$next) : null,
+            'mail_delivery' => 'not_verified',
+            'backup_restore' => 'not_verified',
+            'plugin_licenses' => 'not_verified',
+        ];
+    }
+    /** Strictly validate optional A02 filters; other entity types retain original semantics. */
+    public static function entity_filters(array $params, string $type): array {
+        $opts = [
+            'region' => '', 'assignee' => '', 'publication' => '',
+            'intakes' => '', 'sort' => 'recent',
+        ];
+        foreach ($opts as $key => $default) {
+            $v = $params[$key] ?? $default;
+            if (!is_string($v) && !is_int($v)) throw new InvalidArgumentException('Invalid ' . $key . ' filter.');
+            $opts[$key] = trim((string)$v);
+        }
+        if ($opts['region'] !== '' && !preg_match('/^[A-Za-z0-9_-]{1,48}$/D', $opts['region'])) {
+            throw new InvalidArgumentException('Invalid region code.');
+        }
+        if ($opts['assignee'] !== '' && (!ctype_digit($opts['assignee']) || (int)$opts['assignee'] < 1 || strlen($opts['assignee']) > 12)) {
+            throw new InvalidArgumentException('Assignee must be an existing positive user ID.');
+        }
+        if (!in_array($opts['publication'], ['', 'published', 'pending', 'unpublished'], true)) throw new InvalidArgumentException('Invalid publication filter.');
+        if (!in_array($opts['intakes'], ['', 'with', 'without'], true)) throw new InvalidArgumentException('Invalid intake filter.');
+        if (!in_array($opts['sort'], ['recent', 'name', 'updated'], true)) throw new InvalidArgumentException('Invalid sort option.');
+        if ($type !== 'university' && ($opts['region'] !== '' || $opts['assignee'] !== '' || $opts['publication'] !== '' || $opts['intakes'] !== '' || $opts['sort'] !== 'recent')) {
+            throw new InvalidArgumentException('Advanced filters are available for the university list only.');
+        }
+        return $opts;
+    }
     /** Scoped private entity search. No cross-university details leaked in totals. */
     public static function entities(WP_REST_Request $r): array {
         self::schema_ready();
@@ -83,6 +126,7 @@ final class KGP_Operator_REST {
         $type=(string)($r->get_param('type') ?? 'university');
         if (!isset(self::TABLES[$type])) throw new InvalidArgumentException('Unsupported entity type.');
         [$page,$perPage,$offset]=self::page($r);
+        $filters=self::entity_filters($r->get_params(),$type);
         $query=$r->get_param('q') ?? '';
         if (!is_string($query) || (function_exists('mb_strlen') ? mb_strlen($query) : strlen($query))>120) throw new InvalidArgumentException('Search query is too long.');
         $t=KGP_DB::table(self::TABLES[$type]);
@@ -112,10 +156,50 @@ final class KGP_Operator_REST {
                 $where[]=$wpdb->prepare("EXISTS (SELECT 1 FROM $a a WHERE a.university_id = $column AND a.user_id = %d AND a.role_code = 'editor')",get_current_user_id());
             }
         }
+        // Filter inside the existing authorization scope, BEFORE totals and pagination.
+        if ($type === 'university') {
+            $campuses=KGP_DB::table('campuses');
+            $assignments=KGP_DB::table('user_assignments');
+            $publications=KGP_DB::table('entity_publications');
+            $intakes=KGP_DB::table('intakes');
+            if ($filters['region'] !== '') {
+                $where[]=$wpdb->prepare("EXISTS (SELECT 1 FROM $campuses c WHERE c.university_id=e.id AND c.region_code=%s)", $filters['region']);
+            }
+            if ($filters['assignee'] !== '') {
+                $where[]=$wpdb->prepare("EXISTS (SELECT 1 FROM $assignments a WHERE a.university_id=e.id AND a.user_id=%d AND a.role_code='editor')", (int)$filters['assignee']);
+            }
+            if ($filters['publication'] === 'published') {
+                $where[]="EXISTS (SELECT 1 FROM $publications ep WHERE ep.entity_type='university' AND ep.entity_id=e.id AND ep.published_json IS NOT NULL)";
+            } elseif ($filters['publication'] === 'unpublished') {
+                $where[]="NOT EXISTS (SELECT 1 FROM $publications ep WHERE ep.entity_type='university' AND ep.entity_id=e.id AND ep.published_json IS NOT NULL)";
+            } elseif ($filters['publication'] === 'pending') {
+                $where[]="EXISTS (SELECT 1 FROM $publications ep WHERE ep.entity_type='university' AND ep.entity_id=e.id AND ep.draft_status='pending')";
+            }
+            if ($filters['intakes'] !== '') {
+                $presence="EXISTS (SELECT 1 FROM $intakes it WHERE it.university_id=e.id)";
+                $where[]=($filters['intakes']==='without'?'NOT ':'').$presence;
+            }
+        }
         $condition=$where?' WHERE '.implode(' AND ',$where):'';
         $count=self::count("SELECT COUNT(*) FROM $t e $condition");
-        $records=self::query_all($wpdb->prepare("SELECT e.* FROM $t e $condition ORDER BY e.id DESC LIMIT %d OFFSET %d",$perPage,$offset));
-        return ['items'=>$records,'total'=>$count,'page'=>$page,'per_page'=>$perPage,'total_pages'=>(int)ceil($count/$perPage),'type'=>$type];
+        $order=match ($filters['sort']) {
+            'name'=>'e.official_name_ko ASC, e.id DESC',
+            'updated'=>'e.updated_at DESC, e.id DESC',
+            default=>'e.id DESC',
+        };
+        $extra='';
+        if ($type==='university') {
+            // Read-only summaries only for the returned authorized page; no new publication logic.
+            $campuses=KGP_DB::table('campuses');$assignments=KGP_DB::table('user_assignments');
+            $publications=KGP_DB::table('entity_publications');$intakes=KGP_DB::table('intakes');
+            $extra=", (SELECT GROUP_CONCAT(DISTINCT c.region_code ORDER BY c.region_code SEPARATOR ', ') FROM $campuses c WHERE c.university_id=e.id) AS regions_display".
+                ", (SELECT COUNT(*) FROM $assignments a WHERE a.university_id=e.id AND a.role_code='editor') AS editor_count".
+                ", (SELECT COUNT(*) FROM $intakes it WHERE it.university_id=e.id) AS intake_count".
+                ", (SELECT ep.draft_status FROM $publications ep WHERE ep.entity_type='university' AND ep.entity_id=e.id LIMIT 1) AS identity_draft_status".
+                ", (SELECT CASE WHEN ep.published_json IS NOT NULL THEN 1 ELSE 0 END FROM $publications ep WHERE ep.entity_type='university' AND ep.entity_id=e.id LIMIT 1) AS identity_published";
+        }
+        $records=self::query_all($wpdb->prepare("SELECT e.* $extra FROM $t e $condition ORDER BY $order LIMIT %d OFFSET %d",$perPage,$offset));
+        return ['items'=>$records,'total'=>$count,'page'=>$page,'per_page'=>$perPage,'total_pages'=>(int)ceil($count/$perPage),'type'=>$type,'filters'=>$filters];
     }
     private static function source_row(int $id): ?array {
         global $wpdb;

@@ -113,10 +113,25 @@ final class KGP_Operator_Inquiries {
         }
         return ['receipt_code'=>$receipt,'duplicate'=>false];
     }
+    public static function list_filters(array $params): array {
+        $language=$params['language']??'';
+        if (!is_string($language) || !in_array($language,['','ko','en'],true)) throw new InvalidArgumentException('Invalid inquiry language filter.');
+        $assignee=$params['assignee']??'';
+        if (!is_string($assignee) && !is_int($assignee)) throw new InvalidArgumentException('Invalid assigned user filter.');
+        $assignee=trim((string)$assignee);
+        if ($assignee !== '' && $assignee !== 'unassigned' && (!ctype_digit($assignee) || (int)$assignee<1 || strlen($assignee)>12)) {
+            throw new InvalidArgumentException('Invalid assigned user ID.');
+        }
+        return ['language'=>$language,'assignee'=>$assignee];
+    }
     public static function list(array $params): array {
         self::manager();
         global $wpdb;
         $t=self::table();$where=['1=1'];$bindings=[];
+        $filters=self::list_filters($params);
+        if ($filters['language'] !== '') {$where[]='inquiry_locale=%s';$bindings[]=$filters['language'];}
+        if ($filters['assignee'] === 'unassigned') $where[]='assigned_to IS NULL';
+        elseif ($filters['assignee'] !== '') {$where[]='assigned_to=%d';$bindings[]=(int)$filters['assignee'];}
         $status=(string)($params['status']??'');
         if ($status!=='' && !in_array($status,self::STATUS,true)) throw new InvalidArgumentException('Invalid inquiry status.');
         if ($status!=='') {$where[]='handling_status=%s';$bindings[]=$status;}
